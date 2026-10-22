@@ -1,0 +1,282 @@
+/* ============================================================================
+   GAS TECH — DESIGN LANGUAGE TOKENS
+   ----------------------------------------------------------------------------
+   Structure ported from the Windtails bank (_shared/tokens.css): curves,
+   radii, squircle shape system, neumorphic + physics-glass materials,
+   shadows, motion, spacing, touch, focus, layering, shell geometry.
+   Colour, tone and gradient truth comes from the GASTECH MOODBOARD
+   (Primary Red #E6392D · Deep Charcoal #0C0F12 · Steel Grey #6B6F73 ·
+   Warm Grey #E8E6E3 · Neutral White #FAFAFB; Neue Haas Grotesk + mono).
+
+   DELIBERATELY NOT PORTED FROM THE BANK:
+   - --brand-glow / any colored glow shadow ....... glow is not the Gas Tech cue;
+     the moodboard's illumination is surface-level (red-glow gradients), not
+     emitted light around components.
+   - --sq-edge-blur (brand-coloured feather) ...... replaced by --sq-edge-soft,
+     a NEUTRAL darkening feather — depth without glow.
+   - --stage-* / stage.css / ui-mesh drift blobs .. showcase chrome, not library.
+   - --necro-* palette / themes.css accents ....... another project's colours.
+   - Quicksand font mandate ....................... replaced by the moodboard's
+     grotesque + mono pairing (Neue Haas Grotesk, IBM Plex Mono).
+
+   Two themes: default/dark and [data-theme="light"]. The theme selectors are
+   scopeable — any element carrying data-theme establishes its own theme, so a
+   bank cell can show light + dark side by side while the tokens stay identical.
+   Components consume these tokens ONLY — no raw hex, no magic px.
+   =========================================================================== */
+
+:root, [data-theme="dark"] {
+  /* ---- SURFACES (moodboard: deep charcoal carbon) ---- */
+  --bg-page:#0C0F12; --bg-surface:#14181D; --bg-elevated:#1A1F25; --bg-sunken:#080A0D;
+
+  /* ---- BORDERS (steel family on carbon; hairlines carry structure) ---- */
+  --border-subtle:#22282F; --border-default:#2C333B; --border-strong:#3D4650;
+
+  /* ---- TEXT (warm ivory ink on carbon) ---- */
+  --text-default:#F4F3EF; --text-secondary:#C7CCD1; --text-muted:#8F979F; --text-disabled:#5E666E;
+
+  /* ---- BRAND: signal red (moodboard Primary Red; accent, never a fill flood) ---- */
+  --brand:#E6392D; --brand-hover:#F04C40; --brand-active:#C92C22;
+  --brand-subtle-bg:#2A1310; --brand-subtle-text:#F4907F;
+  --brand-fg:#FFFFFF;                    /* white on red; bold/large per AA */
+  --brand-range-bg:color-mix(in srgb, var(--brand) 16%, transparent); /* datepicker range band; adapts per theme */
+  /* (no --brand-glow by design) */
+
+  /* ---- SEMANTIC (status only — always paired with icon/words) ---- */
+  --success:#3FAE6E; --success-text:#7ED6A3; --success-bg:#132C1E;
+  --warning:#D39B3E; --warning-text:#E8C283; --warning-bg:#2E2413;
+  --error:#E26464;   --error-text:#F2A6A6;   --error-bg:#31191A;
+  --info:#6F97F4;    --info-text:#A9C1F8;    --info-bg:#182238;
+  --focus-ring:#E6392D;                   /* moodboard focus discipline: red */
+
+  /* ---- MOODBOARD SURFACE RECIPES (gradients = illumination, not wash) ---- */
+  --grad-red-glow: radial-gradient(circle at 12% 0%, #FF6559 0, transparent 48%), linear-gradient(130deg, #E6392D, #6E1510);
+  --grad-carbon:   radial-gradient(ellipse at 100% 0%, #2B3037, transparent 65%), linear-gradient(130deg, #181C21, #0A0C0F);
+  --grad-metal:    linear-gradient(135deg, #3B4148, #14181D 46%, #43494F);
+  --grad-hero:     radial-gradient(ellipse at 75% 45%, rgba(230,57,45,.28), transparent 35%), linear-gradient(120deg, #0C0F12 0%, #171C21 58%, #07090B 100%);
+  --grain-opacity:.045;                   /* film grain over dark scenes only */
+
+  /* ---- ELEVATION SHADOWS (layered directional drop — premium, not muddy) ---- */
+  --neu-soft: 0 1px 1px rgba(0,0,0,.45), 0 2px 4px rgba(0,0,0,.38), 0 6px 14px -4px rgba(0,0,0,.55);
+  --neu-float:0 2px 4px rgba(0,0,0,.4), 0 10px 22px -6px rgba(0,0,0,.62), 0 26px 54px -14px rgba(0,0,0,.66);
+  --neu-inset:inset 2px 2px 5px rgba(0,0,0,.55), inset -2px -2px 5px rgba(255,255,255,.04);
+  --neu-border: rgba(255,255,255,.06);
+  --btn-border: rgba(0,0,0,.5);
+  --knob-border: rgba(0,0,0,.35);
+  --knob-shadow: 0 1px 3px rgba(0,0,0,.5), 0 2px 6px -1px rgba(0,0,0,.5);
+  --shadow-1:var(--neu-soft); --shadow-2:var(--neu-float);
+
+  /* ---- SURFACE ACCENTS ---- */
+  --gloss: linear-gradient(180deg, rgba(255,255,255,.09) 0%, rgba(255,255,255,0) 42%);
+  --scrim: rgba(0,0,0,.62);
+  --sheen: rgba(255,255,255,.07);
+  --ring-soft: rgba(255,255,255,.05);
+  --card-scrim: rgba(4,6,8,.55);
+  --overlay: rgba(4,6,8,.66);             /* modal scrim */
+  --scrim-60: rgba(0,0,0,.6);
+  --scrim-70: rgba(0,0,0,.72);
+
+  /* ---- REALISTIC GLASS (physics-grounded pane, not frosted plastic) ----
+     Bright Fresnel rim, two-lobe catchlight, thickness tint, low haze blur,
+     grounding contact shadow. Light source: top-left, consistent. */
+  --glass-tint: rgba(255,255,255,.05);
+  --glass-rim: rgba(255,255,255,.28);
+  --glass-rim-lo: rgba(0,0,0,.35);
+  --glass-inner-ring: rgba(255,255,255,.06);
+  --glass-catch: rgba(255,255,255,.55);
+  --glass-catch-soft: rgba(255,255,255,.30);
+  --glass-refract-dark: rgba(0,0,0,.22);
+  --glass-contact: rgba(0,0,0,.55);
+  --glass-ink: #F4F5F6;
+  --glass-blur: 8px; --glass-blur-hover: 9px; --glass-blur-press: 10px;
+
+  /* ---- ICON GLYPH COLOUR ---- */
+  --glyph:#FFFFFF; --glyph-on-black:#0C0F12;
+
+  /* ---- TYPE — modern pairing (client direction) ----
+     Titles: Oswald (condensed grotesque display). Paragraphs: Source Sans 3.
+     Both are self-hosted in assets/fonts (see fonts.css) — fully offline.
+     Bundled Manrope stays named last as a deterministic fallback. */
+  --font-sans:"Source Sans 3","Source Sans Pro","Manrope", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-display:"Oswald","Manrope","Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  /* fixed ramp from the board: H1 64/72 · H2 40/48 · H3 28/36 · Body 16/28 · Caption 12/20 */
+  --fs-display:64px; --lh-display:72px;
+  --fs-h2:40px; --lh-h2:48px;
+  --fs-h3:28px; --lh-h3:36px;
+  --fs-base:16px; --lh-base:28px;
+  --fs-sm:14px; --fs-xs:12px; --lh-xs:20px;
+  --fw-thin:100; --fw-light:300; --fw-regular:400; --fw-medium:500; --fw-semibold:600; --fw-bold:700; --fw-black:900;
+  --tracking-tight:-.02em; --tracking-macro:-.04em;   /* legacy tight tracking */
+  --tracking-display:-.005em;                          /* Oswald is condensed: run near-neutral */
+  --tracking-wide:.02em; --tracking-caps:.16em;       /* mono microcopy runs wider */
+
+  /* ---- RADII (ported from bank) ---- */
+  --r-sm:.75rem; --r-md:1rem; --r-lg:1.25rem; --r-xl:1.5rem;
+  --r-card:28px; --r-pill:9999px; --r-circle:50%;
+
+  /* ---- SQUIRCLE — shape + 3D material (superellipse, not rounded rect) ----
+     border-radius fallback everywhere + corner-shape on Chromium 139+.
+     --sq-edge-soft REPLACES the bank's brand-feather: neutral depth only. */
+  --corner-squircle:   superellipse(2);
+  --corner-squircle-sm: superellipse(1.4);
+  --corner-squircle-lg: superellipse(2.6);
+  --sq-tone: linear-gradient(180deg, var(--bg-elevated), var(--bg-surface) 88%);
+  --sq-tone-brand: linear-gradient(180deg, var(--brand-hover), var(--brand-active));
+  --sq-hi: rgba(255,255,255,.09);
+  --sq-lo: rgba(0,0,0,.52);
+  --sq-bevel: inset 0 1px 0 var(--sq-hi), inset 0 -2px 3px -1px var(--sq-lo);
+  --sq-float: 0 2px 4px rgba(0,0,0,.38), 0 18px 40px -12px rgba(0,0,0,.75);
+  --sq-edge-soft: 0 0 26px -6px rgba(0,0,0,.45);      /* neutral feather — no glow */
+  --sq-shadow: var(--sq-bevel), var(--sq-float), var(--sq-edge-soft);
+  --sq-border: 1px solid color-mix(in srgb, var(--text-default) 9%, transparent);
+
+  /* ---- SPACING (ported) ---- */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:18px; --sp-6:24px;
+  --row-h:60px; --card-pad:36px;
+
+  /* ---- MOTION (physics-grounded; reduced-motion via --motion:0) ---- */
+  --ease-out: cubic-bezier(.16,1,.3,1);
+  --ease-glide: cubic-bezier(.22,.61,.36,1);
+  --ease-press: cubic-bezier(.4,0,.2,1);
+  --spring-glide: cubic-bezier(.34,1.56,.64,1);
+  --spring-pop:   cubic-bezier(.68,-.55,.27,1.55);
+  --spring-press: cubic-bezier(.2,1.4,.4,1);
+  --dur-micro:.1s; --dur-fast:.09s; --dur-hover:.16s; --dur-press:.12s;
+  --dur-mid:.22s; --dur-overlay:.24s; --dur-nav:.3s; --dur-sheet:.36s;
+  --dur-slow:.5s; --dur-slower:.7s;
+  --lift-hover:-2px; --lift-emphasis:-6px; --lift-press:1px;
+  --motion:1;
+
+  /* ---- FX / ENHANCEMENT (additive layer only — consumed by enhancements.css).
+     Every value references an existing token so it adapts per theme; nothing
+     here is read by site.css, so removing the enhancement files is inert. ---- */
+  --fx-stagger:90ms;                      /* per-child reveal cadence */
+  --fx-magnet:0.28;                       /* magnetic pull factor (x axis) */
+  --fx-lift-sm: var(--neu-soft);          /* idle→hover step 1 depth */
+  --fx-lift-md: var(--neu-float);         /* hover depth */
+  --fx-lift-lg: var(--neu-float);         /* raised / active depth */
+  --fx-glow-brand: 0 0 0 1px color-mix(in srgb, var(--brand) 26%, transparent),
+                   0 12px 30px -14px color-mix(in srgb, var(--brand) 55%, transparent);
+  --fx-ember-opacity:.5;                  /* multiplier for rising ember specks */
+  --fx-gas-mesh: radial-gradient(45% 40% at 20% 15%, color-mix(in srgb, var(--brand) 10%, transparent), transparent 60%),
+                 radial-gradient(40% 45% at 82% 30%, color-mix(in srgb, var(--brand) 7%, transparent), transparent 62%),
+                 radial-gradient(55% 50% at 50% 90%, color-mix(in srgb, var(--brand) 5%, transparent), transparent 66%);
+  --fx-nav-pill: linear-gradient(180deg, var(--brand), var(--brand-active));
+
+  /* ---- DEPTH + REVEAL / PARALLAX (additive layer; consumed by enhancements.css).
+     All theme-adaptive via color-mix on --text-default — no raw hex, no glow. ---- */
+  --elev-1: var(--neu-soft);              /* card idle */
+  --elev-2: var(--neu-float);             /* card raised */
+  --elev-3: 0 12px 28px -10px color-mix(in srgb, var(--text-default) 20%, transparent),
+            0 42px 84px -30px color-mix(in srgb, var(--text-default) 28%, transparent); /* hover / focus depth */
+  --ring-1: 0 0 0 1px color-mix(in srgb, var(--text-default) 9%, transparent);  /* hairline card edge */
+  --band-cool: var(--bg-sunken);          /* distinct cool section band behind cards */
+  --reveal-dur:.7s;                        /* scroll-reveal cadence (fallback transitions) */
+  --reveal-y:22px;                         /* reveal travel distance */
+  --parallax-strength:6;                   /* transform-only depth factor */
+  --stagger-step:80ms;                     /* per-child reveal cadence */
+
+  /* ---- TOUCH / TARGET ---- */
+  --target-min:44px; --target-comfort:48px; --touch-gap:8px;
+
+  /* ---- A11Y FOCUS (house standard 3px ring) ---- */
+  --focus-w:3px; --focus-offset:3px;
+
+  /* ---- OVERLAY STACKING (never hand-roll a z-index) ---- */
+  --z-popover:50; --z-dropdown:60; --z-modal:100; --z-toast:110; --z-tooltip:120;
+  --z-header:40; --z-grain:9998;          /* sticky nav sits under overlays; grain is the top veil */
+
+  /* ---- RESPONSIVE BREAKPOINT SCALE (naming; use in @container/preprocess) ---- */
+  --bp-phone-sm:320px; --bp-phone:375px; --bp-phone-lg:430px;
+  --bp-tablet:768px;   --bp-tablet-land:1024px;
+  --bp-desktop:1280px; --bp-widescreen:1536px; --bp-ultra:1920px;
+
+  /* ---- LAYOUT / MEASURE / SHELL ---- */
+  --measure-prose:68ch; --page-max:1120px; --page-max-wide:1440px;
+  --gutter:clamp(16px, 4vw, 40px);
+  --shell-sidebar-w:264px; --shell-rail-w:76px; --shell-topbar-h:60px;
+  --shell-bottomnav-h:64px;
+  --safe-area-b:env(safe-area-inset-bottom, 0px);
+  --safe-area-t:env(safe-area-inset-top, 0px);
+  --safe-area-l:env(safe-area-inset-left, 0px);
+  --safe-area-r:env(safe-area-inset-right, 0px);
+  --fab-size:64px; --fab-mini:52px;
+
+  /* ---- FLUID TYPE (phone → widescreen clamps, ceilings per board) ---- */
+  --fs-fluid-display: clamp(2.4rem, 1.4rem + 4.6vw, 4rem);   /* caps at board H1 */
+  --fs-fluid-h1:      clamp(1.75rem, 1.2rem + 2.4vw, 2.5rem);
+  --fs-fluid-h2:      clamp(1.35rem, 1.05rem + 1.5vw, 1.75rem);
+  --fs-fluid-h3:      clamp(1.15rem, 1rem + .7vw, 1.45rem);
+  --fs-fluid-body:    clamp(.95rem, .9rem + .2vw, 1.05rem);
+  --fs-fluid-sm:      clamp(.82rem, .8rem + .1vw, .9rem);
+}
+
+[data-theme="light"] {
+  /* ---- SURFACES (client direction: WHITE base, COOL near-white for depth — warm brown retired) ---- */
+  --bg-page:#FFFFFF; --bg-surface:#F4F6F8; --bg-elevated:#FFFFFF; --bg-sunken:#EAEFF4;
+
+  --border-subtle:#E4E8EC; --border-default:#D3DAE1; --border-strong:#B7C0C9;
+
+  --text-default:#14181D; --text-secondary:#3D4650; --text-muted:#6B6F73; --text-disabled:#A7ABB0;
+
+  /* ---- BRAND (deeper red on light for contrast; still accent-only) ---- */
+  --brand:#D42E22; --brand-hover:#B8271D; --brand-active:#9E211A;
+  --brand-subtle-bg:#FCE9E6; --brand-subtle-text:#B8271D;
+  --brand-fg:#FFFFFF;
+
+  --success:#16A34A; --success-text:#15803D; --success-bg:#ECF7F0;
+  --warning:#B45309; --warning-text:#92400E; --warning-bg:#FBF3E4;
+  --error:#DC2626;   --error-text:#B91C1C;   --error-bg:#FBECEC;
+  --info:#2563EB;    --info-text:#1D4ED8;    --info-bg:#EBF1FC;
+  --focus-ring:#D42E22;
+
+  /* ---- SURFACE RECIPES, light counterparts ---- */
+  --grad-red-glow: radial-gradient(circle at 12% 0%, #FF7A6F 0, transparent 48%), linear-gradient(130deg, #E6392D, #B02619);
+  --grad-carbon:   radial-gradient(ellipse at 100% 0%, #FFFFFF, transparent 65%), linear-gradient(130deg, #FAFAFB, #E8E6E3);
+  --grad-metal:    linear-gradient(135deg, #F8F8F5, #B9BDC0 48%, #F3F2EE);
+  --grad-hero:     radial-gradient(ellipse at 75% 45%, rgba(230,57,45,.14), transparent 35%), linear-gradient(120deg, #FAFAFB 0%, #EFEEEA 58%, #E8E6E3 100%);
+  --grain-opacity:.03;
+
+  /* ---- ELEVATION SHADOWS (soft ivory drop, layered) ---- */
+  --neu-soft: 0 1px 2px rgba(20,24,29,.06), 0 2px 6px -1px rgba(20,24,29,.10), 0 6px 16px -6px rgba(20,24,29,.14);
+  --neu-float:0 2px 4px rgba(20,24,29,.08), 0 12px 26px -8px rgba(20,24,29,.18), 0 28px 56px -18px rgba(20,24,29,.20);
+  --neu-inset:inset 2px 2px 5px rgba(20,24,29,.10), inset -2px -2px 5px rgba(255,255,255,.85);
+  --neu-border: rgba(255,255,255,.6);
+  --btn-border: rgba(255,255,255,.7);
+  --knob-border: rgba(20,24,29,.22);
+  --knob-shadow: 0 1px 3px rgba(20,24,29,.22), 0 2px 5px -1px rgba(20,24,29,.16);
+
+  --gloss: linear-gradient(180deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,0) 42%);
+  --scrim: rgba(20,24,29,.42);
+  --sheen: rgba(255,255,255,.4);
+  --ring-soft: rgba(20,24,29,.05);
+  --card-scrim: rgba(24,26,30,.3);
+  --overlay: rgba(20,24,29,.45);
+  --scrim-60: rgba(20,24,29,.5);
+  --scrim-70: rgba(20,24,29,.62);
+
+  /* ---- GLASS (light) ---- */
+  --glass-tint: rgba(255,255,255,.16);
+  --glass-rim: rgba(255,255,255,.78);
+  --glass-rim-lo: rgba(20,24,29,.14);
+  --glass-inner-ring: rgba(255,255,255,.5);
+  --glass-catch: rgba(255,255,255,.95);
+  --glass-catch-soft: rgba(255,255,255,.55);
+  --glass-refract-dark: rgba(20,24,29,.16);
+  --glass-contact: rgba(20,24,29,.22);
+  --glass-ink: #14181D;
+  --glass-blur: 9px; --glass-blur-hover: 10px; --glass-blur-press: 11px;
+
+  --glyph:#14181D; --glyph-on-black:#14181D;
+
+  /* ---- SQUIRCLE material, light counterparts (shape tokens are theme-free) ---- */
+  --sq-tone: linear-gradient(180deg, #FFFFFF, var(--bg-surface) 90%);
+  --sq-tone-brand: linear-gradient(180deg, var(--brand), var(--brand-active));
+  --sq-hi: rgba(255,255,255,.95);
+  --sq-lo: rgba(20,24,29,.1);
+  --sq-float: 0 1px 2px rgba(20,24,29,.05), 0 18px 34px -14px rgba(20,24,29,.22);
+  --sq-edge-soft: 0 0 26px -6px rgba(20,24,29,.14);
+  --sq-shadow: var(--sq-bevel), var(--sq-float), var(--sq-edge-soft);
+  --sq-border: 1px solid rgba(255,255,255,.75);
+}

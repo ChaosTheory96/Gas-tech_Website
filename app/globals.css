@@ -1,0 +1,15 @@
+/* ============================================================================
+   GASTECH — global stylesheet
+   Order matters: the proven design system is imported first (tokens define the
+   variables, site.css carries structure + the reset, enhancements.css carries the
+   additive motion/polish layer), then Tailwind layers in for new utility work.
+   Preflight is off (tailwind.config) so it never fights site.css's tuned reset.
+   ========================================================================== */
+@import "../styles/fonts.css";
+@import "../styles/tokens.css";
+@import "../styles/site.css";
+@import "../styles/enhancements.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

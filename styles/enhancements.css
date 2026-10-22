@@ -1,0 +1,453 @@
+/* ============================================================================
+   GASTECH — MICRO-INTERACTION / DEPTH ENHANCEMENTS   (ADDITIVE LAYER)
+   ----------------------------------------------------------------------------
+   This file NEVER edits site.css / tokens.css behaviour. All rules live in
+   @layer gt-enhance so the unlayered site.css wins every shared selector —
+   a regression against the verified hero / white-on-red / no-clip rules is
+   structurally impossible. Only the bottom /* OVERRIDES *\/ block is unlayered
+   and is limited to the two approved conflicts.
+
+   ROLLBACK: delete the <link> + <script> tag for this pair on any page and
+   that page is byte-for-byte the current site. Nothing else to undo.
+
+   EVERY primitive below maps 1:1 to a Next.js target (Framer Motion /
+   React Bits / Bencho). The "PORT" line under each block is the transplant map.
+
+   NO WebGL. NO runtime blur. transform/opacity only. will-change is transient
+   (added by enhancements.js on interaction, removed after).
+   ========================================================================== */
+
+/* Animatable registered properties (smooth interpolation, no layout). */
+@property --p { syntax:"<number>"; inherits:false; initial-value:0; }
+
+@layer gt-enhance {
+
+  /* ---- ROOT FLAG --------------------------------------------------------
+     enhancements.js sets html.js-fx. If JS is off, none of these apply and
+     all content shows in its final state. FX are strictly visual-only.      */
+
+  /* ---- PHASE 2 · BUTTON DEPTH ------------------------------------------
+     PORT: Bencho sweep-button + React Bits Glare Hover + neumorphic --neu.
+     Idle micro-sheen; hover = lift (site.css owns transform) + a PRE-BAKED
+     --fx-lift-md shadow LAYER that crossfades by opacity (box-shadow is never
+     animated). Active press stays site.css's. .btn owns no ::before/::after
+     in site.css, so these pseudos are additive-only. overflow:hidden clips
+     only the sheen (an element's own outset box-shadow is not clipped).      */
+  .gt-btn-depth{overflow:hidden;isolation:isolate}
+  .gt-btn-depth::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;
+    box-shadow:var(--fx-lift-md);opacity:0;transition:opacity calc(var(--dur-mid)*var(--motion)) var(--ease-out)}
+  .gt-btn-depth:hover::before{opacity:1}
+  .gt-btn-depth::after{content:"";position:absolute;top:0;left:0;width:60%;height:100%;z-index:1;
+    background:linear-gradient(100deg,transparent 0,rgba(255,255,255,.34) 46%,rgba(255,255,255,.05) 62%,transparent 82%);
+    transform:translateX(-180%) skewX(-12deg);opacity:0;pointer-events:none;
+    transition:transform calc(.7s*var(--motion)) var(--ease-out),opacity calc(.2s*var(--motion)) linear}
+  .gt-btn-depth:hover::after{transform:translateX(280%) skewX(-12deg);opacity:1}
+  /* dark plates: sheen reads on white buttons too */
+  .sec--dark .gt-btn-depth::after{background:linear-gradient(100deg,transparent 0,rgba(255,255,255,.55) 50%,transparent 82%)}
+
+  /* ---- PHASE 2 · CTA SWEEP (Get a Quote) --------------------------------
+     PORT: Bencho slide-confirm. A single brand-tinted light sweep travelling
+     in the pointer direction; GPU-only (transform).                          */
+  .gt-btn-sweep::after{transition-duration:calc(.55s*var(--motion))}
+
+  /* ---- PHASE 6 · GAS / CLOUD BACKGROUNDS (non-WebGL) -------------------
+     PORT: aura-gradients "flux" mesh + React Bits Noise. A baked brand-red
+     mesh gradient that DRIFTS via transform (0 runtime blur, 0 filter).
+     The host is inset:0 + overflow:hidden so the oversized drifting ::before
+     can NEVER bleed past the section (zero page overflow, hard rule).        */
+  .gt-gas-bg,.gt-hero-mesh{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none;border-radius:inherit}
+  .gt-gas-bg::before,.gt-hero-mesh::before{content:"";position:absolute;inset:-12%;opacity:.9;
+    background:var(--fx-gas-mesh);
+    animation:gt-drift calc(26s*var(--motion)) var(--ease-glide) infinite alternate}
+  /* the plate (--brand) band gets a barely-there heat haze, white copy untouched */
+  .gt-gas-bg--dark::before{background:radial-gradient(48% 44% at 22% 12%,color-mix(in srgb,var(--brand-fg) 9%,transparent),transparent 60%),radial-gradient(42% 46% at 85% 82%,color-mix(in srgb,var(--brand-fg) 6%,transparent),transparent 62%)}
+
+  /* ---- PHASE 6 · RISING EMBERS (combustion) ----------------------------
+     PORT: Bencho particles (canvas-2D idea, here pure CSS) on --plate bands.
+     Faint warm specks rising BEHIND text; never over copy legibility.        */
+  .gt-embers{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+  .gt-embers i{position:absolute;bottom:-8px;left:var(--ex,50%);width:var(--es,3px);height:var(--es,3px);
+    border-radius:50%;background:color-mix(in srgb,var(--brand-fg) 90%,var(--warning));
+    opacity:calc(var(--fx-ember-opacity)*.5);
+    animation:gt-rise calc(var(--ed,9s)*var(--motion)) linear infinite;animation-delay:var(--edl,0s)}
+
+  /* ---- PHASE 3 · GASTECH HOVER MOTIFS ----------------------------------
+     All require a fine pointer and are added by enhancements.js. transform/
+     opacity only. Reduced-motion is neutralised globally by site.css.         */
+
+  /* Flame flicker on burner glyphs. PORT: Bencho text-* micro / custom. */
+  .gt-motif-flame{transform-origin:50% 90%}
+  .gt-motif-flame.is-hot{animation:gt-flame calc(1.1s*var(--motion)) var(--ease-glide) infinite}
+
+  /* Pressure-gauge "needle fill": a rail sweeps left→right on hover.
+     PORT: React Bits Progress/Grid + Framer useScroll scaleX. scaleX origin
+     left, transform-only.                                                     */
+  .gt-motif-gauge{position:relative}
+  .gt-motif-gauge::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:2px;border-radius:var(--r-pill);
+    background:var(--fx-nav-pill);transform:scaleX(0);transform-origin:left center;
+    transition:transform calc(.5s*var(--motion)) var(--ease-out)}
+  .gt-motif-gauge:hover::after,.gt-motif-gauge:focus-visible::after{transform:scaleX(1)}
+
+  /* Gas-flow metal sheen across spec/flow rows. PORT: Bencho magnetic shimmer. */
+  .gt-motif-flow{position:relative;overflow:hidden}
+  .gt-motif-flow::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+    background:linear-gradient(115deg,transparent 30%,var(--sheen) 48%,transparent 66%);
+    transform:translateX(-120%);opacity:0;
+    transition:transform calc(.8s*var(--motion)) var(--ease-out),opacity calc(.2s*var(--motion)) linear}
+  .gt-motif-flow:hover::after{transform:translateX(120%);opacity:1}
+
+  /* Leak-safety pulse ring on Gasvigil glyphs. PORT: React Bits Border Glow. */
+  .gt-motif-leak{position:relative}
+  .gt-motif-leak::before{content:"";position:absolute;inset:-6px;border-radius:50%;
+    border:2px solid color-mix(in srgb,var(--brand-fg) 70%,transparent);opacity:0;pointer-events:none}
+  .gt-motif-leak:hover::before{animation:gt-pulse calc(1.6s*var(--motion)) var(--ease-out) infinite}
+
+  /* ---- PHASE 3 · READABILITY DEPTH -------------------------------------
+     data-gt-text-shadow: lifts white copy off the red plate / imagery with a
+     low scrim + text-shadow. It only ever ADDS legibility; it never recolours
+     and never touches the site.css white-on-red block. PORT: Framer dropShadow. */
+  [data-gt-text-shadow]{text-shadow:0 1px 0 rgba(0,0,0,.06),0 2px 10px rgba(0,0,0,.10)}
+  .sec--dark [data-gt-text-shadow],.gt-on-plate [data-gt-text-shadow]{text-shadow:0 1px 2px color-mix(in srgb,var(--brand-active) 55%,transparent)}
+
+  /* ---- PHASE 7 · SQUIRCLE MATERIAL UNIFICATION -------------------------
+     data-gt-squircle: corner-shape superellipse where supported, border-radius
+     fallback otherwise; --sq-bevel inner depth. PORT: Bencho cards / bklit.    */
+  @supports (corner-shape:superellipse(2)){
+    [data-gt-squircle]{corner-shape:var(--corner-squircle)}
+  }
+  [data-gt-squircle]{box-shadow:var(--sq-bevel),var(--sq-shadow)}
+  [data-gt-squircle]:hover{transform:translateY(var(--lift-hover))}
+
+  /* ---- PHASE 5 · (REMOVED) APP-LIKE BOTTOM DOCK ------------------------
+     Retired per client direction. The top navbar is the single source of
+     navigation on every page (desktop + mobile) with a scroll-aware
+     hide/show drawer (see the AUTHORITATIVE POLISH block at the bottom).
+     No .gt-bottom-nav / .gt-bn-* nodes are injected any more.            */
+
+  /* ---- transient GPU hint (JS adds/removes; never global) --------------- */
+  .gt-will{will-change:transform}
+
+    /* ---- PHASE 7 · VIEW TRANSITIONS — moved to the unlayered AUTHORITATIVE
+     POLISH block (calm crossfade). The old clip-path "peel" was jarring and
+     off-brief for calm/trust/authority, so it is retired here.             */
+
+  /* ---- keyframes ---- */
+  @keyframes gt-drift{0%{transform:translate3d(-2%,1%,0) scale(1.02)}100%{transform:translate3d(2%,-2%,0) scale(1.06)}}
+  @keyframes gt-rise{0%{transform:translateY(0) scale(1);opacity:0}12%{opacity:calc(var(--fx-ember-opacity)*.55)}100%{transform:translateY(-120px) scale(.4);opacity:0}}
+  @keyframes gt-flame{0%,100%{transform:scale(1) rotate(-1deg)}30%{transform:scale(1.06) rotate(1.5deg)}55%{transform:scale(.97) rotate(-1.5deg)}78%{transform:scale(1.04) rotate(.5deg)}}
+  @keyframes gt-pulse{0%{opacity:.5;transform:scale(.9)}100%{opacity:0;transform:scale(1.4)}}
+}
+
+/* ==========================================================================
+   OVERRIDES + AUTHORITATIVE POLISH (unlayered — intentionally beat site.css).
+   --------------------------------------------------------------------------
+   site.css is unlayered, so ANY rule here that must win a shared selector is
+   also unlayered and loads later (enhancements.css after site.css). Every
+   rule below is scoped to real, existing selectors — no site content is
+   deleted, only restated at a higher cascade position. Rollback = drop the
+   <link>+<script> for this pair; the page reverts byte-for-byte.
+   ========================================================================== */
+
+/* (1) scroll-progress: width animation → transform:scaleX (no per-frame
+      layout). site.js sets an inline width; --p is set by enhancements.js. */
+.js-fx .scroll-progress i{width:100%!important;transform:scaleX(var(--p,0));transform-origin:left center;
+  transition:transform .06s linear}
+
+/* ---- K1 · retire the runtime-blur hero heat (the 90px blur was never
+      actually switched off — .gt-suppressed had no rule). The baked drifting
+      .gt-hero-mesh (section 3) replaces it with ZERO runtime filter.        */
+.js-fx .hero-heat.gt-suppressed{animation:none!important;filter:none!important;opacity:0!important}
+
+/* ---- J2 · put the modal onto the token z-ramp (site.css hard-codes 120,
+      which collided with --z-tooltip). --z-modal(100) > dropdown(60).       */
+.modal{z-index:var(--z-modal)}
+
+/* ---- J3 · dark plates own their stacking context so the baked gas/ember
+      layers (z-index:-1) can never bleed out (fixes the map-band bleed).    */
+.sec--dark{isolation:isolate}
+
+/* ---- A2 · sunken bands read as a distinct COOL layer (not warm brown),
+      giving cards something to sit ON. --band-cool = --bg-sunken (cool).    */
+.sec--sunken{background:var(--band-cool)}
+
+/* ---- B1 · hero framing: intro + product heroes fill the frame like the
+      home .hero and vertically centre their content (padding stays a floor). */
+.intro-hero,.p-hero{min-height:calc(100svh - var(--nav-h,78px));display:grid;align-content:center}
+
+/* ---- C1 · sub-headings: lift off the cheap light weight (colour is left
+      to site.css so the on-dark plate rule is never broken).                */
+.sec-head .sub{font-weight:var(--fw-regular);line-height:1.55;max-width:60ch}
+
+/* ---- C2 · card body lists: mono→sans (mono stays only on true metadata
+      labels .v-idx/.svc-num/.mono-tag/.cap-specs). Colour untouched.        */
+.var-card ul li{font-family:var(--font-sans);font-size:var(--fs-fluid-sm);line-height:1.55}
+
+/* ---- F1 · real card elevation (idle --elev-1 → hover --elev-3 + hairline
+      ring). No transform here: data-tilt cards own their own JS transform.  */
+.svc,.var-card,.rel-card,.hero-card,.cap-card,.contact-card,.ref-card{box-shadow:var(--elev-1),var(--ring-1)}
+.svc:hover,.var-card:hover,.rel-card:hover,.cap-card:hover,.contact-card:hover,.ref-card:hover{box-shadow:var(--elev-3),var(--ring-1)}
+
+/* ---- H7 · top navbar scroll drawer (JS toggles .gt-head-hidden). Combine
+      with site.css's .is-scrolled background/shadow — only ADD the transform. */
+.site-head{transition:transform calc(var(--dur-nav)*var(--motion)) var(--ease-glide),background var(--dur-mid) var(--ease-out),box-shadow var(--dur-mid) var(--ease-out)}
+.site-head.gt-head-hidden{transform:translateY(-100%)}
+
+/* ---- H4 · active nav item = SOLID brand pill + white text (no light tint),
+      matching the Get-a-Quote button family. Applies to links + the Products
+      mega-trigger (which carries aria-current on products pages).           */
+.site-nav a[aria-current="page"]:not(.btn),.mega-trigger[aria-current="page"]{
+  background:var(--brand);color:var(--brand-fg);border-radius:var(--r-pill)}
+/* keep the label WHITE even when site.css's higher-specificity hover/open
+   rules (.mega-trigger:hover / .has-mega.is-open .mega-trigger) fire */
+.mega-trigger[aria-current="page"]:hover,.has-mega.is-open .mega-trigger[aria-current="page"],
+.site-nav a[aria-current="page"]:not(.btn):hover,.site-nav a[aria-current="page"]:not(.btn):focus-visible{color:var(--brand-fg)}
+.site-nav a[aria-current="page"]:not(.btn) .n,.mega-trigger[aria-current="page"] .n,.has-mega.is-open .mega-trigger[aria-current="page"] .n{color:color-mix(in srgb,var(--brand-fg) 78%,transparent)}
+.site-nav a[aria-current="page"]:not(.btn)::after,.mega-trigger[aria-current="page"]::after{display:none}
+
+/* ---- H5 · underline hover extended to the mega-trigger (links already
+      have it in site.css). Subtle, scales in from the left, calm easing.    */
+.mega-trigger::after{content:"";position:absolute;left:13px;right:13px;bottom:4px;height:1px;background:var(--brand);
+  transform:scaleX(0);transform-origin:left center;transition:transform var(--dur-hover) var(--ease-out)}
+.mega-trigger:hover::after,.has-mega.is-open .mega-trigger::after{transform:scaleX(1)}
+
+/* ---- H2 · with the dock gone, retire the sticky mobile CTA + its body
+      clearance for a clean top-nav-only experience (relocate, not delete).  */
+@media (max-width:900px){
+  .js-fx .mobile-cta{display:none!important}
+  .js-fx body{padding-bottom:0!important}
+}
+
+/* ---- H3 · FIX the mobile Products accordion: it auto-opened and could not
+      collapse because site.css opens it on :focus-within (drawer focus lands
+      inside .has-mega). On mobile, drive it purely from the .is-open toggle. */
+@media (max-width:900px){
+  .has-mega:focus-within .mega{max-height:0}
+  .has-mega.is-open .mega{max-height:1600px}
+}
+
+/* ---- E1 · SCROLL REVEAL ENTER + REVERSE. Native CSS scroll-driven timeline
+      (Chromium) fades/rises content in on entry AND back out on exit — the
+      reverse the brief asked for. Guarded; other engines keep the existing
+      one-shot site.js reveal (enter only). transform/opacity only. Heroes are
+      excluded (site.js already animates them).                              */
+@supports (animation-timeline:view()){
+  @media (prefers-reduced-motion:no-preference){
+    .js-fx .sec [data-reveal],.js-fx .sec [data-stagger]>*{
+      animation:gt-reveal-both linear both;animation-timeline:view();animation-range:entry 0% exit 100%}
+    /* F2 · subtle transform-only hero parallax on the baked mesh (host is
+       overflow:hidden, so it can never bleed). */
+    .js-fx .gt-hero-mesh{animation:gt-hero-parallax linear both;animation-timeline:scroll(root);animation-range:0 120vh}
+  }
+}
+@keyframes gt-reveal-both{
+  0%{opacity:0;transform:translateY(var(--reveal-y))}
+  14%{opacity:1;transform:none}
+  86%{opacity:1;transform:none}
+  100%{opacity:0;transform:translateY(calc(var(--reveal-y) * -.5))}
+}
+@keyframes gt-hero-parallax{from{transform:translateY(-3%)}to{transform:translateY(9%)}}
+
+/* ---- G2/G3 · page transitions: calm crossfade + micro-rise (replaces the
+      jarring clip-path peel). @view-transition can't be layered. Opt-in via
+      the <meta name="view-transition"> in each page head (Workstream G1).   */
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:gt-vt-out calc(var(--dur-slow)*var(--motion)) var(--ease-out) both}
+::view-transition-new(root){animation:gt-vt-in calc(var(--dur-slow)*var(--motion)) var(--ease-out) both}
+@keyframes gt-vt-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes gt-vt-out{from{opacity:1;transform:none}to{opacity:0}}
+
+/* ---- K5 · reduced motion: everything static + visible, no blur, no VT.  */
+@media (prefers-reduced-motion:reduce){
+  .hero-heat{filter:none!important}
+  ::view-transition-old(root),::view-transition-new(root){animation:none}
+}
+
+/* ==========================================================================
+   N · NEXT-ONLY ADDITIONS (unlayered). Styles for markup that the App Router
+   emits but the original static pages did not: the product hero breadcrumb
+   (.p-crumb), the FAQ accordion (.faq-list/.faq-item), the mega-menu current
+   card (.mega-card.is-current) and the carousel prev-arrow (.flip). Purely
+   additive — no site.css selector is restated. Tokens only, zero raw hex.
+   ========================================================================== */
+
+/* Product hero breadcrumb — mirrors the .crumbs treatment used elsewhere. */
+.p-crumb{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--text-muted);margin-bottom:16px}
+.p-crumb a{color:var(--text-muted);text-decoration:none;transition:color var(--dur-hover) var(--ease-out)}
+.p-crumb a:hover{color:var(--brand)}
+.p-crumb span[aria-hidden]{opacity:.45}
+.p-crumb > span:last-child{color:var(--text-default)}
+
+/* Mega-menu current card — subtle active affordance for the product you're on. */
+.mega-card.is-current{background:var(--bg-surface);border-color:color-mix(in srgb,var(--brand) 28%,transparent)}
+.mega-card.is-current .mc-b b{color:var(--brand)}
+.mega-card.is-current .mc-go{opacity:1;transform:none;stroke:var(--brand)}
+
+/* Carousel prev arrow — rotate the shared .i glyph 180° (no duplicate icon). */
+.i.flip{transform:rotate(180deg)}
+
+/* FAQ accordion (AEO answer surface) — native <details>, no JS dependency. */
+.faq-list{display:grid;gap:12px;max-width:78ch}
+.faq-item{border:1px solid var(--border-subtle);border-radius:var(--r-md);background:var(--bg-surface);overflow:hidden}
+.faq-item > summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;font-weight:var(--fw-semibold);font-size:var(--fs-fluid-sm);color:var(--text-default)}
+.faq-item > summary::-webkit-details-marker{display:none}
+.faq-item > summary::after{content:"";flex:0 0 auto;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg);transition:transform var(--dur-hover) var(--ease-out)}
+.faq-item[open] > summary::after{transform:rotate(-135deg)}
+.faq-item > p{margin:0;padding:0 18px 18px;color:var(--text-secondary);line-height:1.6;font-size:var(--fs-sm);max-width:70ch}
+
+/* ==========================================================================
+   P · VISUAL + MOTION POLISH (unlayered, wins site.css). Tokens only.
+   Phosphor icons, split hero, statement imagery, sunken/red-band depth,
+   readability, enter-only reveals, carousel sizing, route loading state.
+   ========================================================================== */
+
+/* ---- P0 · ICON CONTRACT. `.i` is now a sizing wrapper (span) around the
+      Phosphor SVG. Keep every existing `.parent .i{width/height}` selector
+      working by sizing the inner svg to fill it. */
+.i{display:inline-flex;align-items:center;justify-content:center}
+.i > svg{width:100%;height:100%;display:block}
+/* mega-menu trailing arrow is fill-based now → colour via `color`, not `stroke`. */
+.mc-go{color:var(--brand)}
+
+/* ---- P1 · HERO split: photo occupies the right panel, left copy sits on the
+      light editorial surface (always readable). The .hero-heat runtime blur is
+      switched off via the gt-suppressed class in markup. */
+.hero-media .hero-photo{position:absolute;top:0;right:0;height:100%;width:50%;object-fit:cover;object-position:center;filter:var(--photo-filter)}
+.hero-media::after{content:"";position:absolute;top:0;right:0;height:100%;width:62%;pointer-events:none;background:linear-gradient(90deg,var(--bg-page) 0%,color-mix(in srgb,var(--bg-page) 55%,transparent) 24%,transparent 60%)}
+/* stacked / narrow hero: drop the photo to a faint full-bleed backdrop so the
+   headline, lede and CTAs never sit on a busy image. */
+@media (max-width:1249.98px){
+  .hero-media .hero-photo{width:100%;opacity:.18}
+  .hero-media::after{display:none}
+}
+@media (max-width:640px){ .hero-media .hero-photo{opacity:.12} }
+
+/* ---- P2 · STATEMENT imagery: a wide editorial band under the fact grid. */
+.statement .statement-fig{margin-top:clamp(36px,4vw,56px);border-radius:var(--r-card);overflow:hidden;border:1px solid var(--border-subtle)}
+.statement .statement-fig img{display:block;width:100%;aspect-ratio:24/9;object-fit:cover;filter:var(--photo-filter)}
+@media (max-width:640px){ .statement .statement-fig img{aspect-ratio:16/9} }
+
+/* ---- P3 · SUNKEN bands get tonal depth (surface→sunken gradient), not flat
+      grey. Restates A2 at a higher position; borders + stacking unchanged. */
+.sec--sunken{background:linear-gradient(180deg,var(--bg-surface) 0%,var(--bg-sunken) 100%)}
+
+/* ---- P4 · RED / dark plates: token-only layered glow so they read as
+      engineered surfaces, not flat fills. White-only accents preserved (we only
+      mix --brand and --on-dark). Restates .contact-cta::before richer. */
+.sec--dark::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 70% 60% at 92% 0%,color-mix(in srgb,var(--brand) 16%,transparent),transparent 60%),radial-gradient(ellipse 58% 52% at 4% 100%,color-mix(in srgb,var(--on-dark) 6%,transparent),transparent 58%)}
+.sec--dark > .wrap,.sec--dark .carousel{position:relative;z-index:1}
+
+/* ---- P5 · READABILITY. Light body/label contrast up; never touches the
+      red-plate rules (those are scoped via .sec--dark and win separately). */
+.sec:not(.sec--dark) .sec-head .sub{color:var(--text-default)}
+.steps p{color:var(--text-secondary)}
+.sm-k,.mono-tag,.crumbs,.p-crumb,.crumbs a,.p-crumb a{color:var(--text-secondary)}
+.sec--dark .cap-body p{color:color-mix(in srgb,var(--on-dark) 88%,transparent)}
+
+/* ---- P6 · CAROUSEL single model. React (transform + % basis) owns motion;
+      the scroll-snap CSS is neutralised so it no longer fights it. */
+.carousel .car-viewport{overflow:hidden;cursor:default;scroll-snap-type:none}
+.carousel .car-track{width:100%}
+.carousel .cap-card{min-width:0}
+/* dots become the design's bar style (they were invisible dark-on-dark). */
+.car-dots .dot{width:26px;height:3px;border-radius:2px;border:0;padding:0;cursor:pointer;background:color-mix(in srgb,var(--on-dark) 34%,transparent);transition:background var(--dur-mid),width var(--dur-mid)}
+.car-dots .dot.on{background:var(--on-dark);width:44px}
+
+/* ---- P7 · REVEAL ENTER-ONLY. Overrides E1's entry→exit fade (which hid
+      content on scroll-out). Now content rises in on entry and STAYS. */
+@supports (animation-timeline:view()){
+  @media (prefers-reduced-motion:no-preference){
+    .js-fx .sec [data-reveal],.js-fx .sec [data-stagger]>*{
+      animation:gt-reveal-in linear both;animation-timeline:view();animation-range:entry 0% entry 100%}
+  }
+}
+@keyframes gt-reveal-in{from{opacity:0;transform:translateY(var(--reveal-y))}to{opacity:1;transform:none}}
+
+/* ---- P8 · ROUTE LOADING state + skeleton + hash anchor offset + a11y helper. */
+html{scroll-padding-top:calc(var(--nav-h,78px) + 16px)}
+.route-loading{position:relative;min-height:60vh}
+.route-bar{position:fixed;top:0;left:0;right:0;height:2px;z-index:var(--z-toast);transform-origin:left;background:linear-gradient(90deg,var(--brand) 0%,color-mix(in srgb,var(--brand) 40%,transparent) 50%,var(--brand) 100%);animation:gt-routebar 1.1s var(--ease-out) infinite}
+@keyframes gt-routebar{0%{transform:scaleX(0)}60%{transform:scaleX(1)}100%{transform:scaleX(1);opacity:0}}
+.sk{display:block;border-radius:var(--r-md);background:linear-gradient(90deg,var(--bg-surface),var(--bg-sunken),var(--bg-surface));background-size:200% 100%;animation:gt-sk 1.3s linear infinite}
+.sk-eyebrow{height:14px;width:180px;margin-bottom:22px}
+.sk-title{height:34px;width:min(560px,80%);margin-bottom:16px}
+.sk-sub{height:16px;width:min(420px,60%);margin-bottom:40px}
+.sk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(16px,2vw,26px)}
+.sk-card{height:240px}
+@keyframes gt-sk{to{background-position:-200% 0}}
+@media (max-width:900px){.sk-grid{grid-template-columns:repeat(2,1fr)}.sk-card{height:200px}}
+@media (max-width:560px){.sk-grid{grid-template-columns:1fr}}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+@media (prefers-reduced-motion:reduce){
+  .sk,.route-bar{animation:none}
+  .sk{background:var(--bg-surface)}
+  .route-bar{opacity:.7}
+}
+
+/* ==========================================================================
+   Q · TARGETED FIXES (unlayered, wins site.css + Section P). Tokens only.
+   Home hero red leak · capabilities rail sizing/border · materials depth ·
+   process scroll animation · sunken depth · company red accent · modal polish.
+   ========================================================================== */
+
+/* ---- Q2 · HERO red leak. The .hero-heat is a blur(90px) red radial anchored
+      lower-left (12% 88%) and was only switched off under .js-fx, so it can
+      flash/leak on the left and it violates the no-runtime-blur rule. A real
+      photo now carries the hero: kill the heat outright and drop the brand
+      radial from the hero ground so the copy sits on a clean editorial surface. */
+.hero-heat{display:none!important}
+.hero{background:linear-gradient(180deg,var(--bg-elevated) 0%,var(--bg-page) 100%)}
+
+/* ---- Q3 · CAPABILITIES rail. React owns sizing: neutralise the CSS gap (it
+      pushed the last card past 100% and clipped it unevenly), move spacing into
+      each slot, stretch cards to a uniform height, and stop the red border
+      "travel" — hover no longer animates to red and the flagship is no longer
+      pinned red (its badge + tag already mark it). */
+.carousel .car-track{width:100%;gap:0}
+.carousel .car-track>*{display:flex;padding-inline-end:clamp(18px,2vw,30px)}
+.carousel .cap-card{flex:1;min-width:0}
+.cap-card:hover{border-color:var(--on-dark-line)}
+.cap-card--flag{border-color:var(--on-dark-line)}
+
+/* ---- Q4 · STANDARDS & MATERIALS depth. Was a flat segmented strip. Turn the
+      cells into raised tiles that lift on hover (the existing ::before brand
+      fill now reads as an inner glow under the elevation). */
+.mat-grid{background:transparent;border:0;gap:clamp(14px,1.4vw,20px);overflow:visible}
+.mat-item{border:1px solid var(--on-dark-line);border-radius:var(--r-card);box-shadow:var(--elev-1);transition:transform var(--dur-mid) var(--ease-out),box-shadow var(--dur-mid),background var(--dur-mid)}
+.mat-item::before{border-radius:inherit}
+.mat-item:hover{transform:translateY(-6px);box-shadow:var(--elev-3)}
+
+/* ---- Q5 · PROCESS scroll animation. StepsTimeline flips .is-in on entry
+      (drives site.css's connector line-draw). Items rise in, staggered, gated
+      on .js-fx so the no-JS / reduced-motion path shows the final state. */
+.js-fx .steps li{opacity:0;transform:translateY(18px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out)}
+.js-fx .steps.is-in li{opacity:1;transform:none}
+.js-fx .steps.is-in li:nth-child(2){transition-delay:.12s}
+.js-fx .steps.is-in li:nth-child(3){transition-delay:.24s}
+.js-fx .steps.is-in li:nth-child(4){transition-delay:.36s}
+.js-fx .steps.is-in li:nth-child(5){transition-delay:.48s}
+@media (prefers-reduced-motion:reduce){
+  .js-fx .steps li{opacity:1;transform:none;transition:none}
+}
+
+/* ---- Q6 · SUNKEN depth. surface→sunken are near-identical so it read flat;
+      add a recessed top hairline + inner shadow so the band sits below the
+      page plane. */
+.sec--sunken{background:linear-gradient(180deg,var(--bg-surface) 0%,var(--bg-sunken) 100%);box-shadow:inset 0 1px 0 var(--border-subtle),inset 0 46px 60px -50px color-mix(in srgb,var(--text-default) 34%,transparent)}
+
+/* ---- Q7 · COMPANY red accent. The band was washing out in grey; bring the
+      signal red into the marquee words, a soft red-tinted ground and the
+      reference cards (stays a light band — red accents, not a red plate). */
+#company{background:linear-gradient(180deg,var(--bg-page) 0%,color-mix(in srgb,var(--brand) 6%,var(--bg-surface)) 100%)}
+#company .qm-row span{color:color-mix(in srgb,var(--brand) 82%,transparent)}
+#company .ref-card{background:var(--bg-elevated);border-color:color-mix(in srgb,var(--brand) 22%,var(--border-subtle));border-top:3px solid var(--brand)}
+#company .ref-q{color:var(--brand)}
+#company .ref-card figcaption b{color:var(--brand)}
+
+/* ---- Q8 · MODAL polish. Content is now wrapped in .modal-scroll (restores
+      the padding + scroll the bare .modal-panel lacked). Add a brand top rule
+      and a calm entrance so it reads as a finished, elevated surface. */
+.modal-panel::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:var(--plate);z-index:2}
+.js-fx .modal-panel{animation:gt-modal-in .34s var(--ease-out)}
+@keyframes gt-modal-in{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){ .js-fx .modal-panel{animation:none} }
+
