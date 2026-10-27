@@ -5,9 +5,9 @@ import { PRODUCTS } from "@/lib/products";
 import { siteGraph } from "@/lib/schema";
 import { Icon } from "@/components/icons";
 import { Marquee, SectionHead, JsonLd } from "@/components/blocks";
-import { Carousel } from "@/components/carousel";
+import { CapabilityConveyor } from "@/components/CapabilityConveyor";
 import { EnquiryButton } from "@/components/enquiry";
-import { Counter, RiseIn, StepsTimeline } from "@/components/motion";
+import { Counter, RiseIn } from "@/components/motion";
 
 export const metadata = buildMetadata({
   title: "Gastech Combustions | Industrial Burners, Gas Regulation, Metering & Gas Safety",
@@ -44,14 +44,6 @@ const FACILITIES = [
   { idx: "01", img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1000&q=80", alt: "Application engineering", title: "Design & Engineering", desc: "Systems are engineered to your duty, gas type and site conditions, with the right brand and sizing for the job.", tag: "settings", tagText: "Application engineering" },
   { idx: "02", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1000&q=80", alt: "Gas system integration", title: "Supply & Integration", desc: "We source from our partner brands and integrate regulation, metering, safety and control into a working system.", tag: "factory", tagText: "Systems integration", flip: true },
   { idx: "03", img: "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=1000&q=80", alt: "Quality control and testing", title: "Quality & Testing", desc: "Pressure and performance testing prove every system before handover, so commissioning on site is clean.", tag: "award", tagText: "Tested & commissioned" },
-];
-
-const STEPS = [
-  { n: "1", title: "Enquiry & study", desc: "We assess your gas demand and site." },
-  { n: "2", title: "Design", desc: "Sizing and layout engineered to spec." },
-  { n: "3", title: "Supply & assembly", desc: "Sourced from our brands, assembled and tested." },
-  { n: "4", title: "Install & commission", desc: "On-site setup and performance proof." },
-  { n: "5", title: "Service & AMC", desc: "Long-term uptime and support." },
 ];
 
 const SERVICES = [
@@ -152,29 +144,7 @@ export default function HomePage() {
               <p className="sub" data-reveal>Industrial burners, gas regulation and metering, flow measurement, leak detection and hydrogen-ready systems, supplied and serviced by Gastech.</p>
             </header>
           </div>
-          <Carousel
-            className="carousel"
-            viewportClassName="car-viewport"
-            trackClassName="car-track"
-            maxPerView={4}
-            slides={CAPABILITIES.map((c) => (
-              <article key={c.idx} className={c.flag ? "cap-card cap-card--flag" : "cap-card"}>
-                <div className="cap-media">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={c.img} alt={c.alt} loading="lazy" decoding="async" />
-                  {c.flag && <span className="badge">Own line</span>}
-                  <span className="cap-idx">{c.idx}</span>
-                </div>
-                <div className="cap-body">
-                  {c.flag && <span className="mono-tag">Flagship</span>}
-                  <h3>{c.title}</h3>
-                  <p>{c.desc}</p>
-                  <ul className="cap-specs">{c.specs.map((s) => <li key={s}>{s}</li>)}</ul>
-                  <Link className="cap-more" href={c.href}>{c.flag ? "Explore" : "Enquire"} <Icon name="arrow" /></Link>
-                </div>
-              </article>
-            ))}
-          />
+          <CapabilityConveyor items={CAPABILITIES} />
           <div className="wrap cap-foot">
             <p>A complete range of combustion and gas-safety equipment. Request the full catalogue for sizes, capacities and options.</p>
             <Link className="btn btn--ghost-light fx-magnetic" href="/products">Request the full range <Icon name="arrow" /></Link>
@@ -235,14 +205,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* PROCESS */}
-        <section className="sec" id="process" aria-labelledby="proc-h">
-          <div className="wrap">
-            <SectionHead eyebrow="04 / How we work" title={<>From enquiry to <u>ongoing support.</u></>} sub="A single accountable partner for your gas system, from first study to lifetime servicing." />
-            <StepsTimeline steps={STEPS} />
-          </div>
-        </section>
-
         {/* SERVICES */}
         <section className="sec sec--sunken" id="services" aria-labelledby="svc-h">
           <div className="wrap">
@@ -262,7 +224,7 @@ export default function HomePage() {
         {/* REFERENCES */}
         <section className="sec" id="company" aria-labelledby="ref-h">
           <div className="wrap">
-            <SectionHead eyebrow="05 / Company" title={<>Trusted where the <u>gas matters.</u></>} sub="A snapshot of the sectors and standards behind our work. Client references and project case studies available on request." />
+            <SectionHead eyebrow="04 / Company" title={<>Trusted where the <u>gas matters.</u></>} sub="A snapshot of the sectors and standards behind our work. Client references and project case studies available on request." />
             <div className="quote-marquee" aria-hidden="true">
               <div className="qm-track">
                 <div className="qm-row">{["Steel","Pharma","Automotive","Food & Beverage","Chemicals","Electronics","Petrochemicals","Water Treatment","Power","Cement"].map((t) => <span key={t}>{t}</span>)}</div>

@@ -3,12 +3,18 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
 import { SITE, absoluteUrl } from "@/lib/site";
-import { PRODUCTS, getProduct, type Variant } from "@/lib/products";
+import { PRODUCTS, getProduct } from "@/lib/products";
 import { productSchema, faqSchema, breadcrumbSchema, siteGraph } from "@/lib/schema";
 import { Icon } from "@/components/icons";
 import { Marquee, SectionHead, JsonLd } from "@/components/blocks";
 import { Carousel } from "@/components/carousel";
 import { EnquiryButton } from "@/components/enquiry";
+import FaqAccordion from "@/components/FaqAccordion";
+import DatasheetRange from "@/components/DatasheetRange";
+import SpecTable from "@/components/SpecTable";
+import KeyValueTable from "@/components/KeyValueTable";
+import SpecStats from "@/components/SpecStats";
+import ArchChart from "@/components/ArchChart";
 
 export function generateStaticParams() {
   return PRODUCTS.map((p) => ({ slug: p.slug }));
@@ -28,20 +34,6 @@ export async function generateMetadata({ params }: Ctx): Promise<Metadata> {
   });
 }
 
-function VarCard({ v }: { v: Variant }) {
-  return (
-    <article className="var-card" data-tilt>
-      {v.idx && <span className="v-idx">{v.idx}</span>}
-      <div className="v-k">{v.kicker}</div>
-      <h3>{v.title}</h3>
-      {v.spec && <p className="v-spec">{v.spec}</p>}
-      {v.sub && <p className="v-sub">{v.sub}</p>}
-      <p>{v.desc}</p>
-      {v.list && <ul>{v.list.map((x) => <li key={x}>{x}</li>)}</ul>}
-    </article>
-  );
-}
-
 export default function ProductPage({ params }: Ctx) {
   const p = getProduct(params.slug);
   if (!p) notFound();
@@ -52,6 +44,21 @@ export default function ProductPage({ params }: Ctx) {
     { name: p.navLabel, href: `/${p.slug}` },
   ];
   const related = p.related.map(getProduct).filter(Boolean) as NonNullable<ReturnType<typeof getProduct>>[];
+
+  // C / arch chart: regulator families compared by max design pressure.
+  // Values are parsed from the REAL variant sub-copy ("Up to 102 bar …"),
+  // never invented. Only pf-regulators carries three comparable pressure families.
+  const archData =
+    p.slug === "pf-regulators"
+      ? (p.variants
+          .map((v) => {
+            const m = /([\d.]+)\s*bar/.exec(v.sub ?? "");
+            return m
+              ? { value: parseFloat(m[1]), unit: "bar", name: v.title, sub: v.kicker }
+              : null;
+          })
+          .filter(Boolean) as { value: number; unit: string; name: string; sub?: string }[])
+      : null;
 
   return (
     <>
@@ -83,13 +90,8 @@ export default function ProductPage({ params }: Ctx) {
               </div>
               <h1>{p.h1}</h1>
               <p className="p-lead">{p.lead}</p>
-              <div className="p-specstrip" data-spotlight>
-                {p.specs.map((s) => (
-                  <div className="p-spec" key={s.label}><b>{s.value}</b><span>{s.label}</span></div>
-                ))}
-              </div>
+              <SpecStats specs={p.specs} />
               <div className="cta-dual">
-                <EnquiryButton className="btn btn--primary" type="sales" product={p.h1}>Request a quote</EnquiryButton>
                 <EnquiryButton className="btn--tech" type="technical" product={p.h1} icon="chat">Discuss technical specs</EnquiryButton>
               </div>
               <p className="p-callnote" style={{ marginTop: 16 }}>
@@ -120,20 +122,30 @@ export default function ProductPage({ params }: Ctx) {
         <section className="sec sec--tint">
           <div className="wrap">
             <SectionHead eyebrow={p.modelEyebrow} title={p.modelTitle} sub={p.modelSub} />
-            <div className={p.grid === 4 ? "var-grid var-grid--4" : "var-grid"} data-stagger>
-              {p.variants.map((v) => <VarCard key={v.title} v={v} />)}
-            </div>
+            <DatasheetRange variants={p.variants} />
           </div>
         </section>
+
+        {/* ARCH CHART (real per-family design pressure — pf-regulators only) */}
+        {archData && archData.length >= 2 && (
+          <section className="sec">
+            <div className="wrap">
+              <SectionHead
+                eyebrow="Design pressure"
+                title={<>Three families, <u>drawn to scale.</u></>}
+                sub="Arch height is linear to the maximum design pressure of each Pietro Fiorentini regulator family."
+              />
+              <ArchChart data={archData} note="Linear scale · bar, max design pressure per family" />
+            </div>
+          </section>
+        )}
 
         {/* ASSEMBLY (gas trains) */}
         {p.assembly && (
           <section className="sec sec--sunken">
             <div className="wrap">
               <SectionHead eyebrow="Assembly" title={<>What goes into the train.</>} sub="A complete skid-mounted assembly, incorporating the control and safety devices your application requires." />
-              <div className="var-grid var-grid--4" data-stagger>
-                {p.assembly.map((v) => <VarCard key={v.title} v={v} />)}
-              </div>
+              <DatasheetRange variants={p.assembly} />
             </div>
           </section>
         )}
@@ -143,16 +155,7 @@ export default function ProductPage({ params }: Ctx) {
           <section className="sec sec--sunken">
             <div className="wrap">
               <SectionHead eyebrow={p.specEyebrow} title={p.specTitle} />
-              <div className="spec-wrap spec-scroll" data-reveal>
-                <table className="spec-cols" data-colspot>
-                  <thead><tr>{p.columns.headers.map((h) => <th key={h}>{h}</th>)}</tr></thead>
-                  <tbody>
-                    {p.columns.rows.map((row, ri) => (
-                      <tr key={ri}>{row.map((cell, ci) => (ci === 0 ? <th key={0}>{cell}</th> : <td key={ci}>{cell}</td>))}</tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <SpecTable columns={p.columns} />
             </div>
           </section>
         )}
@@ -161,13 +164,7 @@ export default function ProductPage({ params }: Ctx) {
         <section className={p.columns ? "sec" : "sec sec--sunken"}>
           <div className="wrap">
             <SectionHead eyebrow={p.columns ? "At a glance" : p.specEyebrow} title={p.columns ? "Selection notes." : p.specTitle} />
-            <div className="spec-wrap" data-reveal>
-              <table className="spec">
-                <tbody>
-                  {p.specRows.map((r) => <tr key={r.k}><th>{r.k}</th><td>{r.v}</td></tr>)}
-                </tbody>
-              </table>
-            </div>
+            <KeyValueTable rows={p.specRows} />
           </div>
         </section>
 
@@ -175,14 +172,7 @@ export default function ProductPage({ params }: Ctx) {
         <section className="sec sec--tint" id="faq" aria-labelledby="faq-h">
           <div className="wrap">
             <SectionHead eyebrow="Questions" title={<>Common questions <u>answered.</u></>} />
-            <div className="faq-list" data-stagger>
-              {p.faq.map((f) => (
-                <details className="faq-item" key={f.q}>
-                  <summary>{f.q}</summary>
-                  <p>{f.a}</p>
-                </details>
-              ))}
-            </div>
+            <FaqAccordion faqs={p.faq} />
           </div>
         </section>
 

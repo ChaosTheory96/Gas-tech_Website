@@ -4,6 +4,7 @@ import { siteGraph, breadcrumbSchema, serviceSchema } from "@/lib/schema";
 import { Icon } from "@/components/icons";
 import { Marquee, SectionHead, JsonLd } from "@/components/blocks";
 import { EnquiryButton } from "@/components/enquiry";
+import ServicePipeline from "@/components/ServicePipeline";
 
 export const metadata = buildMetadata({
   title: "Services | Consultancy, Installation, Commissioning & AMC | Gastech",
@@ -111,18 +112,7 @@ export default function ServicesPage() {
               title={<>Support across the <u>whole life</u> of your system.</>}
               sub="Selection and sizing during procurement, then expert installation, commissioning and long-term care."
             />
-            <div className="svc-grid" data-stagger>
-              {SERVICE_LINES.map((s) => (
-                <article className="svc" key={s.num}>
-                  <span className="svc-num">{s.num}</span>
-                  <span className="svc-ic" aria-hidden="true"><Icon name={s.icon} /></span>
-                  <div className="svc-main">
-                    <h3>{s.title}</h3>
-                    <p>{s.desc}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
+            <ServicePipeline stations={SERVICE_LINES} />
           </div>
         </section>
 

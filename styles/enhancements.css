@@ -451,3 +451,12 @@ html{scroll-padding-top:calc(var(--nav-h,78px) + 16px)}
 @keyframes gt-modal-in{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){ .js-fx .modal-panel{animation:none} }
 
+/* ---- Q9 · SEAMLESS BAND BACKGROUNDS. .sec--tint (product Model range + FAQ)
+      and #company (home) were white→pink fade gradients with corner glows, so a
+      tint band sitting next to a plain white .sec showed a clipped half-white /
+      half-pink seam. Flatten every tinted light band to one uniform page colour
+      so adjacent bands read as a single seamless surface. Tokens only. */
+.sec--tint{background:var(--bg-page)}
+.sec--tint::before{display:none}
+#company{background:var(--bg-page)}
+

@@ -4,8 +4,21 @@
    image galleries (pcar, one slide per view + caption) and the home
    capabilities rail. Responsive items-per-view, prev/next, dots, optional
    autoplay that honours reduced-motion and pauses on hover/focus.
+
+   Motion is deliberately jitter-free, matching the FAQ: the track is shifted by
+   the MEASURED pixel distance between slides (offsetLeft), so it always lands
+   exactly on a slide boundary regardless of inter-slide gap or peek padding
+   (the old percentage shift drifted). The caption sits in a reserved grid cell
+   so a longer/shorter caption can't jump the controls row height. One consistent
+   ease-out curve + duration everywhere.
    --------------------------------------------------------------------------- */
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useReducedMotion } from "framer-motion";
 import { Icon } from "./icons";
 
@@ -18,6 +31,9 @@ type Props = {
   trackClassName?: string;
   autoplayMs?: number;
 };
+
+const EASE = "cubic-bezier(.16,1,.3,1)"; // site --ease-out (matches the FAQ)
+const DUR = 600; // ms
 
 function perViewForWidth(w: number, max: number) {
   if (w < 640) return Math.min(1, max);
@@ -37,16 +53,18 @@ export function Carousel({
   const [perView, setPerView] = useState(maxPerView);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [step, setStep] = useState(0); // measured px between adjacent slides
   const viewportRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
 
   const count = slides.length;
   const positions = Math.max(1, count - perView + 1);
 
+  // responsive items-per-view (window width)
   useEffect(() => {
     const compute = () => {
-      const w = window.innerWidth;
-      const pv = perViewForWidth(w, maxPerView);
+      const pv = perViewForWidth(window.innerWidth, maxPerView);
       setPerView(pv);
       setIndex((i) => Math.min(i, Math.max(0, count - pv)));
     };
@@ -54,6 +72,27 @@ export function Carousel({
     window.addEventListener("resize", compute);
     return () => window.removeEventListener("resize", compute);
   }, [maxPerView, count]);
+
+  // measure the exact slide pitch so the shift never lands between slides
+  useEffect(() => {
+    const track = trackRef.current;
+    const vp = viewportRef.current;
+    if (!track || !vp) return;
+    const measure = () => {
+      const kids = track.children;
+      let s =
+        kids.length > 1
+          ? (kids[1] as HTMLElement).offsetLeft - (kids[0] as HTMLElement).offsetLeft
+          : vp.clientWidth;
+      if (!s || s <= 0 || Number.isNaN(s)) s = vp.clientWidth / Math.max(1, perView);
+      setStep(s);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(vp);
+    ro.observe(track);
+    return () => ro.disconnect();
+  }, [perView, count]);
 
   const go = useCallback(
     (next: number) => {
@@ -69,7 +108,7 @@ export function Carousel({
     return () => window.clearInterval(id);
   }, [autoplayMs, reduce, paused, count, index, go]);
 
-  const shift = `-${index * (100 / perView)}%`;
+  const shift = -(index * step);
 
   return (
     <div
@@ -85,12 +124,13 @@ export function Carousel({
         style={{ overflow: "hidden" }}
       >
         <div
+          ref={trackRef}
           className={trackClassName}
           style={{
             display: "flex",
-            gap: "inherit",
-            transform: `translateX(${shift})`,
-            transition: reduce ? "none" : "transform .6s cubic-bezier(.22,1,.36,1)",
+            transform: `translate3d(${shift}px,0,0)`,
+            transition: reduce ? "none" : `transform ${DUR}ms ${EASE}`,
+            willChange: "transform",
           }}
         >
           {slides.map((s, i) => (
@@ -106,9 +146,34 @@ export function Carousel({
 
       {count > 1 && (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "14px", gap: "16px" }}>
-          {captions && captions[index] !== undefined ? (
-            <div className="pcar-cap" aria-live="polite" style={{ margin: 0 }}>{captions[index]}</div>
-          ) : <span />}
+          {captions ? (
+            // grid overlap: ALL captions share cell 1/1 and stay in-flow, so the
+            // cell is as tall as the tallest one; only opacity/transform change.
+            // The row height is therefore constant → no vertical jitter on swap.
+            <div style={{ display: "grid", minWidth: 0, flex: "1 1 auto" }}>
+              {captions.map((c, i) => (
+                <div
+                  key={i}
+                  className="pcar-cap"
+                  aria-hidden={i !== index}
+                  aria-live={i === index ? "polite" : undefined}
+                  style={{
+                    gridArea: "1 / 1",
+                    position: "relative",
+                    background: "none",
+                    opacity: i === index ? 1 : 0,
+                    transform: `translateY(${i === index ? 0 : 6}px)`,
+                    transition: reduce ? "none" : `opacity ${DUR}ms ${EASE}, transform ${DUR}ms ${EASE}`,
+                    pointerEvents: i === index ? "auto" : "none",
+                  }}
+                >
+                  {c}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <span />
+          )}
           <div className="car-ui">
             <div className="car-dots" role="tablist" aria-label="Choose slide">
               {Array.from({ length: positions }).map((_, d) => (

@@ -1,0 +1,457 @@
+/* ============================================================================
+   PROCESS SHOWCASE COMPONENTS — scoped stylesheet.
+   1:1 port of demos/gastech-process-showcase.html (A timeline, B bento,
+   C arch, E radial, F spec stats, G datasheet, H comparison, I pipeline,
+   J faq, K marquee) into the gastech-next stack.
+
+   EVERY rule is namespaced under `.gt-proc`. Nothing here can touch a
+   production element (it would have to be a descendant of `.gt-proc`), and
+   `.gt-proc .x` (two-class) outranks production's unscoped `.x` (one-class),
+   so the showcase look wins inside the showcase and nowhere else. Colors are
+   Gastech tokens only; the one local custom property (--plate) is a gradient
+   composed from brand tokens, not a raw value.
+   ========================================================================== */
+
+.gt-proc{ --plate:linear-gradient(150deg,var(--brand),var(--brand-active)); }
+
+/* ---- scoped normalize (mirror the demo's reset without touching the site) ---- */
+.gt-proc *,.gt-proc *::before,.gt-proc *::after{box-sizing:border-box}
+.gt-proc h1,.gt-proc h2,.gt-proc h3,.gt-proc p,.gt-proc figure,.gt-proc blockquote,.gt-proc ul,.gt-proc ol{margin:0;padding:0}
+.gt-proc ul,.gt-proc ol{list-style:none}
+.gt-proc img{display:block;max-width:100%}
+.gt-proc a{color:inherit;text-decoration:none}
+
+/* ---- shared primitives ---- */
+.gt-proc .wrap{max-width:var(--page-max);margin-inline:auto;padding-inline:var(--gutter)}
+.gt-proc .mono{font-family:var(--font-mono)}
+
+.gt-proc .masthead{padding:clamp(56px,9vw,110px) 0 clamp(36px,5vw,56px)}
+.gt-proc .masthead .eyebrow{margin-bottom:14px}
+.gt-proc .masthead h1{font-family:var(--font-display);font-weight:600;font-size:clamp(2.2rem,1.4rem+3.6vw,3.8rem);line-height:1.06;letter-spacing:-.005em;max-width:22ch}
+.gt-proc .masthead h1 u{text-decoration:none;color:var(--brand)}
+.gt-proc .masthead p{max-width:64ch;color:var(--text-secondary);margin-top:16px}
+.gt-proc .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--brand)}
+.gt-proc .eyebrow.on-dark{color:var(--brand-fg);opacity:.85}
+
+.gt-proc .blk{padding:clamp(64px,8vw,110px) 0;border-top:1px solid var(--border-subtle)}
+.gt-proc .blk--sunken{background:color-mix(in srgb,var(--brand-subtle-bg) 55%,var(--bg-page))}
+.gt-proc .blk--dark{background:var(--plate);color:var(--brand-fg)}
+.gt-proc .blk--dark h2,.gt-proc .blk--dark h3{color:var(--brand-fg)}
+.gt-proc .blk--dark .sub{color:color-mix(in srgb,var(--brand-fg) 82%,transparent)}
+.gt-proc .head{margin-bottom:clamp(32px,4vw,56px);max-width:72ch}
+.gt-proc .head h2{font-family:var(--font-display);font-weight:600;font-size:clamp(1.5rem,1.1rem+1.8vw,2.3rem);line-height:1.12;margin-top:8px}
+.gt-proc .head h2 u{text-decoration:none;color:var(--brand)}
+.gt-proc .blk--dark .head h2 u{color:var(--brand-fg);text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:2px}
+.gt-proc .head .sub{color:var(--text-secondary);margin-top:10px;max-width:60ch}
+.gt-proc .tagline{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-top:14px}
+.gt-proc .tagline::before{content:"";width:26px;height:2px;background:var(--brand)}
+
+.gt-proc .rv{opacity:0;transform:translateY(22px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out)}
+.gt-proc .rv.in{opacity:1;transform:none}
+.gt-proc .stg>*{opacity:0;transform:translateY(20px);transition:opacity .55s var(--ease-out),transform .55s var(--ease-out);transition-delay:calc(var(--i,0)*90ms)}
+.gt-proc .stg.in>*{opacity:1;transform:none}
+
+/* ================= A / PROCESS TIMELINE ================= */
+.gt-proc .tl{position:relative;max-width:1040px;margin-inline:auto;min-height:200vh;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(48px,9vh,110px) 0}
+.gt-proc .tl-spine{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.gt-proc .tl-spine .sp-track{fill:none;stroke:var(--border-default);stroke-width:2}
+.gt-proc .tl-spine .sp-fill{fill:none;stroke:var(--brand);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--p,0))}
+.gt-proc .tl-item{position:relative;width:calc(50% - 46px);padding-block:clamp(18px,4vh,54px)}
+.gt-proc .tl-item:nth-child(odd){margin-left:auto}
+.gt-proc .tl-item:nth-child(even){margin-right:auto}
+.gt-proc .tl-link{position:absolute;top:50%;width:46px;height:2px;background:var(--brand);transform:scaleX(0);transition:transform .55s var(--ease-out)}
+.gt-proc .tl-item.hit .tl-link{transform:scaleX(1)}
+.gt-proc .tl-item:nth-child(odd) .tl-link{right:100%;transform-origin:left}
+.gt-proc .tl-item:nth-child(even) .tl-link{left:100%;transform-origin:right}
+.gt-proc .tl-card{position:relative;display:grid;grid-template-columns:1fr minmax(116px,44%);gap:clamp(14px,1.8vw,22px);align-items:center;padding:clamp(18px,2.2vw,28px) clamp(20px,2.4vw,30px);perspective:1100px}
+.gt-proc .tl-border{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.gt-proc .tl-border path{fill:none;stroke:var(--brand);stroke-width:2;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.15s var(--ease-out)}
+.gt-proc .tl-border .bd-bot{transition-delay:.14s}
+.gt-proc .tl-item.hit .tl-border path{stroke-dashoffset:0}
+.gt-proc .tl-node{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:var(--brand);border:3px solid var(--bg-page);box-shadow:0 0 0 2px var(--brand);z-index:6;transform:translate(-50%,-50%) scale(0);transition:transform .5s var(--ease-out) .1s}
+.gt-proc .tl-item.hit .tl-node{transform:translate(-50%,-50%) scale(1)}
+.gt-proc .tl-item:nth-child(odd) .tl-node{left:-46px}
+.gt-proc .tl-item:nth-child(even) .tl-node{left:calc(100% + 46px)}
+.gt-proc .tl-txt{min-width:0;order:1}
+.gt-proc .tl-media{order:2}
+.gt-proc .tl-n{font-family:var(--font-mono);font-size:12px;color:var(--brand);letter-spacing:.14em}
+.gt-proc .tl-card h3{font-family:var(--font-display);font-weight:600;font-size:clamp(1.25rem,2.1vw,1.6rem);margin:6px 0 8px}
+.gt-proc .tl-card p{color:var(--text-secondary);font-size:.95rem}
+.gt-proc .tl-get{margin-top:12px;font-size:.86rem;line-height:1.5;color:var(--text-secondary)}
+.gt-proc .tl-get span{display:block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);margin-bottom:3px}
+.gt-proc .tl-item:nth-child(even) .tl-get span{margin-left:auto}
+.gt-proc .tl-item:nth-child(even) .tl-card{grid-template-columns:minmax(116px,44%) 1fr}
+.gt-proc .tl-item:nth-child(even) .tl-txt{order:2;text-align:right}
+.gt-proc .tl-item:nth-child(even) .tl-media{order:1}
+.gt-proc .tl-media{position:relative;aspect-ratio:4/3;border-radius:var(--r-md);z-index:1}
+.gt-proc .tl-media .m-main{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;box-shadow:var(--elev-1);filter:grayscale(.15) contrast(1.03);transition:transform .55s var(--ease-out),box-shadow .4s}
+.gt-proc .tl-thumb{position:absolute;top:50%;left:50%;width:54%;height:54%;object-fit:cover;border-radius:12px;border:3px solid var(--bg-elevated);box-shadow:var(--elev-2);opacity:0;z-index:8;pointer-events:none;transform:translate(-50%,-50%) scale(.55);transition:transform .6s var(--ease-out),opacity .4s}
+.gt-proc .tl-card:hover .m-main{transform:scale(1.06);box-shadow:var(--elev-2)}
+.gt-proc .tl-card:hover .tl-thumb{opacity:1}
+.gt-proc .tl-card:hover .tl-thumb.t1{transform:translate(calc(-50% - 46px),calc(-50% - 40px)) rotate(-9deg) translateZ(46px) scale(1);transition-delay:.02s}
+.gt-proc .tl-card:hover .tl-thumb.t2{transform:translate(calc(-50% + 44px),calc(-50% - 30px)) rotate(8deg) translateZ(64px) scale(1);transition-delay:.1s}
+.gt-proc .tl-card:hover .tl-thumb.t3{transform:translate(calc(-50% + 8px),calc(-50% + 52px)) rotate(-5deg) translateZ(34px) scale(1);transition-delay:.18s}
+/* text-only variant (production has no per-step photography): single-column card */
+.gt-proc .tl--text .tl-card{grid-template-columns:1fr}
+/* text-only: no media column exists, so neutralise the even-item media grid +
+   right-align (they reserve an empty 44% column and ragged text). Higher
+   specificity than the :nth-child(even) rules so both sides read identically. */
+.gt-proc .tl--text .tl-item:nth-child(even) .tl-card{grid-template-columns:1fr}
+.gt-proc .tl--text .tl-item:nth-child(even) .tl-txt{order:1;text-align:left}
+.gt-proc .tl--text .tl-item:nth-child(even) .tl-get span{margin-left:0}
+
+/* ================= B / CATALOGUE BENTO ================= */
+.gt-proc .bento{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(10px,1.2vw,16px);grid-auto-rows:clamp(178px,17vw,214px)}
+.gt-proc .cat{margin-bottom:clamp(34px,5vw,60px)}
+.gt-proc .cat-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;border-bottom:2px solid var(--brand);padding-bottom:8px;margin-bottom:14px}
+.gt-proc .cat-head h3{font-family:var(--font-display);font-weight:600;font-size:1.2rem;letter-spacing:.01em}
+.gt-proc .cat-head .cat-n{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:var(--text-muted);text-transform:uppercase}
+.gt-proc .bt .bt-body{padding:clamp(13px,1.4vw,18px);flex:none}
+.gt-proc .bt--prod .bt-body{display:flex;flex-direction:column;gap:2px}
+.gt-proc .bt--prod .bt-spec{font-family:var(--font-mono);font-size:11.5px;color:var(--brand);margin-top:5px;letter-spacing:.03em}
+.gt-proc .bt--prod .bt-sub{font-size:.8rem;color:var(--text-muted);margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.gt-proc .bt--prod .bt-more{margin-top:10px;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary);display:inline-flex;align-items:center;gap:7px}
+.gt-proc .bt--prod .bt-more::after{content:"";width:16px;height:2px;background:var(--brand);transition:width .3s var(--ease-out)}
+.gt-proc .bt--prod:hover .bt-more::after{width:28px}
+.gt-proc .bt{position:relative;border:1px solid var(--border-subtle);border-radius:var(--r-md);background:var(--bg-elevated);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--elev-1);transition:transform .3s var(--ease-out),box-shadow .3s}
+.gt-proc .bt:hover{transform:translateY(-5px);box-shadow:var(--elev-2)}
+.gt-proc .bt .bt-media{position:relative;flex:1 1 auto;min-height:0;overflow:hidden;background:color-mix(in srgb,var(--bg-sunken) 42%,var(--bg-page))}
+.gt-proc .bt.r2 .bt-media{min-height:0}
+.gt-proc .bt .bt-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:clamp(12px,1.8vw,22px);transition:transform .6s var(--ease-out)}
+.gt-proc .bt:hover .bt-media img{transform:scale(1.06)}
+.gt-proc .bt h3{font-family:var(--font-display);font-weight:600;font-size:1rem;line-height:1.2}
+.gt-proc .bt p{font-size:.84rem;color:var(--text-secondary);margin-top:5px}
+.gt-proc .c7{grid-column:span 7}.gt-proc .c5{grid-column:span 5}.gt-proc .c4{grid-column:span 4}.gt-proc .c3{grid-column:span 3}.gt-proc .c6{grid-column:span 6}.gt-proc .c8{grid-column:span 8}.gt-proc .c12{grid-column:span 12}
+.gt-proc .r2{grid-row:span 2}
+
+/* ================= C / ARCH CHART ================= */
+.gt-proc .arch-chart{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(20px,3.4vw,52px);align-items:end;border-bottom:2px solid var(--text-default);padding-top:clamp(56px,8vw,96px)}
+.gt-proc .ac-item{display:flex;flex-direction:column;align-items:center;text-align:center}
+.gt-proc .ac-val{font-family:var(--font-display);font-weight:700;font-size:clamp(1.5rem,2.8vw,2.2rem);line-height:1;color:var(--brand);margin-bottom:10px}
+.gt-proc .ac-val small{font-family:var(--font-mono);font-weight:400;font-size:.42em;letter-spacing:.08em;color:var(--text-muted)}
+.gt-proc .ac-arch{width:min(100%,170px);height:var(--h);border-radius:var(--r-pill) var(--r-pill) 0 0;background:var(--plate);transform:scaleY(0);transform-origin:bottom;transition:transform 1s var(--ease-out);transition-delay:calc(var(--i,0)*160ms);position:relative}
+.gt-proc .arch-chart.in .ac-arch{transform:scaleY(1)}
+.gt-proc .ac-arch::after{content:"";position:absolute;inset:0;border-radius:inherit;background:repeating-linear-gradient(0deg,transparent 0 26px,color-mix(in srgb,var(--brand-fg) 12%,transparent) 26px 28px);opacity:0;transition:opacity .5s .9s}
+.gt-proc .arch-chart.in .ac-arch::after{opacity:1}
+.gt-proc .ac-name{margin-top:14px;font-family:var(--font-display);font-weight:600;font-size:1.02rem}
+.gt-proc .ac-sub{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-top:3px;letter-spacing:.04em}
+.gt-proc .ac-note{display:flex;align-items:center;gap:10px;margin-top:18px;font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted)}
+.gt-proc .ac-note::before{content:"";width:26px;height:2px;background:var(--brand)}
+
+/* ================= E / PRODUCT HERO — SPEC RADIAL WHEEL ================= */
+.gt-proc .hero-radial{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:clamp(28px,5vw,72px);align-items:center}
+.gt-proc .hero-id .hi-brand{font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand)}
+.gt-proc .hero-id h3{font-family:var(--font-display);font-weight:600;font-size:clamp(1.8rem,3.4vw,2.7rem);line-height:1.08;margin:12px 0 14px}
+.gt-proc .hero-id p{color:var(--text-secondary);max-width:48ch;font-size:1rem}
+.gt-proc .hero-id .hi-note{display:inline-flex;align-items:center;gap:9px;margin-top:18px;font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)}
+.gt-proc .hero-id .hi-note::before{content:"";width:20px;height:2px;background:var(--brand)}
+.gt-proc .wheel{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:7px;aspect-ratio:1;max-width:440px;margin-inline:auto;width:100%}
+.gt-proc .wheel::before{content:"";position:absolute;inset:4%;border-radius:50%;border:1px dashed color-mix(in srgb,var(--brand) 20%,transparent);pointer-events:none;z-index:0}
+.gt-proc .wheel .hub{position:absolute;inset:0;margin:auto;width:clamp(92px,22%,116px);height:clamp(92px,22%,116px);border-radius:50%;background:var(--plate);color:var(--brand-fg);display:grid;place-items:center;font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.06em;z-index:3;box-shadow:var(--elev-2);overflow:hidden}
+.gt-proc .wheel .hub .hub-mono{font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.06em;color:var(--brand-fg)}
+.gt-proc .wheel .sp{position:relative;z-index:1;border:1.5px solid color-mix(in srgb,var(--brand) 42%,transparent);background:var(--bg-elevated);box-shadow:var(--elev-1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12% 13%;text-align:center;overflow:hidden;transform:scale(0);opacity:0;transition:transform .6s var(--ease-out),opacity .45s,box-shadow .3s;transition-delay:calc(var(--i,0)*160ms)}
+.gt-proc .wheel .sp:nth-child(1){padding:30% 10% 10% 30%}
+.gt-proc .wheel .sp:nth-child(2){padding:30% 30% 10% 10%}
+.gt-proc .wheel .sp:nth-child(3){padding:10% 10% 30% 30%}
+.gt-proc .wheel .sp:nth-child(4){padding:10% 30% 30% 10%}
+.gt-proc .hero-radial.in .sp{transform:scale(1);opacity:1}
+.gt-proc .wheel .sp:nth-child(1){border-radius:100% 14px 14px 14px;transform-origin:bottom right}
+.gt-proc .wheel .sp:nth-child(2){border-radius:14px 100% 14px 14px;transform-origin:bottom left}
+.gt-proc .wheel .sp:nth-child(3){border-radius:14px 14px 14px 100%;transform-origin:top right}
+.gt-proc .wheel .sp:nth-child(4){border-radius:14px 14px 100% 14px;transform-origin:top left}
+.gt-proc .wheel .sp:hover{box-shadow:var(--elev-2)}
+.gt-proc .wheel .sp b{font-family:var(--font-display);font-weight:700;font-size:clamp(.92rem,1.55vw,1.22rem);line-height:1.08;color:var(--brand);overflow-wrap:anywhere;hyphens:auto}
+.gt-proc .wheel .sp span{font-size:.72rem;color:var(--text-secondary);line-height:1.35}
+.gt-proc .wheel .sp i{font-family:var(--font-mono);font-style:normal;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)}
+
+/* ================= F / SPEC STRIP (split: stats left, image right) ================= */
+.gt-proc .stats{display:flex;flex-direction:column;gap:clamp(22px,3.4vw,42px)}
+.gt-proc .stat{position:relative;min-width:0}
+.gt-proc .stats--split{flex-direction:row;align-items:center;justify-content:space-between;gap:clamp(28px,5vw,64px)}
+.gt-proc .stats-col{display:flex;flex-direction:column;gap:clamp(22px,3.4vw,42px);flex:1 1 56%;min-width:0}
+.gt-proc .stat-media{position:relative;flex:1 1 36%;min-width:0;height:clamp(230px,28vw,340px);border:1px solid var(--border-subtle);border-radius:var(--r-md);background:var(--bg-elevated);box-shadow:var(--elev-1);overflow:hidden}
+.gt-proc .stat-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:clamp(12px,2vw,24px)}
+.gt-proc .stat-media figcaption{position:absolute;left:14px;bottom:10px;font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted)}
+.gt-proc .stat .v{font-family:var(--font-display);font-weight:600;font-size:clamp(1.9rem,3.6vw,3rem);line-height:1.04;letter-spacing:-.01em;overflow:hidden}
+.gt-proc .stat .v>span{display:inline-block;transform:translateY(112%);transition:transform .8s var(--ease-out);transition-delay:calc(var(--i,0)*130ms)}
+.gt-proc .stats.in .stat .v>span{transform:none}
+.gt-proc .stat .v em{font-style:normal;color:var(--brand)}
+.gt-proc .stat .l{font-size:.88rem;color:var(--text-secondary);margin-top:6px}
+.gt-proc .stat .rule{height:2px;background:var(--brand);margin-top:12px;transform:scaleX(0);transform-origin:left;transition:transform .7s var(--ease-out);transition-delay:calc(var(--i,0)*160ms + 120ms)}
+.gt-proc .stats.in .rule{transform:scaleX(1)}
+
+/* ================= G / MODEL RANGE — datasheet panels ================= */
+.gt-proc .range{display:grid;gap:clamp(16px,2vw,26px);max-width:880px;margin-inline:auto}
+.gt-proc .rcard{position:relative;border:1px solid var(--border-subtle);border-radius:var(--r-card);background:var(--bg-elevated);box-shadow:var(--elev-1);padding:clamp(20px,2.4vw,32px);display:grid;grid-template-columns:auto 1fr;gap:clamp(18px,2.4vw,34px);align-items:center;overflow:hidden;transition:transform .3s var(--ease-out),box-shadow .3s}
+.gt-proc .rcard:hover{transform:translateY(-4px);box-shadow:var(--elev-2)}
+.gt-proc .gauge{position:relative;z-index:1;width:clamp(92px,10vw,118px);aspect-ratio:1;flex:none}
+.gt-proc .gauge svg{width:100%;height:100%;transform:rotate(-90deg)}
+.gt-proc .gauge .g-track{fill:none;stroke:var(--border-default);stroke-width:7}
+.gt-proc .gauge .g-fill{fill:none;stroke:var(--brand);stroke-width:7;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.05s var(--ease-out) .1s}
+.gt-proc .rcard.hit .gauge .g-fill{stroke-dashoffset:var(--goff,.2)}
+.gt-proc .gauge .g-read{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.gt-proc .gauge .g-max{font-family:var(--font-display);font-weight:700;font-size:clamp(1.3rem,2.2vw,1.7rem);line-height:1;color:var(--brand)}
+.gt-proc .gauge .g-unit{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-top:3px}
+.gt-proc .rc-main{min-width:0;position:relative;z-index:1}
+.gt-proc .rc-top{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px}
+.gt-proc .rc-cls{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--brand)}
+.gt-proc .rc-top h3{font-family:var(--font-display);font-weight:600;font-size:clamp(1.15rem,1.8vw,1.5rem)}
+.gt-proc .rc-pr{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);border:1px solid var(--border-default);border-radius:var(--r-pill);padding:2px 10px}
+.gt-proc .rc-desc{color:var(--text-secondary);font-size:.92rem;margin-top:8px;max-width:58ch}
+.gt-proc .rc-range{margin-top:16px}
+.gt-proc .rc-range .rt-label{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;color:var(--text-muted);margin-bottom:7px}
+.gt-proc .rc-bar{position:relative;height:8px;border-radius:var(--r-pill);background:var(--bg-sunken);overflow:hidden}
+.gt-proc .rc-bar i{position:absolute;inset:0;background:var(--plate);transform:scaleX(0);transform-origin:left;transition:transform 1.1s var(--ease-out) .15s}
+.gt-proc .rcard.hit .rc-bar i{transform:scaleX(var(--w,.7))}
+.gt-proc .rc-models{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:16px;padding-top:14px;border-top:1px dashed var(--border-default)}
+.gt-proc .rc-models .mdl{font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);display:inline-flex;align-items:center;gap:7px}
+.gt-proc .rc-models .mdl::before{content:"";width:8px;height:8px;border:2px solid var(--brand);border-radius:2px;flex:none}
+
+/* ---- G-production · DATASHEET CARD — IMAGE-FORWARD BENTO (real Variant data) ----
+   2-up bento on tablet/desktop, 1-up on mobile. 4 cards -> 2x2, 3 -> 2 + 1
+   full-width (last spans), 1 -> full-width. Each cell is a square-ish MEDIA well
+   (real img when supplied, else a token-only concentric-arc LINE-ART placeholder —
+   never an invented product photo) with the readout + title as a scrim OVERLAY at
+   the image bottom; description + dashed model rail sit below on the card surface.
+   Cards are image-forward, so they use the full section width (the old compact
+   880px readout-card cap is lifted). No dense (keeps order); rows size to content. */
+.gt-proc .ds-grid{display:grid;gap:clamp(16px,1.8vw,24px);grid-template-columns:1fr;max-width:none;margin-inline:auto}
+.gt-proc .ds-card{position:relative;display:flex;flex-direction:column;border:1px solid var(--border-subtle);border-radius:var(--r-card);background:var(--bg-elevated);box-shadow:var(--elev-1);overflow:hidden;transition:transform .3s var(--ease-out),box-shadow .3s,border-color .3s}
+.gt-proc .ds-card:hover{transform:translateY(-5px);box-shadow:var(--elev-2);border-color:color-mix(in srgb,var(--brand) 34%,var(--border-subtle))}
+.gt-proc .ds-media{position:relative;aspect-ratio:4 / 3;overflow:hidden;background:var(--bg-surface)}
+.gt-proc .ds-media .ds-ph{position:absolute;inset:0;width:100%;height:100%}
+.gt-proc .ds-media .ds-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.gt-proc .ds-arcs circle{fill:none;stroke:var(--brand);stroke-width:1.5;opacity:.22}
+.gt-proc .ds-arcs2 circle{fill:none;stroke:var(--text-default);stroke-width:1.5;opacity:.12}
+.gt-proc .ds-overlay{position:absolute;left:0;right:0;bottom:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;padding:22px 16px 14px;background:linear-gradient(to top,var(--scrim-70),color-mix(in srgb,var(--text-default) 55%,transparent) 50%,transparent)}
+.gt-proc .ds-overlay .ds-val{font-family:var(--font-display);font-weight:700;font-size:clamp(1.35rem,2.4vw,1.9rem);line-height:1;color:var(--brand-fg);overflow-wrap:anywhere}
+.gt-proc .ds-overlay .ds-title{font-family:var(--font-display);font-weight:600;font-size:clamp(1rem,1.5vw,1.22rem);line-height:1.15;color:var(--brand-fg);flex:1 1 100%;margin:0}
+.gt-proc .ds-body{display:flex;flex-direction:column;gap:10px;padding:clamp(16px,2vw,22px);flex:1 1 auto}
+.gt-proc .ds-meta{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
+.gt-proc .ds-idx{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--brand)}
+.gt-proc .ds-kick{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)}
+.gt-proc .ds-subline{font-family:var(--font-mono);font-size:.8rem;letter-spacing:.02em;color:var(--brand-active);margin-top:-4px}
+.gt-proc .ds-desc{color:var(--text-secondary);font-size:.92rem;line-height:1.5}
+.gt-proc .ds-models{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:2px;padding-top:12px;border-top:1px dashed var(--border-default)}
+.gt-proc .ds-models span{font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);display:inline-flex;align-items:center;gap:7px}
+.gt-proc .ds-models span::before{content:"";width:8px;height:8px;border:2px solid var(--brand);border-radius:2px;flex:none}
+/* bento packing: 2-up on tablet/desktop; an odd final card (1 or 3) spans full
+   width with a wider (cinematic) media crop */
+@media (min-width:640px){
+  .gt-proc .ds-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gt-proc .ds-card:last-child:nth-child(odd){grid-column:1 / -1}
+  .gt-proc .ds-card:last-child:nth-child(odd) .ds-media{aspect-ratio:16 / 7}
+}
+.gt-proc .ds-rv{transition:opacity .6s var(--ease-out),transform .6s var(--ease-out)}
+.gt-proc .ds-rv.ds-pre{opacity:0;transform:translateY(20px);transition:none}
+
+/* ================= H / COMPARISON TABLE ================= */
+.gt-proc .tbl-wrap{position:relative;border:1px solid var(--border-subtle);border-radius:var(--r-card);overflow:hidden;background:var(--bg-elevated);box-shadow:var(--elev-1)}
+.gt-proc .tbl-wrap.spec-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.gt-proc .tbl-wrap.spec-scroll table.cmp{min-width:600px}
+.gt-proc table.cmp{width:100%;border-collapse:separate;border-spacing:0;font-size:.88rem}
+.gt-proc table.cmp th,.gt-proc table.cmp td{padding:15px clamp(14px,1.8vw,22px);text-align:left;vertical-align:top;border-bottom:1px solid var(--border-subtle)}
+.gt-proc table.cmp thead th{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:var(--text-default);color:var(--bg-elevated);border-bottom:0;padding-block:16px}
+.gt-proc table.cmp thead th:first-child{background:var(--brand);color:var(--brand-fg);border-top-left-radius:var(--r-card)}
+.gt-proc table.cmp thead th:last-child{border-top-right-radius:var(--r-card)}
+.gt-proc table.cmp thead th b{display:block;font-family:var(--font-display);font-weight:600;font-size:1.02rem;letter-spacing:0;text-transform:none;margin-top:3px;color:inherit}
+.gt-proc table.cmp tbody th{font-weight:600;color:var(--text-secondary);white-space:nowrap;font-size:.84rem;font-family:var(--font-mono);letter-spacing:.02em;border-bottom:0}
+.gt-proc table.cmp tbody td{box-shadow:inset 0 -1px 0 var(--border-subtle)}
+.gt-proc table.cmp tbody tr{opacity:0;transform:translateY(10px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-out);transition-delay:calc(var(--i,0)*70ms);position:relative}
+.gt-proc .tbl-wrap.in tbody tr{opacity:1;transform:none}
+/* JS-off-safe: default the rows VISIBLE; hide-then-reveal only once the
+   component opts in with `.rv` (added by JS, and only when IO will run). */
+.gt-proc table.cmp tbody tr{opacity:1;transform:none}
+.gt-proc .tbl-wrap.rv:not(.in) table.cmp tbody tr{opacity:0;transform:translateY(10px)}
+.gt-proc table.cmp tbody tr:nth-child(even){background:color-mix(in srgb,var(--bg-surface) 60%,transparent)}
+.gt-proc table.cmp tbody tr:hover{background:var(--brand-subtle-bg)}
+.gt-proc table.cmp tbody td:first-of-type{background:color-mix(in srgb,var(--brand-subtle-bg) 55%,transparent);font-weight:600;color:var(--text-default)}
+.gt-proc table.cmp tbody tr:hover td:first-of-type{background:color-mix(in srgb,var(--brand-subtle-bg) 90%,transparent)}
+.gt-proc table.cmp tbody tr:last-child th,.gt-proc table.cmp tbody tr:last-child td{border-bottom:0}
+.gt-proc .tbl-cap{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin-top:14px;font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted)}
+.gt-proc .tbl-cap .lg{display:inline-flex;align-items:center;gap:7px}
+.gt-proc .tbl-cap .lg::before{content:"";width:14px;height:14px;border-radius:4px;background:color-mix(in srgb,var(--brand-subtle-bg) 80%,transparent);border:1px solid var(--border-subtle)}
+
+/* ---- SPECIFICATIONS · KEY/VALUE TABLE (styled to match the comparison table) ----
+   Mirrors table.cmp exactly: dark charcoal header band (flush bottom, no red
+   underglow), brand-red corner cell, rounded top corners, zebra rows, hover
+   tint, subtle label-column tint,
+   staggered row reveal. JS-off-safe: rows visible by default, hidden only once
+   the component opts in with `.rv`. */
+.gt-proc .kv-wrap{position:relative;border:1px solid var(--border-subtle);border-radius:var(--r-card);overflow:hidden;background:var(--bg-elevated);box-shadow:var(--elev-1)}
+.gt-proc table.kv{width:100%;border-collapse:separate;border-spacing:0}
+.gt-proc table.kv th,.gt-proc table.kv td{text-align:left;vertical-align:top;padding:15px clamp(16px,2vw,26px);border-bottom:1px solid var(--border-subtle)}
+.gt-proc table.kv thead th{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:var(--text-default);color:var(--bg-elevated);border-bottom:0;padding-block:16px;font-weight:400}
+.gt-proc table.kv thead th:first-child{background:var(--brand);color:var(--brand-fg);border-top-left-radius:var(--r-card)}
+.gt-proc table.kv thead th:last-child{border-top-right-radius:var(--r-card)}
+.gt-proc table.kv tbody th{font-family:var(--font-mono);font-weight:400;font-size:var(--fs-xs);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--text-secondary);width:1%;white-space:nowrap;padding-right:clamp(20px,3vw,48px);background:color-mix(in srgb,var(--bg-surface) 45%,transparent);border-bottom:0}
+.gt-proc table.kv tbody td{color:var(--text-default);font-size:.98rem;line-height:1.5;box-shadow:inset 0 -1px 0 var(--border-subtle)}
+.gt-proc table.kv tbody tr{transition:opacity .5s var(--ease-out),transform .5s var(--ease-out);transition-delay:calc(var(--i,0)*60ms)}
+.gt-proc table.kv tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--bg-surface) 60%,transparent)}
+.gt-proc table.kv tbody tr:hover th,.gt-proc table.kv tbody tr:hover td{background:var(--brand-subtle-bg)}
+.gt-proc table.kv tbody tr:last-child th,.gt-proc table.kv tbody tr:last-child td{border-bottom:0}
+.gt-proc .kv-wrap.rv:not(.in) table.kv tbody tr{opacity:0;transform:translateY(10px)}
+
+/* ================= I / SERVICE PIPELINE ================= */
+.gt-proc .pipe-wrap{position:relative;padding-top:68px}
+.gt-proc .pipe{position:absolute;top:29px;left:6%;right:6%;height:10px;border-radius:var(--r-pill);background:var(--bg-sunken);border:1px solid var(--border-default);overflow:hidden}
+.gt-proc .pipe::before{content:"";position:absolute;inset:0;background:var(--plate);transform:scaleX(0);transform-origin:left;transition:transform 1.3s var(--ease-out)}
+.gt-proc .pipe-wrap.in .pipe::before{transform:scaleX(1)}
+.gt-proc .pipe .flow{position:absolute;top:0;bottom:0;left:-50%;width:50%;background:repeating-linear-gradient(90deg,transparent 0 20px,color-mix(in srgb,var(--brand-fg) 55%,transparent) 20px 26px);opacity:.5;animation:gt-proc-pflow 2.4s linear infinite}
+@keyframes gt-proc-pflow{to{transform:translateX(200%)}}
+.gt-proc .pipe-term{position:absolute;top:22px;width:14px;height:24px;border-radius:3px;background:var(--brand)}
+.gt-proc .pipe-term.a{left:calc(6% - 16px)}
+.gt-proc .pipe-term.b{right:calc(6% - 16px)}
+.gt-proc .stations{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,28px)}
+.gt-proc .station{position:relative}
+.gt-proc .riser{position:absolute;top:-34px;left:50%;width:2px;height:34px;background:var(--brand);transform:translateX(-50%) scaleY(0);transform-origin:top;transition:transform .5s var(--ease-out);transition-delay:calc(var(--i,0)*160ms + .6s)}
+.gt-proc .riser::before{content:"";position:absolute;top:-3px;left:50%;transform:translateX(-50%);width:14px;height:4px;border-radius:2px;background:var(--brand)}
+.gt-proc .pipe-wrap.in .riser{transform:translateX(-50%) scaleY(1)}
+.gt-proc .valve{position:absolute;top:-56px;left:50%;transform:translateX(-50%) scale(0);width:44px;height:44px;border-radius:50%;background:var(--bg-elevated);border:2px solid var(--brand);display:grid;place-items:center;font-family:var(--font-display);font-weight:700;color:var(--brand);font-size:.95rem;box-shadow:var(--elev-1);transition:transform .5s var(--ease-out);transition-delay:calc(var(--i,0)*160ms + .85s)}
+.gt-proc .pipe-wrap.in .valve{transform:translateX(-50%) scale(1)}
+.gt-proc .sbody{position:relative;border:1px solid var(--border-default);border-top:3px solid var(--text-default);border-radius:2px;background:var(--bg-elevated);padding:clamp(20px,2vw,26px) clamp(18px,2vw,24px) clamp(20px,2vw,28px);height:100%;transition:border-color .3s var(--ease-out),box-shadow .3s var(--ease-out)}
+.gt-proc .station:hover .sbody{border-color:var(--brand);box-shadow:0 10px 24px -18px color-mix(in srgb,var(--brand) 55%,transparent)}
+.gt-proc .sbody .st-no{display:inline-block;background:var(--brand);color:var(--brand-fg);font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;padding:5px 11px;margin:-20px 0 0 -18px}
+.gt-proc .sbody h3{font-family:var(--font-display);font-weight:600;font-size:1.15rem;margin-top:14px}
+.gt-proc .sbody p{font-size:.9rem;color:var(--text-secondary);margin-top:8px}
+
+/* ================= J / FAQ ================= */
+.gt-proc .faq{max-width:880px;margin-inline:auto}
+/* neutralise the production .faq-list{display:grid;gap:12px;max-width:78ch} leak
+   (enhancements.css): a single-class production rule can't beat this 2-class one,
+   so the showcase border-only stack wins and the list centres inside .faq. */
+.gt-proc .faq-list{display:block;gap:0;max-width:none;border-top:1px solid var(--border-default)}
+.gt-proc .faq-list details{border-bottom:1px solid var(--border-default)}
+.gt-proc .faq-list summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:18px;align-items:center;padding:22px 6px;font-family:var(--font-display);font-weight:500;font-size:1.28rem;line-height:1.25;transition:color .25s}
+.gt-proc .faq-list summary:hover,.gt-proc .faq-list details[open] summary{color:var(--brand)}
+.gt-proc .faq-list summary::-webkit-details-marker{display:none}
+.gt-proc .faq-list .plus{position:relative;width:20px;height:20px;flex:none}
+.gt-proc .faq-list .plus::before,.gt-proc .faq-list .plus::after{content:"";position:absolute;background:var(--brand);transition:transform .35s var(--ease-out)}
+.gt-proc .faq-list .plus::before{left:0;right:0;top:9px;height:2px}
+.gt-proc .faq-list .plus::after{top:0;bottom:0;left:9px;width:2px}
+.gt-proc .faq-list details[open] .plus::after{transform:rotate(90deg) scaleX(0)}
+.gt-proc .faq-list details p{padding:0 6px 22px;color:var(--text-secondary);font-size:1.02rem;line-height:1.6;max-width:64ch}
+/* animated panel: JS drives .faq-body height; the answer fades/slides in behind it */
+.gt-proc .faq-list .faq-body{overflow:hidden}
+.gt-proc .faq-list .faq-body p{opacity:0;transform:translateY(-8px);transition:opacity .32s var(--ease-out),transform .32s var(--ease-out)}
+.gt-proc .faq-list details[open] .faq-body p{opacity:1;transform:none;transition-delay:.12s}
+
+/* ================= K / MARQUEE + REFERENCES ================= */
+.gt-proc .marq{overflow:hidden;border-block:1px solid var(--border-subtle);padding-block:14px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.gt-proc .marq-track{display:flex;gap:34px;width:max-content;animation:gt-proc-marq 26s linear infinite}
+.gt-proc .marq--rev .marq-track{animation-direction:reverse;animation-duration:32s}
+.gt-proc .marq span{font-family:var(--font-display);font-weight:500;font-size:clamp(1.1rem,2.4vw,1.7rem);color:var(--text-default);white-space:nowrap;display:flex;align-items:center;gap:34px}
+.gt-proc .marq span::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--brand);opacity:.7}
+@keyframes gt-proc-marq{to{transform:translateX(-50%)}}
+.gt-proc .marq:hover .marq-track{animation-play-state:paused}
+.gt-proc .refs{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,2vw,24px);margin-top:clamp(28px,4vw,48px)}
+.gt-proc .ref{border:1px solid var(--border-subtle);border-top:3px solid var(--brand);border-radius:var(--r-card);background:var(--bg-elevated);padding:clamp(20px,2.2vw,28px);box-shadow:var(--elev-1);transition:transform .3s var(--ease-out),box-shadow .3s}
+.gt-proc .ref:hover{transform:translateY(-5px);box-shadow:var(--elev-2)}
+.gt-proc .ref .rq{font-family:var(--font-display);font-weight:700;font-size:2.2rem;color:var(--brand);line-height:1}
+.gt-proc .ref blockquote{font-size:.92rem;color:var(--text-secondary);margin-top:10px}
+.gt-proc .ref figcaption{margin-top:16px;font-size:.85rem}
+.gt-proc .ref figcaption b{display:block;font-family:var(--font-display);font-weight:600}
+.gt-proc .ref figcaption span{color:var(--text-muted);font-family:var(--font-mono);font-size:11px;letter-spacing:.06em}
+
+/* ---- reuse-map footer ---- */
+.gt-proc .foot{padding:clamp(48px,6vw,80px) 0;border-top:1px solid var(--border-subtle);background:color-mix(in srgb,var(--brand-subtle-bg) 40%,var(--bg-page))}
+.gt-proc .foot h2{font-family:var(--font-display);font-weight:600;font-size:1.4rem;margin-bottom:14px}
+.gt-proc .foot ul{columns:2;gap:clamp(20px,4vw,60px);font-size:.9rem;color:var(--text-secondary)}
+.gt-proc .foot li{padding:5px 0 5px 18px;position:relative;break-inside:avoid}
+.gt-proc .foot li::before{content:"";position:absolute;left:0;top:13px;width:9px;height:2px;background:var(--brand)}
+.gt-proc .foot b{color:var(--text-default)}
+
+/* ---- responsive (ported verbatim, scoped) ---- */
+@media (max-width:1023px){.gt-proc .c7,.gt-proc .c5,.gt-proc .c4,.gt-proc .c3,.gt-proc .c6,.gt-proc .c8{grid-column:span 6}.gt-proc .bento{grid-auto-rows:clamp(170px,26vw,220px)}}
+@media (max-width:720px){
+  .gt-proc .tl{min-height:0;gap:26px}
+  .gt-proc .tl-spine{display:none}
+  .gt-proc .tl::before{content:"";position:absolute;left:7px;top:8px;bottom:8px;width:2px;background:var(--brand);border-radius:2px}
+  .gt-proc .tl-item,.gt-proc .tl-item:nth-child(odd),.gt-proc .tl-item:nth-child(even){width:100%;margin:0;padding-left:40px}
+  .gt-proc .tl-item:nth-child(odd) .tl-node,.gt-proc .tl-item:nth-child(even) .tl-node{left:8px;right:auto}
+  .gt-proc .tl-link{display:none}
+  .gt-proc .tl-card,.gt-proc .tl-item:nth-child(even) .tl-card{grid-template-columns:1fr 120px}
+  .gt-proc .tl-item:nth-child(even) .tl-txt{order:1;text-align:left}
+  .gt-proc .tl-item:nth-child(even) .tl-media{order:2}
+  .gt-proc table.cmp{min-width:680px}
+  .gt-proc .tbl-wrap{overflow-x:auto}
+  .gt-proc .faq-list summary{font-size:1.1rem}
+  .gt-proc .faq-list details p{font-size:.98rem}
+  .gt-proc .foot ul{columns:1}
+}
+@media (max-width:640px){
+  .gt-proc .c7,.gt-proc .c5,.gt-proc .c4,.gt-proc .c3,.gt-proc .c6,.gt-proc .c8,.gt-proc .c12{grid-column:span 12}
+  .gt-proc .r2{grid-row:span 1}
+  .gt-proc .bento{grid-auto-rows:minmax(180px,auto)}
+  .gt-proc .bt .bt-media{min-height:clamp(150px,44vw,220px)}
+  .gt-proc .bt.r2 .bt-media{min-height:clamp(150px,44vw,220px)}
+  .gt-proc .arch-chart{grid-template-columns:1fr;align-items:start;gap:26px;border-bottom:0;border-left:2px solid var(--text-default);padding:4px 0 4px 22px}
+  .gt-proc .ac-item{flex-direction:row;align-items:flex-end;gap:16px;text-align:left}
+  .gt-proc .ac-arch{width:56px;height:var(--h);flex:none}
+  .gt-proc .ac-name{margin-top:0}
+}
+@media (max-width:900px){.gt-proc .hero-radial{grid-template-columns:1fr}}
+@media (max-width:860px){.gt-proc .stats--split{flex-direction:column;align-items:stretch}.gt-proc .stat-media{height:clamp(200px,52vw,280px)}.gt-proc .refs{grid-template-columns:1fr}}
+@media (max-width:620px){.gt-proc .rcard{grid-template-columns:1fr}.gt-proc .gauge{margin-inline:auto}}
+@media (max-width:820px){
+  .gt-proc .pipe-wrap{padding-top:0;padding-left:44px}
+  .gt-proc .pipe{top:6px;bottom:6px;left:13px;right:auto;width:10px;height:auto;border-radius:var(--r-pill)}
+  .gt-proc .pipe::before{transform:scaleY(0);transform-origin:top}
+  .gt-proc .pipe-wrap.in .pipe::before{transform:scaleY(1)}
+  .gt-proc .pipe .flow{top:-50%;bottom:auto;left:0;right:0;width:auto;height:50%;background:repeating-linear-gradient(180deg,transparent 0 20px,color-mix(in srgb,var(--brand-fg) 55%,transparent) 20px 26px);animation:gt-proc-pflowy 2.4s linear infinite}
+  .gt-proc .pipe-term{display:none}
+  .gt-proc .stations{grid-template-columns:1fr;gap:22px}
+  .gt-proc .station{padding-left:0}
+  .gt-proc .riser{top:24px;left:-31px;width:24px;height:2px;transform:scaleX(0);transform-origin:left;transition-delay:calc(var(--i,0)*160ms + .4s)}
+  .gt-proc .pipe-wrap.in .riser{transform:scaleX(1)}
+  .gt-proc .valve{top:3px;left:-38px;transform:scale(0)}
+  .gt-proc .pipe-wrap.in .valve{transform:scale(1)}
+}
+@keyframes gt-proc-pflowy{to{transform:translateY(200%)}}
+
+/* ---- REDUCED MOTION: land every animated block in its final state ---- */
+@media (prefers-reduced-motion:reduce){
+  .gt-proc .rv,.gt-proc .stg>*{opacity:1;transform:none}
+  .gt-proc .ac-arch{transform:scaleY(1)}
+  .gt-proc .hero-radial .sp{transform:scale(1);opacity:1}
+  .gt-proc .stat .v>span{transform:none}
+  .gt-proc .stat .rule{transform:scaleX(1)}
+  .gt-proc .tl-node{transform:translate(-50%,-50%) scale(1)}
+  .gt-proc .tl-border path{stroke-dashoffset:0}
+  .gt-proc table.cmp tbody tr{opacity:1;transform:none}
+  .gt-proc .gauge .g-fill{stroke-dashoffset:var(--goff,.2)}
+  .gt-proc .rc-bar i{transform:scaleX(var(--w,.7))}
+  .gt-proc .pipe::before{transform:none}
+  .gt-proc .riser{transform:translateX(-50%) scaleY(1)}
+  .gt-proc .valve{transform:translateX(-50%) scale(1)}
+  .gt-proc .faq-list .faq-body p{opacity:1;transform:none;transition:none}
+}
+
+/* ================= F / HERO SPEC-STRIP BIG STATS (gas-burners demo) =================
+   Replaces the flat .p-specstrip chips in the hero's LEFT column with big-stat
+   blocks (.ss-*): oversized value with a brand-red lead token, a mono label and a
+   brand rule that draws in. Same 4-up slot as the chips (collapses 2-up / 1-up),
+   so the two-column hero and the contained carousel are unchanged. Gated to slug
+   'gas-burners' in the page; JS-off-safe (stats visible by default, revealed only
+   once `.rv` is added by JS). */
+.gt-proc .ss-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(16px,2vw,28px);align-items:stretch;margin-top:26px}
+.gt-proc .ss-stat{min-width:0;display:flex;flex-direction:column}
+.gt-proc .ss-body{flex:0 0 auto}
+.gt-proc .ss-v{font-family:var(--font-display);font-weight:600;font-size:clamp(1.4rem,1rem + 1.4vw,2.1rem);line-height:1.05;letter-spacing:-.01em;color:var(--text-default);margin:0;overflow:hidden;overflow-wrap:anywhere;min-height:76px}
+.gt-proc .ss-v>span{display:inline-block;transform:none;transition:transform .8s var(--ease-out);transition-delay:calc(var(--i,0)*120ms)}
+.gt-proc .ss-v em{font-style:normal;color:var(--brand)}
+.gt-proc .ss-l{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--text-muted);margin:8px 0 0;line-height:1.3;height:2.6em;overflow:hidden}
+.gt-proc .ss-rule{display:block;height:2px;background:var(--brand);margin-top:16px;transform:scaleX(1);transform-origin:left;transition:transform .7s var(--ease-out);transition-delay:calc(var(--i,0)*120ms + 140ms)}
+.gt-proc .ss-stats.in .ss-v>span{transform:none}
+.gt-proc .ss-stats.in .ss-rule{transform:scaleX(1)}
+/* JS-off-safe: visible by default; hidden ONLY once the component opts in with
+   `.rv` (added by JS, and only when IO will run), then revealed by `.in`. */
+.gt-proc .ss-stats.rv:not(.in) .ss-v>span{transform:translateY(112%)}
+.gt-proc .ss-stats.rv:not(.in) .ss-rule{transform:scaleX(0)}
+@media (max-width:900px){.gt-proc .ss-stats{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.gt-proc .ss-stats{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){
+  .gt-proc .ss-stats .ss-v>span{transform:none}
+  .gt-proc .ss-stats .ss-rule{transform:scaleX(1)}
+}
+

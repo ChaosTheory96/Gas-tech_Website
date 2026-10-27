@@ -35,3 +35,7 @@ yarn-error.log*
 
 # internal qa probe scripts (not part of the site)
 /qa
+
+# build logs and local scratch (not part of the site)
+*.log
+*.txt.bak

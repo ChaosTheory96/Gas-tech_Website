@@ -6,6 +6,7 @@ import { siteGraph, breadcrumbSchema } from "@/lib/schema";
 import { Icon } from "@/components/icons";
 import { Marquee, SectionHead, JsonLd } from "@/components/blocks";
 import { EnquiryButton } from "@/components/enquiry";
+import BentoGrid, { type BentoItem } from "@/components/BentoGrid";
 
 export const metadata = buildMetadata({
   title: "Products | Burners, Regulators, Flow Meters & Gas Safety | Gastech",
@@ -105,22 +106,20 @@ export default function ProductsPage() {
           <section className={gi % 2 === 0 ? "sec sec--tint" : "sec"} id={g.id} key={g.id}>
             <div className="wrap">
               <SectionHead eyebrow={g.eyebrow} title={g.title} sub={g.sub} />
-              <div className={g.cols === 3 ? "rel-grid rel-grid--3" : "rel-grid rel-grid--2"} data-stagger>
-                {g.cards.map((c) => {
+              <BentoGrid
+                items={g.cards.map((c): BentoItem => {
                   const prod = getProduct(c.slug);
-                  return (
-                    <Link className="rel-card" key={c.slug} href={`/${c.slug}`}>
-                      <div className="rc-media">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={c.img} alt={c.alt} loading="lazy" decoding="async" /></div>
-                      <div className="rc-body">
-                        <span>{prod?.brand}</span>
-                        <h3>{prod?.navLabel}</h3>
-                        <p>{c.desc}</p>
-                        <span className="rc-go">View range <Icon name="arrow" /></span>
-                      </div>
-                    </Link>
-                  );
+                  return {
+                    href: `/${c.slug}`,
+                    img: c.img,
+                    alt: c.alt,
+                    title: prod?.navLabel ?? "",
+                    brand: prod?.brand ?? "",
+                    desc: c.desc,
+                    span: g.cols === 3 ? "c4 r2" : "c6 r2",
+                  };
                 })}
-              </div>
+              />
             </div>
           </section>
         ))}
