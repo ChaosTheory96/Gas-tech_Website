@@ -124,7 +124,10 @@ u{text-decoration:none;color:inherit;background-image:linear-gradient(var(--bran
 .mega{position:absolute;top:100%;left:0;right:0;z-index:var(--z-dropdown);padding-top:12px;opacity:0;visibility:hidden;transform:translateY(-10px);transition:opacity var(--dur-nav) var(--ease-out),transform var(--dur-nav) var(--ease-out),visibility var(--dur-nav)}
 .has-mega.is-open .mega,.has-mega:focus-within .mega{opacity:1;visibility:visible;transform:none}
 .mega-inner{display:grid;grid-template-columns:1.15fr repeat(3,1fr);gap:clamp(16px,1.6vw,28px);width:100%;max-width:min(1560px,100%);margin-inline:auto;padding:clamp(20px,2.2vw,32px);background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--r-card);box-shadow:var(--neu-float)}
-.mega-feature{display:flex;flex-direction:column;justify-content:space-between;gap:16px;padding:clamp(20px,2vw,28px);border-radius:20px;background:var(--plate);color:var(--on-dark);border:1px solid var(--border-subtle);transition:transform var(--dur-hover) var(--ease-out)}
+.mega-feature{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;gap:16px;padding:clamp(20px,2vw,28px);border-radius:20px;background:var(--plate);color:var(--on-dark);border:1px solid var(--border-subtle);transition:transform var(--dur-hover) var(--ease-out)}
+/* red duotone photo: luminosity-blended over the plate so the brand red stays
+   the only hue (red-plate rule: white text, no new colors). Sits under text. */
+.mf-photo{position:absolute;inset:0;z-index:-1;width:100%;height:100%;object-fit:cover;opacity:.38;mix-blend-mode:luminosity;pointer-events:none}
 .mega-feature:hover{transform:translateY(var(--lift-hover))}
 .mf-kicker{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--on-dark-mute)}
 .mf-title{font-size:var(--fs-fluid-h2);font-weight:var(--fw-bold);letter-spacing:var(--tracking-tight);line-height:1.05}
@@ -137,8 +140,17 @@ u{text-decoration:none;color:inherit;background-image:linear-gradient(var(--bran
 .mega-h{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--text-muted);padding:0 10px 8px}
 .mega-card{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:var(--r-md);border:1px solid transparent;transition:background var(--dur-hover),border-color var(--dur-hover),transform var(--dur-hover) var(--ease-out)}
 .mega-card:hover{background:var(--bg-surface);border-color:var(--border-subtle);transform:translateX(3px)}
-.mc-ic{flex:0 0 auto;width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:color-mix(in srgb,var(--brand) 12%,transparent);color:var(--brand)}
-.mc-ic .i{width:20px;height:20px}
+/* icon tile: INK on nothing by default; the full brand-red plate tile (same
+   gradient as the feature panel) paints in ONLY while its row is hovered or
+   keyboard-focused, and the glyph flips to white on top of it. The tile is a
+   ::before opacity crossfade because gradients can't animate. There is
+   deliberately no persistent "current page" tile — a client asked for the red
+   to be a pure hover affordance, not a state that sticks after a click. */
+.mc-ic{position:relative;flex:0 0 auto;width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:transparent;color:var(--text-default);transition:color var(--dur-hover) var(--ease-out)}
+.mc-ic::before{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--plate);opacity:0;transition:opacity var(--dur-hover) var(--ease-out)}
+.mc-ic .i{position:relative;width:20px;height:20px}
+.mega-card:hover .mc-ic,.mega-card:focus-visible .mc-ic{color:var(--brand-fg)}
+.mega-card:hover .mc-ic::before,.mega-card:focus-visible .mc-ic::before{opacity:1}
 .mc-b{display:flex;flex-direction:column;gap:2px;min-width:0}
 .mc-b b{font-size:var(--fs-sm);font-weight:var(--fw-semibold);color:var(--text-default);line-height:1.2}
 .mc-b small{font-size:var(--fs-xs);color:var(--text-muted)}
@@ -472,6 +484,10 @@ u{text-decoration:none;color:inherit;background-image:linear-gradient(var(--bran
 .brand .gc-mark{display:block;width:34px;height:34px;clip-path:inset(0 100% 0 0);transition:clip-path .9s var(--ease-out)}
 .brand.revealed .gc-mark{clip-path:inset(0 0 0 0)}
 .brand .gc-mark--static{clip-path:none!important}
+/* QA-RETIRED · keyframe — the animated GC logo uses a clip-path TRANSITION
+   (.brand .gc-mark + .brand.revealed above), not this keyframe, so gcReveal is
+   never referenced. Kept in the verbatim layer per the no-deletion rule and
+   marked retired; the audit classifies it retired, not accidental debt. */
 @keyframes gcReveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
 
 /* Breadcrumb */

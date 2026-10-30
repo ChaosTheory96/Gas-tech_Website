@@ -6,11 +6,14 @@ import { Marquee, SectionHead, JsonLd } from "@/components/blocks";
 import { EnquiryButton } from "@/components/enquiry";
 import ProcessTimeline from "@/components/ProcessTimeline";
 
+/* Relocated from app/how-we-deliver/ when the page was renamed "How We Work"
+   (build-sheet label discipline: one name, one URL, everywhere). The old URLs
+   301 to this one from next.config.mjs. */
 export const metadata = buildMetadata({
-  title: "How We Deliver | Design, Supply, Commission & Service | Gastech",
+  title: "How We Work | Design, Supply, Commission & Service | Gastech",
   description:
-    "Gastech Combustions engineers, supplies, tests, installs and services complete gas systems. From enquiry and design to commissioning and long-term AMC, one accountable partner does it right first time in Pune.",
-  path: "/delivery",
+    "Gastech Combustions studies, designs, supplies, tests, installs and services complete gas systems in Pune, then keeps them running under AMC.",
+  path: "/how-we-work/",
   keywords: ["gas system engineering", "gas train installation", "commissioning", "turnkey gas systems", "Pune"],
 });
 
@@ -87,10 +90,10 @@ const HANDOVER = [
 
 const crumbs = [
   { name: "Home", href: "/" },
-  { name: "Delivery", href: "/delivery" },
+  { name: "How We Work", href: "/how-we-work/" },
 ];
 
-export default function DeliveryPage() {
+export default function HowWeWorkPage() {
   return (
     <>
       <JsonLd data={[...siteGraph(), breadcrumbSchema(crumbs)]} />
@@ -98,9 +101,9 @@ export default function DeliveryPage() {
         <section className="intro-hero">
           <div className="wrap">
             <div className="crumbs" aria-label="Breadcrumb" style={{ paddingTop: 0 }}>
-              <Link href="/">Home</Link><span className="sep">/</span><span className="cur">Delivery</span>
+              <Link href="/">Home</Link><span className="sep">/</span><span className="cur">How We Work</span>
             </div>
-            <p className="eyebrow" data-reveal>How we deliver</p>
+            <p className="eyebrow" data-reveal>How we work</p>
             <h1 className="split">
               <span className="line">From spec to</span>
               <span className="line"><em>sustained</em> uptime.</span>
@@ -108,7 +111,7 @@ export default function DeliveryPage() {
             <p className="lede" data-reveal>We practise one thing above all: do it right first time. From the first enquiry our engineers understand your application and offer a complete solution, not just a product, then design, supply, test, install, commission and service it with one accountable partner.</p>
             <div className="intro-cta" data-reveal>
               <a className="btn btn--primary" href="#process">See how we work <Icon name="arrow" /></a>
-              <EnquiryButton className="btn--tech" type="technical" product="Delivery enquiry" icon="chat">Talk to our team</EnquiryButton>
+              <EnquiryButton className="btn--tech" type="technical" product="How we work enquiry" icon="chat">Talk to our team</EnquiryButton>
             </div>
           </div>
         </section>
@@ -133,7 +136,7 @@ export default function DeliveryPage() {
             <SectionHead
               eyebrow="Handover &amp; safety"
               title={<>Proof, not <u>promises.</u></>}
-              sub="Delivery is measured by what you can rely on after we leave site: a tested, safely configured system with one partner standing behind it."
+              sub="What we hand over is measured by what you can rely on after we leave site: a tested, safely configured system with one partner standing behind it."
             />
             <div className="var-grid" data-stagger>
               {HANDOVER.map((h) => (
@@ -150,16 +153,30 @@ export default function DeliveryPage() {
           </div>
         </section>
 
-        {/* AFTER DELIVERY — points to the dedicated Services page instead of repeating it */}
-        <section className="sec" id="support" aria-labelledby="svc-h">
+        {/* WHO WE ARE — the company story lives on About Us, never repeated here */}
+        <section className="sec" id="about-link" aria-labelledby="about-h">
           <div className="wrap">
             <SectionHead
-              eyebrow="After delivery"
-              title={<>Delivery doesn&rsquo;t <u>end at handover.</u></>}
-              sub="Our consultancy, installation and commissioning, and annual maintenance keep your gas plant running at design performance for its whole life. The detail lives on our services page."
+              eyebrow="The company behind the work"
+              title={<>How we work is <u>who we are.</u></>}
+              sub="Gastech Combustions engineers and manufactures gas trains in Pune and represents Riello, Pietro Fiorentini and Gasvigil. The full story, the range and the facts are on our About Us page."
             />
             <div className="ind-foot" data-reveal>
-              <Link className="btn btn--ghost fx-magnetic" href="/services">Explore all services <Icon name="arrow" /></Link>
+              <Link className="btn btn--ghost fx-magnetic" href="/about-us/">About Gastech Combustions <Icon name="arrow" /></Link>
+            </div>
+          </div>
+        </section>
+
+        {/* AFTER HANDOVER — points to the dedicated Services page instead of repeating it */}
+        <section className="sec sec--sunken" id="support" aria-labelledby="svc-h">
+          <div className="wrap">
+            <SectionHead
+              eyebrow="After handover"
+              title={<>Our work doesn&rsquo;t <u>end at handover.</u></>}
+              sub="Consultancy, installation and commissioning, and annual maintenance keep your gas plant running at design performance for its whole life. The detail lives on our services page."
+            />
+            <div className="ind-foot" data-reveal>
+              <Link className="btn btn--ghost fx-magnetic" href="/services/">Explore all services <Icon name="arrow" /></Link>
             </div>
           </div>
         </section>
@@ -168,8 +185,8 @@ export default function DeliveryPage() {
           <div className="wrap">
             <SectionHead light eyebrow="Next step" title="Put your system in good hands." sub="Ask for a site study, a design proposal, or an installation and commissioning visit. We do it right first time." />
             <div className="cta-dual">
-              <EnquiryButton className="btn btn--primary" type="sales" product="Delivery enquiry">Request a quote</EnquiryButton>
-              <EnquiryButton className="btn--tech" type="technical" product="Delivery enquiry" icon="chat">Talk to our team</EnquiryButton>
+              <EnquiryButton className="btn btn--primary" type="sales" product="How we work enquiry">Request a quote</EnquiryButton>
+              <EnquiryButton className="btn--tech" type="technical" product="How we work enquiry" icon="chat">Talk to our team</EnquiryButton>
             </div>
           </div>
         </section>

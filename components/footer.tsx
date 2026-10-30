@@ -51,7 +51,8 @@ export function Footer() {
         <span>© {year} {SITE.legalName}. All rights reserved.</span>
         <span className="foot-legal">
           <Link href="/">Home</Link>
-          <Link href="/contact">Contact</Link>
+          <Link href="/contact-us/">Contact</Link>
+          <Link href="/privacy-policy/">Privacy Policy</Link>
         </span>
       </div>
     </footer>

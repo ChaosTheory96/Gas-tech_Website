@@ -291,6 +291,14 @@
 .gt-proc table.kv tbody tr:hover th,.gt-proc table.kv tbody tr:hover td{background:var(--brand-subtle-bg)}
 .gt-proc table.kv tbody tr:last-child th,.gt-proc table.kv tbody tr:last-child td{border-bottom:0}
 .gt-proc .kv-wrap.rv:not(.in) table.kv tbody tr{opacity:0;transform:translateY(10px)}
+/* Narrow screens: the key column is nowrap by design (it reads as a label rail),
+   but a long value token (an email, a phone pair) then pushes the table past the
+   wrapper's overflow:hidden and the tail of EVERY row is silently cut off. Let the
+   key wrap and the value break anywhere below 720px so the table always fits its box. */
+@media (max-width:720px){
+  .gt-proc table.kv tbody th{white-space:normal;width:auto;padding-right:clamp(12px,3vw,20px)}
+  .gt-proc table.kv tbody td{overflow-wrap:anywhere}
+}
 
 /* ================= I / SERVICE PIPELINE ================= */
 .gt-proc .pipe-wrap{position:relative;padding-top:68px}
@@ -314,6 +322,29 @@
 .gt-proc .sbody .st-no{display:inline-block;background:var(--brand);color:var(--brand-fg);font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;padding:5px 11px;margin:-20px 0 0 -18px}
 .gt-proc .sbody h3{font-family:var(--font-display);font-weight:600;font-size:1.15rem;margin-top:14px}
 .gt-proc .sbody p{font-size:.9rem;color:var(--text-secondary);margin-top:8px}
+
+/* ============ I-B / SERVICE SECTIONS (one band per service) ============ */
+.gt-proc .svc-sec{display:grid;grid-template-columns:minmax(0,46%) minmax(0,54%);gap:clamp(28px,4.5vw,72px);align-items:center}
+.gt-proc .svc-sec--flip .svc-media{order:2}
+.gt-proc .svc-media{position:relative;aspect-ratio:4/3;border-radius:var(--r-card);overflow:hidden;background:var(--bg-sunken);box-shadow:var(--elev-2);transition:opacity .7s var(--ease-out),transform .7s var(--ease-out)}
+.gt-proc .svc-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease-out)}
+.gt-proc .svc-media:hover img{transform:scale(1.05)}
+.gt-proc .svc-code{position:absolute;left:16px;bottom:16px;font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--brand-fg);background:var(--brand);padding:6px 12px;border-radius:3px}
+.gt-proc .svc-marker{position:relative;height:44px;margin-bottom:18px}
+.gt-proc .svc-stub{position:absolute;left:0;top:50%;width:0;height:10px;transform:translateY(-50%);border-radius:var(--r-pill);background:var(--plate);transition:width .7s var(--ease-out)}
+.gt-proc .svc-valve{position:absolute;left:0;top:50%;transform:translateY(-50%) scale(0);width:44px;height:44px;border-radius:50%;background:var(--bg-elevated);border:2px solid var(--brand);display:grid;place-items:center;font-family:var(--font-display);font-weight:700;color:var(--brand);font-size:.95rem;box-shadow:var(--elev-1);transition:transform .55s var(--ease-out) .55s}
+.gt-proc .svc-sec.in .svc-stub{width:64px}
+.gt-proc .svc-sec.in .svc-valve{transform:translate(64px,-50%) scale(1)}
+.gt-proc .svc-sec.rv:not(.in) .svc-media{opacity:0;transform:translateY(16px)}
+.gt-proc .svc-kicker{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--brand)}
+.gt-proc .svc-title{font-family:var(--font-display);font-weight:600;font-size:clamp(1.6rem,1.2rem + 1.6vw,2.4rem);line-height:1.1;margin:8px 0 0;color:var(--text-default)}
+.gt-proc .svc-lead{color:var(--text-secondary);font-size:1.02rem;line-height:1.6;margin-top:14px;max-width:54ch}
+.gt-proc .svc-feats{list-style:none;margin:20px 0 0;padding:0;display:flex;flex-direction:column;gap:14px}
+.gt-proc .svc-feats li{position:relative;padding-left:26px;color:var(--text-secondary);font-size:.98rem;line-height:1.55}
+.gt-proc .svc-feats li::before{content:"";position:absolute;left:0;top:.62em;width:14px;height:2px;background:var(--brand)}
+.gt-proc .svc-feats .fl{font-family:var(--font-display);font-weight:600;color:var(--text-default)}
+.gt-proc .svc-cta{margin-top:26px}
+@media (max-width:900px){.gt-proc .svc-sec{grid-template-columns:1fr;gap:26px}.gt-proc .svc-sec--flip .svc-media{order:0}}
 
 /* ================= J / FAQ ================= */
 .gt-proc .faq{max-width:880px;margin-inline:auto}
@@ -365,6 +396,9 @@
 @media (max-width:1023px){.gt-proc .c7,.gt-proc .c5,.gt-proc .c4,.gt-proc .c3,.gt-proc .c6,.gt-proc .c8{grid-column:span 6}.gt-proc .bento{grid-auto-rows:clamp(170px,26vw,220px)}}
 @media (max-width:720px){
   .gt-proc .tl{min-height:0;gap:26px}
+  /* QA-RETIRED by decision — the SVG spine (track/fill/caps) is dropped below
+     720px in favour of a plain 2px ::before rule; the markup + .tl-spine rules
+     stay in the verbatim layer (no-deletion), only hidden on small screens. */
   .gt-proc .tl-spine{display:none}
   .gt-proc .tl::before{content:"";position:absolute;left:7px;top:8px;bottom:8px;width:2px;background:var(--brand);border-radius:2px}
   .gt-proc .tl-item,.gt-proc .tl-item:nth-child(odd),.gt-proc .tl-item:nth-child(even){width:100%;margin:0;padding-left:40px}

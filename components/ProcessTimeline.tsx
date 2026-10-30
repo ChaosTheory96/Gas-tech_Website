@@ -1,6 +1,6 @@
 "use client";
 // ============================================================================
-// ProcessTimeline — A / PROCESS TIMELINE (Delivery "The path").
+// ProcessTimeline — A / PROCESS TIMELINE (How We Work, "The path").
 // A straight spine that fills dot-to-dot on scroll; each card border is
 // split-drawn by two rounded strokes and its node pops as the card reaches the
 // viewport centre. Text-only: production has no per-step photography, so the

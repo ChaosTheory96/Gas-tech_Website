@@ -1,4 +1,8 @@
 "use client";
+// QA-RETIRED — not wired to any route (a gas-burners hero-spec trial; the
+// product hero ships SpecStats instead). Kept in place per the no-deletion
+// rule; the audit classifies this file RETIRED BY DECISION, not accidental
+// redundancy. Do not import without a fresh decision; do not delete.
 // ============================================================================
 // SpecRadial — E / PRODUCT HERO SPEC RADIAL WHEEL (gas-burners trial).
 // The four hero specs (p.specs, a fixed tuple of 4 {value,label}) rendered as

@@ -9,7 +9,7 @@ import { SITE, absoluteUrl } from "./site";
 type Opts = {
   title: string;
   description: string;
-  path?: string; // route path, e.g. "/gas-burners"
+  path?: string; // route path on the client scheme, e.g. "/products/burners/gas-burners/"
   image?: string; // absolute or root-relative; defaults to logo
   type?: "website" | "article" | "profile";
   noindex?: boolean;

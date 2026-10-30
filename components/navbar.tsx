@@ -14,15 +14,25 @@ import { PRODUCTS } from "@/lib/products";
 import { Icon } from "./icons";
 import { useEnquiry } from "./enquiry";
 
-const PRODUCT_SLUGS = PRODUCTS.map((p) => `/${p.slug}`);
+/* usePathname() returns the served URL, trailing slash included, so every
+   comparison here drops the slash first. Without this "/products/" + "/" would
+   look for "/products//" and no product page would ever light the pill. */
+const unslash = (p: string): string => (p.length > 1 ? p.replace(/\/$/, "") : p);
 
 function isActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
-  return pathname === href || pathname.startsWith(`${href}/`);
+  const path = unslash(pathname);
+  const target = unslash(href);
+  return path === target || path.startsWith(`${target}/`);
 }
 
+/* The Products pill covers the hub plus every product page, at whatever depth
+   the client scheme puts it: /products/..., /gas-trains/ and /brands/gasvigil/. */
+const PRODUCT_PATHS = PRODUCTS.map((p) => unslash(p.route));
+
 function isProductsActive(pathname: string): boolean {
-  return pathname === "/products" || PRODUCT_SLUGS.some((s) => pathname.startsWith(s));
+  const path = unslash(pathname);
+  return path === "/products" || PRODUCT_PATHS.some((r) => path === r || path.startsWith(`${r}/`));
 }
 
 export function Navbar() {
@@ -180,6 +190,12 @@ function MegaItem({
       <div className="mega" id="mega-products">
         <div className="mega-inner">
           <Link className="mega-feature" href={item.feature.href}>
+            {/* Red duotone photo under the panel copy (luminosity blend over the
+                plate, see .mf-photo): kills the flat red block without touching
+                the white-only-on-red-plate text rule. Decorative + lazy, so the
+                menu stays instant. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="mf-photo" src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=70" alt="" aria-hidden="true" loading="lazy" decoding="async" draggable={false} />
             <span className="mf-kicker">{item.feature.kicker}</span>
             <span className="mf-title">{item.feature.title}</span>
             <span className="mf-sub">{item.feature.sub}</span>

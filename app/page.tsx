@@ -1,17 +1,19 @@
 import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
-import { SITE, absoluteUrl } from "@/lib/site";
-import { PRODUCTS } from "@/lib/products";
-import { siteGraph } from "@/lib/schema";
+import { SITE } from "@/lib/site";
+import { getProduct } from "@/lib/products";
+import { siteGraph, breadcrumbSchema } from "@/lib/schema";
 import { Icon } from "@/components/icons";
 import { Marquee, SectionHead, JsonLd } from "@/components/blocks";
 import { CapabilityConveyor } from "@/components/CapabilityConveyor";
+import { HomeScrollFx } from "@/components/HomeScrollFx";
 import { EnquiryButton } from "@/components/enquiry";
 import { Counter, RiseIn } from "@/components/motion";
 
 export const metadata = buildMetadata({
-  title: "Gastech Combustions | Industrial Burners, Gas Regulation, Metering & Gas Safety",
-  description: SITE.description,
+  title: "Gas Trains, PF Regulators & Riello Burners | Gastech",
+  description:
+    "Pune gas train manufacturer and authorised distributor of Pietro Fiorentini, Riello and Gasvigil. Regulators, burners, meters, leak detection. Get a quote.",
   path: "/",
   image: "/assets/gc-logo-flat.png",
   keywords: [
@@ -20,17 +22,21 @@ export const metadata = buildMetadata({
   ],
 });
 
-const IMG = "https://gastechcombustions.in/images";
+const IMG = "/images"; // self-hosted mirror of gastechcombustions.in/images — run `node qa/_fetch-assets.mjs` to populate public/images
+
+/* Capability cards point at the client URL scheme held in lib/products.ts, so a
+   path is never typed twice. Slugs are internal keys only. */
+const toRoute = (slug: string): string => getProduct(slug)?.route ?? "/";
 
 const CAPABILITIES = [
-  { idx: "01", img: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=1200&q=80", alt: "Riello industrial gas burners", href: "/gas-burners", title: "Riello Gas Burners", desc: "Industrial gas burners for boilers, ovens and process heating, sized to your duty.", specs: ["Modulating & staged", "Boiler & process heat", "Riello engineering"] },
-  { idx: "02", img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1200&q=80", alt: "Riello oil burners", href: "/light-oil-burners", title: "Riello Oil Burners", desc: "Light and heavy oil burners delivering reliable, efficient combustion.", specs: ["Light & heavy oil", "Low emissions", "Sized to load"] },
-  { idx: "03", img: "https://images.unsplash.com/photo-1565043666747-69f6646db940?auto=format&fit=crop&w=1200&q=80", alt: "Complete gas handling systems", href: "/gas-trains", title: "Complete Gas Handling Systems", desc: "Gastech designs, supplies and commissions complete gas handling skids and stations to your duty.", specs: ["Turnkey skids", "Engineered to spec", "Install & commission"], flag: true },
-  { idx: "04", img: "https://images.unsplash.com/photo-1487875961445-47a00398c267?auto=format&fit=crop&w=1200&q=80", alt: "Gas regulation stations", href: "/pf-regulators", title: "Gas Regulation Stations", desc: "Pietro Fiorentini regulation and pressure-control stations for safe, steady supply.", specs: ["Regulation & safety", "Sized to flow", "Certified components"] },
-  { idx: "05", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80", alt: "Gas metering stations", href: "/flow-meters", title: "Gas Metering Stations", desc: "Pietro Fiorentini metering stations for accurate, billable gas measurement.", specs: ["Turbine & rotary", "Accurate billing", "Turnkey build"] },
-  { idx: "06", img: "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?auto=format&fit=crop&w=1200&q=80", alt: "Gas flow meters and EVC", href: "/flow-meters", title: "Gas Flow Meters & EVC", desc: "IM-series flow meters with electronic volume correction for precise measurement.", specs: ["Flow meters", "Electronic correction", "Hydrogen options"] },
-  { idx: "07", img: "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=1200&q=80", alt: "Gas leak detection and shutoff", href: "/gasvigil", title: "Gas Leak Detection & Shutoff", desc: "Gasvigil leak detection with automatic shutoff to protect people and plant.", specs: ["Continuous sensing", "Auto shutoff", "Alarm & interlock"] },
-  { idx: "08", img: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=1200&q=80", alt: "Hydrogen solutions", href: "/pf-regulators", title: "Hydrogen Solutions", desc: "Pietro Fiorentini hydrogen-ready regulation, metering and flow measurement.", specs: ["Hydrogen-ready", "High accuracy", "Certified"] },
+  { idx: "01", img: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=1200&q=80", alt: "Riello industrial gas burners", href: toRoute("gas-burners"), title: "Riello Gas Burners", desc: "Industrial gas burners for boilers, ovens and process heating, sized to your duty.", specs: ["Modulating & staged", "Boiler & process heat", "Riello engineering"] },
+  { idx: "02", img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1200&q=80", alt: "Riello oil burners", href: toRoute("light-oil-burners"), title: "Riello Oil Burners", desc: "Light and heavy oil burners delivering reliable, efficient combustion.", specs: ["Light & heavy oil", "Low emissions", "Sized to load"] },
+  { idx: "03", img: "https://images.unsplash.com/photo-1565043666747-69f6646db940?auto=format&fit=crop&w=1200&q=80", alt: "Complete gas handling systems", href: toRoute("gas-trains"), title: "Complete Gas Handling Systems", desc: "Gastech designs, supplies and commissions complete gas handling skids and stations to your duty.", specs: ["Turnkey skids", "Engineered to spec", "Install & commission"], flag: true },
+  { idx: "04", img: "https://images.unsplash.com/photo-1487875961445-47a00398c267?auto=format&fit=crop&w=1200&q=80", alt: "Gas regulation stations", href: toRoute("pressure-regulators"), title: "Gas Regulation Stations", desc: "Pietro Fiorentini regulation and pressure-control stations for safe, steady supply.", specs: ["Regulation & safety", "Sized to flow", "Certified components"] },
+  { idx: "05", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80", alt: "Gas metering stations", href: toRoute("flow-meters"), title: "Gas Metering Stations", desc: "Pietro Fiorentini metering stations for accurate, billable gas measurement.", specs: ["Turbine & rotary", "Accurate billing", "Turnkey build"] },
+  { idx: "06", img: "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?auto=format&fit=crop&w=1200&q=80", alt: "Gas flow meters and EVC", href: toRoute("flow-meters"), title: "Gas Flow Meters & EVC", desc: "IM-series flow meters with electronic volume correction for precise measurement.", specs: ["Flow meters", "Electronic correction", "Hydrogen options"] },
+  { idx: "07", img: "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=1200&q=80", alt: "Gas leak detection and shutoff", href: toRoute("gasvigil"), title: "Gas Leak Detection & Shutoff", desc: "Gasvigil leak detection with automatic shutoff to protect people and plant.", specs: ["Continuous sensing", "Auto shutoff", "Alarm & interlock"] },
+  { idx: "08", img: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=1200&q=80", alt: "Hydrogen solutions", href: toRoute("pressure-regulators"), title: "Hydrogen Solutions", desc: "Pietro Fiorentini hydrogen-ready regulation, metering and flow measurement.", specs: ["Hydrogen-ready", "High accuracy", "Certified"] },
 ];
 
 const BRANDS = [
@@ -48,7 +54,7 @@ const FACILITIES = [
 
 const SERVICES = [
   { num: "S / 01", icon: "chat", title: "Technical Consultancy", desc: "Sizing, layout and gas-strategy guidance from application through to commissioning." },
-  { num: "S / 02", icon: "wrench", title: "Upgrading, Revamping & Servicing", desc: "Modernise and overhaul existing plants to restore and raise performance." },
+  { num: "S / 02", icon: "wrench", title: "Installation & Commissioning", desc: "Expert installation, then detailed testing and calibration of every parameter, configuration and connection." },
   { num: "S / 03", icon: "calendar", title: "Annual Maintenance Contracts", desc: "Planned AMC cover so uptime is protected and surprises are engineered out." },
 ];
 
@@ -60,23 +66,20 @@ const MATERIALS = [
   { icon: "chip", title: "Hydrogen Solutions", desc: "Hydrogen-ready regulation & metering." },
 ];
 
-const itemListSchema = {
-  "@context": "https://schema.org",
-  "@type": "ItemList",
-  name: "Gastech product range",
-  itemListElement: PRODUCTS.map((p, i) => ({
-    "@type": "ListItem",
-    position: i + 1,
-    name: p.h1,
-    url: absoluteUrl(`/${p.slug}`),
-  })),
-};
+/* Retired by sheet-conformance decision (Phase 2, row P01): the home graph is
+   Organization + LocalBusiness + WebSite + BreadcrumbList, with no ItemList.
+   const itemListSchema = { ...PRODUCTS.map... } — removed from the emit path. */
 
 export default function HomePage() {
   return (
     <>
-      <JsonLd data={[...siteGraph(), itemListSchema]} />
+      {/* Sheet row P01: Organization + LocalBusiness + WebSite + BreadcrumbList. */}
+      <JsonLd data={[...siteGraph(), breadcrumbSchema([{ name: "Home", href: "/" }])]} />
       <main id="main">
+        {/* GSAP scroll choreography for this page (null-render; SSR/no-JS safe,
+            reduced-motion bails out). Wires the existing data-reveal / data-stagger
+            hooks plus subtle media parallax and a velocity-reactive ticker. */}
+        <HomeScrollFx />
         {/* HERO */}
         <section className="hero" aria-labelledby="hero-h">
           <div className="hero-media" aria-hidden="true">
@@ -91,13 +94,13 @@ export default function HomePage() {
             <RiseIn className="hero-copy">
               <p className="eyebrow eyebrow--light">Pune, India / Combustion &amp; Gas Safety</p>
               <h1 id="hero-h" className="split">
-                <span className="line">Combustion and gas safety,</span>
-                <span className="line"><em>engineered</em> to perform.</span>
+                <span className="line">Gas Trains, Gas Regulation &{" "}</span>
+                <span className="line">Industrial Burners, <em>Engineered</em> in Pune</span>
               </h1>
               <p className="lede">Gastech Combustions supplies and services industrial burners, gas regulation and metering stations, gas flow meters, hydrogen solutions and gas-leak detection systems, backed by the global brands we represent.</p>
               <div className="hero-cta">
                 <a className="btn btn--primary fx-magnetic" href="#capabilities">Explore Capabilities <Icon name="arrow" /></a>
-                <Link className="btn btn--outline fx-magnetic" href="/contact">Talk to an Engineer</Link>
+                <Link className="btn btn--outline fx-magnetic" href="/contact-us/">Talk to an Engineer</Link>
               </div>
             </RiseIn>
             <aside className="hero-card" aria-label="Company at a glance">
@@ -132,6 +135,11 @@ export default function HomePage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1600&q=80" alt="Gastech application engineers at work on gas equipment" loading="lazy" decoding="async" />
             </figure>
+            {/* One clear door to the company story, so /about-us/ is reachable
+                from the home page and not only from the footer. */}
+            <div className="ind-foot" data-reveal>
+              <Link className="btn btn--ghost fx-magnetic" href="/about-us/">About Gastech Combustions <Icon name="arrow" /></Link>
+            </div>
           </div>
         </section>
 
@@ -147,7 +155,7 @@ export default function HomePage() {
           <CapabilityConveyor items={CAPABILITIES} />
           <div className="wrap cap-foot">
             <p>A complete range of combustion and gas-safety equipment. Request the full catalogue for sizes, capacities and options.</p>
-            <Link className="btn btn--ghost-light fx-magnetic" href="/products">Request the full range <Icon name="arrow" /></Link>
+            <Link className="btn btn--ghost-light fx-magnetic" href="/products/">Request the full range <Icon name="arrow" /></Link>
           </div>
         </section>
 
@@ -157,14 +165,14 @@ export default function HomePage() {
             <SectionHead eyebrow="02 / Brands we represent" title={<>Global brands, <u>local accountability.</u></>} sub="We supply, install and support equipment from the manufacturers we represent:" />
             <div className="ind-grid" data-stagger>
               {BRANDS.map((b) => (
-                <Link className="ind-card" key={b.num} href="/brands">
+                <Link className="ind-card" key={b.num} href="/brands/">
                   <div className="ind-media">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={b.img} alt={b.alt} loading="lazy" decoding="async" /></div>
                   <div className="ind-body"><span className="ind-num">{b.num}</span><h3>{b.name}</h3><p>{b.desc}</p><span className="ind-more">Enquire <Icon name="arrow" /></span></div>
                 </Link>
               ))}
             </div>
             <div className="ind-foot" data-reveal>
-              <Link className="btn btn--ghost fx-magnetic" href="/brands">Explore all brands we represent <Icon name="arrow" /></Link>
+              <Link className="btn btn--ghost fx-magnetic" href="/brands/">Explore all brands we represent <Icon name="arrow" /></Link>
             </div>
           </div>
         </section>
@@ -172,7 +180,7 @@ export default function HomePage() {
         {/* FACILITIES */}
         <section className="sec sec--sunken" id="facilities" aria-labelledby="fac-h">
           <div className="wrap">
-            <SectionHead eyebrow="03 / How we deliver" title={<>From spec to <u>sustained uptime.</u></>} sub="Gastech engineers, supplies, commissions and services complete gas systems. One accountable partner means consistent quality and dependable delivery." />
+            <SectionHead eyebrow="03 / How we work" title={<>From spec to <u>sustained uptime.</u></>} sub="Gastech engineers, supplies, commissions and services complete gas systems. One accountable partner means consistent quality and dependable delivery." />
             <div className="fac-list" data-stagger>
               {FACILITIES.map((f) => (
                 <article className={f.flip ? "fac-item fac-item--flip" : "fac-item"} key={f.idx}>
@@ -182,7 +190,7 @@ export default function HomePage() {
               ))}
             </div>
             <div className="ind-foot" data-reveal>
-              <Link className="btn btn--ghost fx-magnetic" href="/delivery">See how we deliver <Icon name="arrow" /></Link>
+              <Link className="btn btn--ghost fx-magnetic" href="/how-we-work/">See how we work <Icon name="arrow" /></Link>
             </div>
           </div>
         </section>
@@ -224,7 +232,7 @@ export default function HomePage() {
         {/* REFERENCES */}
         <section className="sec" id="company" aria-labelledby="ref-h">
           <div className="wrap">
-            <SectionHead eyebrow="04 / Company" title={<>Trusted where the <u>gas matters.</u></>} sub="A snapshot of the sectors and standards behind our work. Client references and project case studies available on request." />
+            <SectionHead eyebrow="04 / Company" title={<>Trusted where the <u>gas matters.</u></>} sub="A snapshot of the sectors and standards behind our work. Client references and project case studies are supplied by Gastech before they are published." />
             <div className="quote-marquee" aria-hidden="true">
               <div className="qm-track">
                 <div className="qm-row">{["Steel","Pharma","Automotive","Food & Beverage","Chemicals","Electronics","Petrochemicals","Water Treatment","Power","Cement"].map((t) => <span key={t}>{t}</span>)}</div>

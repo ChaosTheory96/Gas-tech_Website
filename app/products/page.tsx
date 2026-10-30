@@ -2,21 +2,20 @@ import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
 import { PRODUCTS, getProduct } from "@/lib/products";
-import { siteGraph, breadcrumbSchema } from "@/lib/schema";
 import { Icon } from "@/components/icons";
 import { Marquee, SectionHead, JsonLd } from "@/components/blocks";
 import { EnquiryButton } from "@/components/enquiry";
 import BentoGrid, { type BentoItem } from "@/components/BentoGrid";
 
 export const metadata = buildMetadata({
-  title: "Products | Burners, Regulators, Flow Meters & Gas Safety | Gastech",
+  title: "Industrial Burners, Gas Regulation & Gas Safety | Gastech",
   description:
-    "Browse the full Gastech Combustions range: Riello gas, light oil and dual fuel burners, Pietro Fiorentini gas regulators, flow meters and safety valves, plus custom gas trains and Gasvigil leak detection. Supplied, sized and serviced in Pune.",
-  path: "/products",
+    "Browse Gastech Combustions products: burners, gas regulation, gas measurement, leak detection and combustion controls. Authorised Riello, PF and Gasvigil.",
+  path: "/products/",
   keywords: ["industrial burners", "gas regulators", "flow meters", "gas trains", "gas leak detection", "Pune"],
 });
 
-const IMG = "https://gastechcombustions.in/images";
+const IMG = "/images"; // self-hosted mirror of gastechcombustions.in/images — run `node qa/_fetch-assets.mjs` to populate public/images
 
 const GROUPS: { id: string; eyebrow: string; title: string; sub: string; cols: 3 | 2; cards: { slug: string; img: string; alt: string; desc: string }[] }[] = [
   {
@@ -38,7 +37,7 @@ const GROUPS: { id: string; eyebrow: string; title: string; sub: string; cols: 3
     sub: "Gas pressure regulators, flow meters and safety devices for steady, measurable and protected gas supply.",
     cols: 3,
     cards: [
-      { slug: "pf-regulators", img: `${IMG}/PF/Aperflux%20851.jpg`, alt: "Pietro Fiorentini gas regulator", desc: 'High, medium and low pressure regulators and governors, DN 3/4" to 12".' },
+      { slug: "pressure-regulators", img: `${IMG}/PF/Aperflux%20851.jpg`, alt: "Pietro Fiorentini gas regulator", desc: 'High, medium and low pressure regulators and governors, DN 3/4" to 12".' },
       { slug: "flow-meters", img: `${IMG}/IM-TM%20turbine.jpg`, alt: "Gas flow meter", desc: "RPD and turbine meters with electronic volume correction and Ex barriers." },
       { slug: "safety-valves", img: `${IMG}/PF/gas/shut-off-valves/dilock.jpg`, alt: "Slam shut off valve", desc: "Slam shut-off valves, relief valves and governors for protection trains." },
     ],
@@ -58,20 +57,21 @@ const GROUPS: { id: string; eyebrow: string; title: string; sub: string; cols: 3
 
 const crumbs = [
   { name: "Home", href: "/" },
-  { name: "Products", href: "/products" },
+  { name: "Products", href: "/products/" },
 ];
+void crumbs; // breadcrumb markup retired per sheet row P40 (CollectionPage + ItemList only); visible crumbs stay
 
 const itemList = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   name: "Gastech products",
-  url: absoluteUrl("/products"),
+  url: absoluteUrl("/products/"),
   mainEntity: {
     "@type": "ItemList",
     itemListElement: PRODUCTS.map((p, i) => ({
       "@type": "ListItem",
       position: i + 1,
-      url: absoluteUrl(`/${p.slug}`),
+      url: absoluteUrl(p.route),
       name: p.h1,
     })),
   },
@@ -80,7 +80,9 @@ const itemList = {
 export default function ProductsPage() {
   return (
     <>
-      <JsonLd data={[...siteGraph(), itemList, breadcrumbSchema(crumbs)]} />
+      {/* Sheet row P40: CollectionPage + ItemList (the itemList const below is
+          a CollectionPage whose mainEntity is the ItemList). */}
+      <JsonLd data={[itemList]} />
       <main id="main">
         <section className="intro-hero">
           <div className="wrap">
@@ -89,8 +91,7 @@ export default function ProductsPage() {
             </div>
             <p className="eyebrow" data-reveal>The Gastech range</p>
             <h1 className="split">
-              <span className="line">Combustion, regulation,</span>
-              <span className="line"><em>metering</em> and safety.</span>
+              <span className="line">Products</span>
             </h1>
             <p className="lede" data-reveal>Everything we supply, size, install and service, from the brands we represent. Open a product for models, capacities and specifications, or talk to an engineer about your application.</p>
             <div className="intro-cta" data-reveal>
@@ -110,7 +111,7 @@ export default function ProductsPage() {
                 items={g.cards.map((c): BentoItem => {
                   const prod = getProduct(c.slug);
                   return {
-                    href: `/${c.slug}`,
+                    href: prod?.route ?? "/",
                     img: c.img,
                     alt: c.alt,
                     title: prod?.navLabel ?? "",

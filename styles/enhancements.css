@@ -38,12 +38,12 @@
     box-shadow:var(--fx-lift-md);opacity:0;transition:opacity calc(var(--dur-mid)*var(--motion)) var(--ease-out)}
   .gt-btn-depth:hover::before{opacity:1}
   .gt-btn-depth::after{content:"";position:absolute;top:0;left:0;width:60%;height:100%;z-index:1;
-    background:linear-gradient(100deg,transparent 0,rgba(255,255,255,.34) 46%,rgba(255,255,255,.05) 62%,transparent 82%);
+    background:var(--sheen-sweep); /* tokenised Phase 3 (was inline rgba sheen) */
     transform:translateX(-180%) skewX(-12deg);opacity:0;pointer-events:none;
     transition:transform calc(.7s*var(--motion)) var(--ease-out),opacity calc(.2s*var(--motion)) linear}
   .gt-btn-depth:hover::after{transform:translateX(280%) skewX(-12deg);opacity:1}
   /* dark plates: sheen reads on white buttons too */
-  .sec--dark .gt-btn-depth::after{background:linear-gradient(100deg,transparent 0,rgba(255,255,255,.55) 50%,transparent 82%)}
+  .sec--dark .gt-btn-depth::after{background:var(--sheen-sweep-strong)}
 
   /* ---- PHASE 2 · CTA SWEEP (Get a Quote) --------------------------------
      PORT: Bencho slide-confirm. A single brand-tinted light sweep travelling
@@ -106,7 +106,7 @@
      data-gt-text-shadow: lifts white copy off the red plate / imagery with a
      low scrim + text-shadow. It only ever ADDS legibility; it never recolours
      and never touches the site.css white-on-red block. PORT: Framer dropShadow. */
-  [data-gt-text-shadow]{text-shadow:0 1px 0 rgba(0,0,0,.06),0 2px 10px rgba(0,0,0,.10)}
+  [data-gt-text-shadow]{text-shadow:var(--text-shadow-veil)} /* tokenised Phase 3 */
   .sec--dark [data-gt-text-shadow],.gt-on-plate [data-gt-text-shadow]{text-shadow:0 1px 2px color-mix(in srgb,var(--brand-active) 55%,transparent)}
 
   /* ---- PHASE 7 · SQUIRCLE MATERIAL UNIFICATION -------------------------
@@ -194,15 +194,20 @@
 
 /* ---- H4 · active nav item = SOLID brand pill + white text (no light tint),
       matching the Get-a-Quote button family. Applies to links + the Products
-      mega-trigger (which carries aria-current on products pages).           */
-.site-nav a[aria-current="page"]:not(.btn),.mega-trigger[aria-current="page"]{
+      mega-trigger (which carries aria-current on products pages).
+      IMPORTANT: scoped to DIRECT children (.site-nav > a). The mega-menu
+      product cards are <a aria-current="page"> nested deep inside .site-nav, so
+      an unscoped `a[aria-current]` selector painted the current product row a
+      solid red pill with a red label (red-on-red, unreadable). Direct-child
+      combinator confines the pill to the top-level nav links only.         */
+.site-nav > a[aria-current="page"]:not(.btn),.mega-trigger[aria-current="page"]{
   background:var(--brand);color:var(--brand-fg);border-radius:var(--r-pill)}
 /* keep the label WHITE even when site.css's higher-specificity hover/open
    rules (.mega-trigger:hover / .has-mega.is-open .mega-trigger) fire */
 .mega-trigger[aria-current="page"]:hover,.has-mega.is-open .mega-trigger[aria-current="page"],
-.site-nav a[aria-current="page"]:not(.btn):hover,.site-nav a[aria-current="page"]:not(.btn):focus-visible{color:var(--brand-fg)}
-.site-nav a[aria-current="page"]:not(.btn) .n,.mega-trigger[aria-current="page"] .n,.has-mega.is-open .mega-trigger[aria-current="page"] .n{color:color-mix(in srgb,var(--brand-fg) 78%,transparent)}
-.site-nav a[aria-current="page"]:not(.btn)::after,.mega-trigger[aria-current="page"]::after{display:none}
+.site-nav > a[aria-current="page"]:not(.btn):hover,.site-nav > a[aria-current="page"]:not(.btn):focus-visible{color:var(--brand-fg)}
+.site-nav > a[aria-current="page"]:not(.btn) .n,.mega-trigger[aria-current="page"] .n,.has-mega.is-open .mega-trigger[aria-current="page"] .n{color:color-mix(in srgb,var(--brand-fg) 78%,transparent)}
+.site-nav > a[aria-current="page"]:not(.btn)::after,.mega-trigger[aria-current="page"]::after{display:none}
 
 /* ---- H5 · underline hover extended to the mega-trigger (links already
       have it in site.css). Subtle, scales in from the left, calm easing.    */
@@ -213,6 +218,8 @@
 /* ---- H2 · with the dock gone, retire the sticky mobile CTA + its body
       clearance for a clean top-nav-only experience (relocate, not delete).  */
 @media (max-width:900px){
+  /* QA-RETIRED by decision — navbar is the single source of navigation; the
+     bottom-dock CTA is force-hidden so no future pass re-enables it by accident. */
   .js-fx .mobile-cta{display:none!important}
   .js-fx body{padding-bottom:0!important}
 }
@@ -225,12 +232,13 @@
   .has-mega.is-open .mega{max-height:1600px}
 }
 
-/* ---- E1 · SCROLL REVEAL ENTER + REVERSE. Native CSS scroll-driven timeline
-      (Chromium) fades/rises content in on entry AND back out on exit — the
-      reverse the brief asked for. Guarded; other engines keep the existing
-      one-shot site.js reveal (enter only). transform/opacity only. Heroes are
-      excluded (site.js already animates them).                              */
-@supports (animation-timeline:view()){
+/* ---- E1 · SCROLL REVEAL — RETIRED by the GSAP Scroll pilot. This native
+      scroll-driven path was Chromium-only (Safari/Firefox showed nothing) and
+      reversed on exit. Reveals + hero parallax are now driven by GSAP in
+      components/HomeScrollFx.tsx across every engine. The block is kept but
+      gated behind an always-false @supports query for one-line rollback:
+      restore (animation-timeline:view()) to re-enable the CSS version.      */
+@supports (-gt-scroll-retired:1){
   @media (prefers-reduced-motion:no-preference){
     .js-fx .sec [data-reveal],.js-fx .sec [data-stagger]>*{
       animation:gt-reveal-both linear both;animation-timeline:view();animation-range:entry 0% exit 100%}
@@ -239,13 +247,32 @@
     .js-fx .gt-hero-mesh{animation:gt-hero-parallax linear both;animation-timeline:scroll(root);animation-range:0 120vh}
   }
 }
+/* QA-RETIRED · keyframe — its only consumer sits in the always-false
+   @supports(-gt-scroll-retired:1) guard above, so it never runs. Kept for
+   one-line rollback (restore animation-timeline:view()); the GSAP pilot owns
+   reveals/parallax now. The audit classifies this RETIRED, not dead-by-accident. */
 @keyframes gt-reveal-both{
   0%{opacity:0;transform:translateY(var(--reveal-y))}
   14%{opacity:1;transform:none}
   86%{opacity:1;transform:none}
   100%{opacity:0;transform:translateY(calc(var(--reveal-y) * -.5))}
 }
+/* QA-RETIRED · keyframe — see the E1 guard above; hero parallax is GSAP-driven
+   now (HomeScrollFx). Kept for one-line rollback. Classified retired. */
 @keyframes gt-hero-parallax{from{transform:translateY(-3%)}to{transform:translateY(9%)}}
+
+/* ---- SCROLL PILOT · GSAP ScrollSmoother layout. When the smoother is active it
+      transforms #smooth-content, so the sticky navbar (which used to occupy its
+      78px in flow) becomes fixed and the content takes an equal top offset.
+      Purely additive — only applies under html.has-smooth, which SmoothScroll
+      toggles. Without JS / reduced-motion / touch the class is absent and the
+      original sticky-in-flow header behaviour is untouched.                */
+/* QA-RETIRED by decision — ScrollSmoother is gated off (HIJACK=false in
+   SmoothScroll.tsx: the 0.8s inertia felt laggy and its permanent #smooth-content
+   transform broke text rendering). html.has-smooth is therefore never added, so
+   these rules never fire. Kept for one-line rollback, not deleted. */
+html.has-smooth #smooth-content{padding-top:var(--nav-h,78px)}
+html.has-smooth .site-head{position:fixed;left:0;right:0;top:0}
 
 /* ---- G2/G3 · page transitions: calm crossfade + micro-rise (replaces the
       jarring clip-path peel). @view-transition can't be layered. Opt-in via
@@ -277,10 +304,17 @@
 .p-crumb span[aria-hidden]{opacity:.45}
 .p-crumb > span:last-child{color:var(--text-default)}
 
-/* Mega-menu current card — subtle active affordance for the product you're on. */
+/* Mega-menu current card — RETIRED. The client asked for the brand-red tile to
+   be a pure HOVER affordance only, never a state that sticks on the product
+   you're viewing. Red is now driven entirely by .mega-card:hover / :focus-visible
+   in site.css. These persistent rules are kept (commented) as a record, not
+   deleted, per the no-deletion house rule. To restore a current-page cue, move
+   them behind a non-red treatment (e.g. a left accent bar). */
+/*
 .mega-card.is-current{background:var(--bg-surface);border-color:color-mix(in srgb,var(--brand) 28%,transparent)}
 .mega-card.is-current .mc-b b{color:var(--brand)}
 .mega-card.is-current .mc-go{opacity:1;transform:none;stroke:var(--brand)}
+*/
 
 /* Carousel prev arrow — rotate the shared .i glyph 180° (no duplicate icon). */
 .i.flip{transform:rotate(180deg)}
@@ -352,14 +386,23 @@
 .car-dots .dot{width:26px;height:3px;border-radius:2px;border:0;padding:0;cursor:pointer;background:color-mix(in srgb,var(--on-dark) 34%,transparent);transition:background var(--dur-mid),width var(--dur-mid)}
 .car-dots .dot.on{background:var(--on-dark);width:44px}
 
-/* ---- P7 · REVEAL ENTER-ONLY. Overrides E1's entry→exit fade (which hid
-      content on scroll-out). Now content rises in on entry and STAYS. */
-@supports (animation-timeline:view()){
+/* ---- P7 · REVEAL ENTER-ONLY — RETIRED by the GSAP Scroll pilot (same reason
+      as E1). Worse: its `view()` timeline is driven by NATIVE scroll offset,
+      which ScrollSmoother pins (it moves content with a transform instead), so
+      the timeline never advanced and — because a CSS animation outranks inline
+      styles in the cascade — it froze every `.sec [data-reveal]` at opacity:0,
+      blanking whole sections. Reveals are owned by components/HomeScrollFx.tsx.
+      Kept behind an always-false @supports query for one-line rollback: restore
+      (animation-timeline:view()) to re-enable the CSS version.               */
+@supports (-gt-scroll-retired:1){
   @media (prefers-reduced-motion:no-preference){
     .js-fx .sec [data-reveal],.js-fx .sec [data-stagger]>*{
       animation:gt-reveal-in linear both;animation-timeline:view();animation-range:entry 0% entry 100%}
   }
 }
+/* QA-RETIRED · keyframe — its only consumer is the always-false
+   @supports(-gt-scroll-retired:1) guard above (P7). Kept for one-line rollback;
+   the enter-only reveal is GSAP-driven now. Classified retired. */
 @keyframes gt-reveal-in{from{opacity:0;transform:translateY(var(--reveal-y))}to{opacity:1;transform:none}}
 
 /* ---- P8 · ROUTE LOADING state + skeleton + hash anchor offset + a11y helper. */
@@ -394,6 +437,9 @@ html{scroll-padding-top:calc(var(--nav-h,78px) + 16px)}
       flash/leak on the left and it violates the no-runtime-blur rule. A real
       photo now carries the hero: kill the heat outright and drop the brand
       radial from the hero ground so the copy sits on a clean editorial surface. */
+/* QA-RETIRED by decision — the runtime-blur red hero heat (blur(90px)) bled past
+   the fold and cost text crispness; retired to a clean gradient plate. Kept
+   force-hidden, not deleted. */
 .hero-heat{display:none!important}
 .hero{background:linear-gradient(180deg,var(--bg-elevated) 0%,var(--bg-page) 100%)}
 
@@ -457,6 +503,288 @@ html{scroll-padding-top:calc(var(--nav-h,78px) + 16px)}
       half-pink seam. Flatten every tinted light band to one uniform page colour
       so adjacent bands read as a single seamless surface. Tokens only. */
 .sec--tint{background:var(--bg-page)}
+/* QA-RETIRED by decision — the .sec--tint radial brand texture made band seams
+   read as dirty gradients; flattened to the plain page surface. Texture
+   force-hidden via ::before:none, selector kept (no-deletion). */
 .sec--tint::before{display:none}
 #company{background:var(--bg-page)}
+
+/* ---- Q10 · MODAL MATERIAL + DEPTH. Rebuild the enquiry dialog as a real,
+      tactile object: an illuminated carbon surface with a layered grounding
+      shadow + inner bevel + top sheen, carved (inset) form fields, a raised
+      knob close button, a beveled primary action and an embossed confirmation
+      tick. Tokens only (material recipes adapt light/dark); this is the
+      enhancements layer so it overrides site.css by source order. */
+
+/* bright cool veil — dims + defocuses the page WITHOUT the charcoal bleed that
+   made the old --scrim-70 backdrop grey out the translucent panel */
+.modal-backdrop{background:var(--scrim-bright);backdrop-filter:blur(18px) saturate(1.1);-webkit-backdrop-filter:blur(18px) saturate(1.1)}
+
+/* panel: illuminated surface + layered depth + bevel + hairline ring */
+.modal-panel{background:var(--grad-carbon);border:1px solid color-mix(in srgb,var(--text-default) 12%,var(--border-subtle));box-shadow:0 40px 90px -30px var(--scrim),0 14px 30px -14px var(--scrim),var(--sq-bevel),var(--ring-1)}
+/* top sheen (real-material gloss) sits above the surface, below the content */
+.modal-panel::after{content:"";position:absolute;inset:0;z-index:0;border-radius:inherit;background:var(--gloss);pointer-events:none}
+.modal-scroll{position:relative;z-index:3}
+/* brand cap rule reads as an inlaid band with a lit lower edge */
+.modal-panel::before{height:5px;box-shadow:inset 0 -1px 0 color-mix(in srgb,var(--brand-fg) 22%,transparent)}
+
+/* carved, pressed-in fields */
+.field input,.field textarea,.field select{background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;box-shadow:var(--neu-inset);transition:border-color var(--dur-hover) var(--ease-out),box-shadow var(--dur-hover) var(--ease-out),background var(--dur-hover) var(--ease-out)}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--brand);background:var(--bg-elevated);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 20%,transparent),var(--neu-inset)}
+
+/* raised knob close button — z-index above the scroll layer so it stays clickable */
+.modal-x{z-index:4;background:var(--bg-elevated);border:1px solid var(--border-default);box-shadow:var(--neu-soft),var(--sq-bevel);transition:transform var(--dur-hover) var(--ease-out),box-shadow var(--dur-hover) var(--ease-out),color var(--dur-hover),border-color var(--dur-hover)}
+.modal-x:hover{transform:translateY(-1px);border-color:var(--brand);color:var(--brand);box-shadow:var(--neu-float),var(--sq-bevel)}
+.modal-x:active{transform:translateY(0) scale(.95);box-shadow:var(--neu-inset)}
+
+/* etched product chip. The primary action deliberately keeps the SHARED
+   site-wide .btn--primary style (no modal-only override) so it matches every
+   other button on the site. */
+.modal-tag{background:var(--bg-surface);border-color:var(--border-default);box-shadow:var(--neu-inset)}
+
+/* embossed confirmation tick */
+.modal-done .tick{background:radial-gradient(circle at 38% 30%,color-mix(in srgb,var(--brand) 22%,var(--bg-elevated)),var(--bg-surface) 78%);box-shadow:var(--neu-float),var(--sq-bevel),inset 0 0 0 1px color-mix(in srgb,var(--brand) 30%,transparent)}
+
+/* springier settle on open (reduced-motion still honoured below) */
+.js-fx .modal-panel{animation:gt-modal-in .42s var(--spring-glide)}
+@keyframes gt-modal-in{from{opacity:0;transform:translateY(22px) scale(.965)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.js-fx .modal-panel{animation:none}}
+
+/* ---- R · LEGAL DOCUMENT + 404 REDESIGN. New-page styles only (no site.css
+      selectors restated). Tokens only. Content is visible without JS; the
+      scroll-spy highlight and the flow dashes are pure enhancement. ---- */
+
+/* at-a-glance summary strip */
+.glance-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:clamp(36px,5vw,64px)}
+.glance-grid>*,.nf-grid>*,.legal-nav,.legal-body{min-width:0}/* grid min-width:auto overflow guard */
+.glance-card{padding:22px 24px;border-radius:18px;background:var(--bg-elevated);border:1px solid var(--border-subtle);box-shadow:var(--neu-soft)}
+.glance-card h3{margin:0 0 10px;font-family:var(--font-mono);font-weight:400;font-size:var(--fs-xs);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--brand)}
+.glance-card p{margin:0;color:var(--text-secondary);font-size:.95rem;line-height:1.55}
+
+/* sticky clause index + numbered clauses */
+.legal-grid{display:grid;grid-template-columns:230px minmax(0,1fr);gap:clamp(28px,4.5vw,72px);align-items:start}
+.legal-nav{position:sticky;top:calc(var(--nav-h,78px) + 24px);display:flex;flex-direction:column;gap:2px;border-left:1px solid var(--border-subtle)}
+.legal-nav a{display:flex;gap:10px;align-items:baseline;padding:8px 14px;margin-left:-1px;font-family:var(--font-mono);font-size:.78rem;letter-spacing:.04em;color:var(--text-secondary);border-left:2px solid transparent;text-decoration:none;transition:color var(--dur-hover) var(--ease-out),border-color var(--dur-hover) var(--ease-out)}
+.legal-nav a:hover{color:var(--text-default)}
+.legal-nav a.on{color:var(--brand);border-left-color:var(--brand)}
+.legal-nav .lnum{opacity:.55}
+.legal-body{display:flex;flex-direction:column;gap:clamp(30px,4vw,48px)}
+.legal-clause h2{display:flex;align-items:baseline;gap:14px;margin:0 0 12px;font-family:var(--font-display);font-weight:600;font-size:clamp(1.25rem,1.05rem + .8vw,1.7rem);color:var(--text-default)}
+.legal-clause .cnum{flex:none;font-family:var(--font-mono);font-size:.8rem;letter-spacing:.1em;color:var(--brand)}
+.legal-clause p{margin:0 0 14px;max-width:68ch;color:var(--text-secondary);font-size:1.02rem;line-height:1.7}
+.legal-clause p:last-child{margin-bottom:0}
+.legal-clause a{color:var(--brand);text-decoration:underline;text-underline-offset:3px}
+
+/* 404: red signal plate + closed-valve flow + waypoint grid */
+.nf-plate{display:inline-block;margin:0 0 18px;padding:.08em .28em;border-radius:14px;background:var(--brand);color:var(--brand-fg);font-family:var(--font-display);font-weight:700;font-size:clamp(4rem,2.2rem + 9vw,9.5rem);line-height:1;letter-spacing:.02em;box-shadow:var(--elev-2)}
+.nf-flow{display:block;width:min(340px,100%);height:auto;margin:26px 0 4px;overflow:visible}
+.nf-pipe{stroke:var(--border-default);stroke-width:3}
+.nf-dashes{stroke:var(--brand);stroke-width:3;stroke-dasharray:12 10;stroke-linecap:round;animation:nf-flow-move 1.1s linear infinite}
+@keyframes nf-flow-move{to{stroke-dashoffset:-22}}
+.nf-outlet{stroke:var(--border-default);stroke-width:3;stroke-dasharray:2 8;stroke-linecap:round;opacity:.5}
+.nf-valve circle{fill:var(--bg-elevated);stroke:var(--brand);stroke-width:2.5}
+.nf-valve line{stroke:var(--brand);stroke-width:2.5;stroke-linecap:round}
+.nf-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.nf-card{display:flex;flex-direction:column;gap:8px;padding:24px;border-radius:18px;background:var(--bg-elevated);border:1px solid var(--border-subtle);box-shadow:var(--neu-soft);text-decoration:none;transition:transform var(--dur-hover) var(--ease-out),box-shadow var(--dur-hover) var(--ease-out),border-color var(--dur-hover)}
+.nf-card:hover{transform:translateY(-4px);border-color:var(--brand);box-shadow:var(--neu-float),var(--sq-bevel)}
+.nf-num{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.12em;color:var(--brand)}
+.nf-card h3{margin:0;font-family:var(--font-display);font-weight:600;font-size:1.15rem;color:var(--text-default)}
+.nf-card p{margin:0;color:var(--text-secondary);font-size:.9rem;line-height:1.5}
+.nf-go{display:inline-flex;align-items:center;gap:8px;margin-top:auto;padding-top:10px;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--brand)}
+
+/* responsive */
+@media (max-width:1024px){.glance-grid,.nf-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:900px){
+  .legal-grid{grid-template-columns:1fr}
+  .legal-nav{position:static;flex-direction:row;flex-wrap:wrap;gap:6px;border-left:0}
+  .legal-nav a{border-left:0;border-bottom:2px solid transparent;padding:6px 10px}
+  .legal-nav a.on{border-left-color:transparent;border-bottom-color:var(--brand)}
+}
+@media (max-width:560px){.glance-grid,.nf-grid{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.nf-dashes{animation:none}}
+
+/* ---- S · MATERIAL REFINEMENT (light theme). The site-wide grain veil was a
+      dark-scene effect (see tokens.css comment) sitting on top of a white
+      site: it composited every glyph through a blend layer (killing Windows
+      ClearType AA → serrated text) and speckled over borders. Grain now only
+      exists where it was ever meant to: inside the dark/red bands, UNDER the
+      content (band .wrap already sits at z-index:1). Borders and insets are
+      re-derived as alpha hairlines so surfaces read etched, not sketched.
+      Same-specificity attribute blocks; source order beats tokens.css. ---- */
+
+/* 1 · no veil over the light page; the fixed grain layer is dark-theme only */
+[data-theme="light"] body::after{content:none}
+
+/* 2 · grain as a plate texture on dark/red bands, below all content */
+.sec--dark::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background-image:var(--grain);opacity:.05;mix-blend-mode:overlay}
+
+/* 3 · light-theme material tokens — RETIRED HERE (Phase 3 fork collapse).
+      These four alpha values are now the PRODUCTION definitions in
+      tokens.css [data-theme="light"] (--border-subtle/-default/-strong,
+      --neu-inset). Defining tokens in two files was the fragmentation this
+      phase removes; the values themselves never changed, so rendering is
+      identical. Original literals, parked by decision (never deleted):
+        --border-subtle:rgba(20,24,29,.065); --border-default:rgba(20,24,29,.11)
+        --border-strong:rgba(20,24,29,.18);  --neu-inset:inset 0 1px 2px rgba(20,24,29,.06),inset 0 -1px 0 rgba(255,255,255,.9)
+      ---- */
+
+/* 4 · final text polish */
+body{font-optical-sizing:auto}
+
+/* ---- T · TYPE DIRECTION (production standard). The moodboard face is a
+      neutral grotesque (Neue Haas class); fonts.css bundles Manrope exactly
+      for that role. Oswald — a condensed freebie template tell — is retired
+      from the display stack. Token-level swap: every --font-display surface
+      (hero splits, section heads, plates, card titles) moves at once.
+      Manrope runs slightly tighter at display sizes than Oswald needed.
+      PHASE 3: the token VALUES moved into tokens.css (single source of truth:
+      --font-display: Manrope stack, --tracking-display:-.022em). This fork is
+      RETIRED BY DECISION, not deleted. Original literals, parked:
+        :root{--font-display:"Manrope","Source Sans 3",ui-sans-serif,system-ui,"Segoe UI",sans-serif;--tracking-display:-.022em}
+      ---- */
+.intro-hero h1,.p-hero h1,.hero-copy h1,.sec-head h2{font-weight:800}
+
+/* ---- U · GLASS DISCIPLINE (Phase 3 production decision). Frosted glass
+      (backdrop blur) is permitted on the TWO zones the client allowed:
+        (a) the header z-layer that floats above content — the sticky
+            .site-head band, its progress hairline, and (on <=900px) the
+            .site-nav drawer, which IS the header on small screens; and
+        (b) the modal — both the .modal-panel surface and its .modal-backdrop
+            scrim, since the modal is one overlay unit (dim + defocus behind
+            the panel is what makes the panel read as lifted).
+      Blur + rim + tint are consumed from the ACTIVE --glass-* subset in
+      tokens.css; the physical remainder of the family is parked in the marked
+      RESERVE block there — never deleted, never counted as live debt.
+      Everything OUTSIDE those two zones stays opaque material. ---- */
+.site-head{background:color-mix(in srgb,var(--bg-elevated) 84%,var(--glass-tint));backdrop-filter:blur(var(--glass-blur)) saturate(1.3);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.3);border-bottom:1px solid var(--glass-rim-lo);box-shadow:inset 0 1px 0 var(--glass-catch-soft)}
+.site-head.is-scrolled{background:color-mix(in srgb,var(--bg-elevated) 94%,var(--glass-tint));box-shadow:inset 0 1px 0 var(--glass-catch-soft),var(--neu-soft)}
+/* bright frosted pane — a raised light surface. The 94->86% white gradient sits
+   BRIGHTER than the light veil behind it, so it lifts; a light rim + soft float
+   shadow finish the glass. Form text stays well past AA on the near-white pane. */
+.modal-panel{background:var(--glass-pane);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border:1px solid rgba(255,255,255,.6);box-shadow:var(--pane-shadow),var(--glass-rim-light)}
+/* stray blur surfaces OUTSIDE the two permitted zones: (1) .fac-idx badges
+   carried a 6px backdrop blur in the verbatim site.css — force-disabled here
+   so the badge is an opaque token-mixed plate (white index digits keep full
+   contrast); (2) .mobile-cta (a retired bottom bar, neither header nor modal)
+   declares a 14px blur but is display:none'd below, so it never paints — the
+   declaration is neutralised anyway so the static glass scan reads zero
+   unauthorised blur. Retirement is fully documented in Phase 5. */
+.fac-idx{backdrop-filter:none;-webkit-backdrop-filter:none;background:color-mix(in srgb,var(--text-default) 78%,var(--bg-elevated))}
+.mobile-cta{backdrop-filter:none;-webkit-backdrop-filter:none}
+
+/* ---- U2 · INLINE-VALUE PROMOTION (Phase 3). Values that lived as invented
+      inline styles in components now render from classes; the numbers are
+      tokens (--sp-4, --car-ctl-mt, --car-ctl-gap), not literals here. ---- */
+.p-callnote{margin-top:var(--sp-4)}                    /* was style={{marginTop:16}} in ProductPage.tsx */
+.car-ctl-row{display:flex;align-items:center;justify-content:space-between;margin-top:var(--car-ctl-mt);gap:var(--car-ctl-gap)} /* was the inline style row in carousel.tsx */
+
+/* ---- U3 · VERBATIM-LAYER RAW COLOUR NEUTRALISED (Phase 3). The ported
+      layers keep their original lines untouched (no-deletion rule); these
+      same-selector overrides make the TOKENISED version what actually
+      renders: mask edge stops read --mask-opaque (a luminance keyword, not
+      paint) and the conveyor dim shade reads --conv-shade. The gt-* rows are
+      body-prefixed because process/conveyor.css ride in per-COMPONENT css
+      imports (bundle order vs this file is not guaranteed) — specificity,
+      not source order, makes the tokenised mask win. ---- */
+.quote-marquee,.ticker{-webkit-mask-image:linear-gradient(90deg,transparent,var(--mask-opaque) 8%,var(--mask-opaque) 92%,transparent);mask-image:linear-gradient(90deg,transparent,var(--mask-opaque) 8%,var(--mask-opaque) 92%,transparent)}
+body .ticker{-webkit-mask-image:linear-gradient(90deg,transparent,var(--mask-opaque) 7%,var(--mask-opaque) 93%,transparent);mask-image:linear-gradient(90deg,transparent,var(--mask-opaque) 7%,var(--mask-opaque) 93%,transparent)}
+body .gt-proc .marq{-webkit-mask-image:linear-gradient(90deg,transparent,var(--mask-opaque) 8%,var(--mask-opaque) 92%,transparent);mask-image:linear-gradient(90deg,transparent,var(--mask-opaque) 8%,var(--mask-opaque) 92%,transparent)}
+body .gt-conv-stage{-webkit-mask-image:linear-gradient(90deg,transparent,var(--mask-opaque) 9%,var(--mask-opaque) 91%,transparent);mask-image:linear-gradient(90deg,transparent,var(--mask-opaque) 9%,var(--mask-opaque) 91%,transparent);overflow-x:clip}
+body .gt-conv-shade{background:var(--conv-shade)}
+
+/* ---- V · TEXT-RENDERING CONTRACT (Phase 4 — the "no serrated text" guarantee).
+      Native ClearType / subpixel AA disappears the moment text is pushed onto a
+      composited layer, which happens under any of: a resting `transform`, a
+      permanent `will-change:transform`, or a `mix-blend-mode` veil that makes
+      the browser rasterise the whole backdrop. The three rules below lock the
+      contract; they are verified live in the DOM probe (computed transform none
+      and no will-change on every text ancestor — the only surviving motion is
+      transient and cleared to none the instant an element settles). ---- */
+/* (1) global legibility hint (mirrors site.css body, asserted here so the
+      contract lives in the authoritative polish layer). */
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+/* (2) blend veils. body::after is a fixed full-viewport grain in OVERLAY
+      blend; that blend forces every page's text into one render surface and
+      strips site-wide subpixel AA. Normal blend keeps the (already near-
+      invisible .03–.045) grain as a plain translucent layer that does NOT
+      composite the text underneath it. .sec--dark::after, same reason. */
+body::after{mix-blend-mode:normal}
+.sec--dark::after{mix-blend-mode:normal}
+/* (3) resting compositing on text-bearing chrome. .fx-magnetic inherited a
+      permanent will-change:transform from the verbatim site.css, but the
+      magnetic pointer JS never runs on this build — so it only ever cost
+      button-label crispness. Cleared to auto; the hover transform is intact. */
+.fx-magnetic{will-change:auto}
+/* the home Capability conveyor cards carried a PERMANENT
+      will-change:transform,opacity in the verbatim conveyor.css — the same
+      gratuitous layer promotion that cost .fx-magnetic its crispness. Cleared
+      at rest. The card's own positioning transform is intrinsic to the
+      deliberate 3D conveyor showcase (the same accepted category as the
+      always-animating marquees) and backface-visibility stays so the arc's
+      cards don't flicker — only the redundant permanent hint is dropped.
+      body+class specificity wins regardless of per-component import order. */
+body .gt-conv-card{will-change:auto}
+
+/* ==========================================================================
+   BLOCK W · NAV MICRO-LABELS (polish · desktop only)
+   The 01-05 numerals are KEPT but read as designed micro-labels - brand red,
+   10px, raised off the baseline, dimmed at rest and full on hover/active. Uses
+   a position offset (NOT transform) so the numerals keep subpixel antialiasing
+   (the no-permanent-transform-on-text contract). The mobile drawer (<=900px)
+   already paints them brand-red via site.css; left untouched.
+   ========================================================================== */
+@media (min-width:901px){
+  .site-nav a .n,.mega-trigger .n{font-size:10px;font-weight:600;letter-spacing:.02em;color:var(--brand);opacity:.7;position:relative;top:-4px;transition:opacity var(--dur-hover) var(--ease-out)}
+  .site-nav a:hover .n,.site-nav a:focus-visible .n,.mega-trigger:hover .n,.has-mega.is-open .mega-trigger .n{opacity:1}
+  .site-nav > a[aria-current="page"]:not(.btn) .n,.mega-trigger[aria-current="page"] .n{opacity:.9}
+}
+
+/* ==========================================================================
+   BLOCK X · BRANDED PRELOADER + ROUTE LOADING (polish)
+   A one-time intro overlay that reveals the REAL Gastech logo (gc-logo.svg)
+   with the same clip-path wipe the header mark uses, then the GAS/TECH
+   wordmark rises and the COMBUSTIONS tagline tracks in. The flame/gas-flow
+   motif from the earlier draft is retired per client direction (branding must
+   use the actual logo); flame-mark.tsx is left in place, now unused.
+   Decorative only — a self-removing overlay, so content is never gated behind
+   it and it never adds the .js class. The full intro lands inside ~2.4s, which
+   is the window components/preloader.tsx holds before fading out. Reduced-
+   motion collapses the choreography to a brief, still-complete static flash.
+   ========================================================================== */
+.gt-preload{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:radial-gradient(70% 60% at 50% 40%,var(--bg-elevated),var(--bg-sunken) 72%,var(--bg-surface));transition:opacity .6s var(--ease-out),visibility .6s}
+.gt-preload[data-gone="true"]{opacity:0;visibility:hidden}
+.gt-preload .pl-stack{display:grid;place-items:center;gap:26px;padding:24px}
+.gt-preload .pl-lock{display:inline-flex;align-items:center;gap:16px}
+/* authentic brand mark — reveals with the header logo's clip-path wipe, sized
+   up for the intro. This IS the Gastech logo, not an invented motif. */
+.gt-preload .pl-logo{width:78px;height:78px;clip-path:inset(0 100% 0 0);animation:gt-pl-wipe 1s var(--ease-out) .15s forwards}
+.gt-preload .pl-word{display:flex;flex-direction:column;line-height:1;letter-spacing:.02em;opacity:0;transform:translateY(10px);animation:gt-pl-rise .7s var(--ease-out) .55s forwards}
+.gt-preload .pl-word b{color:var(--text-default);font-size:30px;font-weight:var(--fw-black)}
+.gt-preload .pl-word span{color:var(--text-secondary);font-weight:var(--fw-medium);font-size:13px;letter-spacing:.34em;margin-top:3px}
+.gt-preload .pl-tag{position:relative;font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.5em;text-transform:uppercase;color:var(--text-muted);opacity:0;animation:gt-pl-track .8s var(--ease-out) 1.05s forwards}
+.gt-preload .pl-tag::after{content:"";position:absolute;left:50%;bottom:-13px;width:44px;height:2px;background:var(--brand);transform:translateX(-50%) scaleX(0);transform-origin:center;animation:gt-pl-rule .6s var(--ease-out) 1.4s forwards}
+@keyframes gt-pl-wipe{to{clip-path:inset(0 0 0 0)}}
+@keyframes gt-pl-rise{to{opacity:1;transform:none}}
+@keyframes gt-pl-track{0%{opacity:0;letter-spacing:.9em}100%{opacity:1;letter-spacing:.5em}}
+@keyframes gt-pl-rule{to{transform:translateX(-50%) scaleX(1)}}
+/* route-change loading (app/loading.tsx): the same logo mark, small, + a red sweep bar */
+.gt-route{position:relative;min-height:60vh;display:grid;place-items:center}
+.gt-route .rt-mark{width:58px;height:58px;opacity:.92;animation:gt-rt-pop .9s var(--ease-out)}
+.gt-route .rt-bar{position:fixed;top:0;left:0;height:3px;width:38%;background:linear-gradient(90deg,var(--brand),var(--brand-active));border-radius:0 3px 3px 0;animation:gt-route-sweep 1.1s var(--ease-out) infinite}
+@keyframes gt-rt-pop{0%{opacity:0;transform:scale(.9)}100%{opacity:.92;transform:none}}
+@keyframes gt-route-sweep{0%{transform:translateX(-100%);width:34%}60%{width:56%}100%{transform:translateX(320%);width:34%}}
+@media (prefers-reduced-motion:reduce){
+  .gt-preload .pl-logo,.gt-preload .pl-word,.gt-preload .pl-tag,.gt-route .rt-mark{animation:none!important;opacity:1!important;transform:none!important;clip-path:none!important}
+  .gt-preload .pl-tag::after{animation:none!important;transform:translateX(-50%) scaleX(1)!important}
+  .gt-route .rt-bar{animation:none;width:100%}
+}
+
+/* ==========================================================================
+   BLOCK Y · SMALL-TEXT LEGIBILITY (polish · client direction)
+   Uppercase mono micro-labels read faint at 10px. The --text-muted darkening
+   in tokens.css (#6B6F73 -> #545A62) + the --fs-xs bump (12 -> 13) lift the
+   whole site at once; these are the two most prominent global instances, given
+   a crisp minimum size and a touch more weight for on-screen quality.
+   ========================================================================== */
+.mono-tag,.brand-word span{font-size:11px;font-weight:var(--fw-semibold)}
 

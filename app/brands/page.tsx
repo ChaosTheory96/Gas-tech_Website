@@ -1,20 +1,24 @@
 import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
-import { siteGraph, breadcrumbSchema } from "@/lib/schema";
+import { collectionPageSchema, itemListSchema } from "@/lib/schema";
 import { getProduct } from "@/lib/products";
 import { Icon } from "@/components/icons";
 import { Marquee, SectionHead, JsonLd } from "@/components/blocks";
 import { EnquiryButton } from "@/components/enquiry";
 
 export const metadata = buildMetadata({
-  title: "Brands | Riello, Pietro Fiorentini & Gasvigil Distributor | Gastech",
+  title: "Authorised Brands: Pietro Fiorentini, Riello, Gasvigil",
   description:
-    "Gastech Combustions is the Pune-based representative for Riello industrial burners, Pietro Fiorentini gas regulation and metering, Gasvigil leak detection, and our own Gastech gas systems. Supplied, sized, installed and serviced locally.",
-  path: "/brands",
+    "Gastech Combustions is the authorised distributor of Pietro Fiorentini gas regulation, Riello burners and Gasvigil gas detectors in India. See each range.",
+  path: "/brands/",
   keywords: ["Riello distributor Pune", "Pietro Fiorentini India", "Gasvigil dealer", "industrial burner brands", "gas safety brands"],
 });
 
-const IMG = "https://gastechcombustions.in/images";
+const IMG = "/images"; // self-hosted mirror of gastechcombustions.in/images — run `node qa/_fetch-assets.mjs` to populate public/images
+
+/* Product pointers resolve through lib/products.ts so the client URL scheme is
+   written down exactly once. */
+const toRoute = (slug: string): string => getProduct(slug)?.route ?? "/";
 
 const BRANDS = [
   {
@@ -27,9 +31,9 @@ const BRANDS = [
     tag: "Combustion",
     flip: false,
     links: [
-      { href: "/gas-burners", label: "Gas burners" },
-      { href: "/light-oil-burners", label: "Light oil" },
-      { href: "/dual-fuel-burners", label: "Dual fuel" },
+      { href: toRoute("gas-burners"), label: "Gas burners" },
+      { href: toRoute("light-oil-burners"), label: "Light oil" },
+      { href: toRoute("dual-fuel-burners"), label: "Dual fuel" },
     ],
   },
   {
@@ -42,9 +46,9 @@ const BRANDS = [
     tag: "Regulation & metering",
     flip: true,
     links: [
-      { href: "/pf-regulators", label: "Regulators" },
-      { href: "/flow-meters", label: "Flow meters" },
-      { href: "/safety-valves", label: "Safety valves" },
+      { href: toRoute("pressure-regulators"), label: "Regulators" },
+      { href: toRoute("flow-meters"), label: "Flow meters" },
+      { href: toRoute("safety-valves"), label: "Safety valves" },
     ],
   },
   {
@@ -56,7 +60,7 @@ const BRANDS = [
     tagIcon: "shield",
     tag: "Gas safety",
     flip: false,
-    links: [{ href: "/gasvigil", label: "Leak detection" }],
+    links: [{ href: toRoute("gasvigil"), label: "Leak detection" }],
   },
   {
     idx: "04",
@@ -68,8 +72,8 @@ const BRANDS = [
     tag: "Turnkey systems",
     flip: true,
     links: [
-      { href: "/gas-trains", label: "Gas trains" },
-      { href: "/services", label: "Services" },
+      { href: toRoute("gas-trains"), label: "Gas trains" },
+      { href: "/services/", label: "Services" },
     ],
   },
 ];
@@ -89,17 +93,38 @@ const WHY = [
   { icon: "calendar", title: "AMC & spares", desc: "Long-term uptime, genuine parts and priority support." },
 ];
 
-const RANGE = ["gas-burners", "dual-fuel-burners", "pf-regulators", "flow-meters", "safety-valves", "gasvigil"];
+const RANGE = ["gas-burners", "dual-fuel-burners", "pressure-regulators", "flow-meters", "safety-valves", "gasvigil"];
 
 const crumbs = [
   { name: "Home", href: "/" },
-  { name: "Brands", href: "/brands" },
+  { name: "Brands", href: "/brands/" },
 ];
+void crumbs; // breadcrumb markup retired per sheet row P10 (CollectionPage + ItemList only); visible crumbs stay
 
 export default function BrandsPage() {
   return (
     <>
-      <JsonLd data={[...siteGraph(), breadcrumbSchema(crumbs)]} />
+      {/* Sheet row P10: CollectionPage + ItemList. Only Gasvigil has its own
+          brand route today, so only that ListItem carries a url; the others
+          stay on this page's own sections. */}
+      <JsonLd
+        data={[
+          collectionPageSchema(
+            "/brands/",
+            "Brands We Represent",
+            "Gastech Combustions is the authorised distributor of Pietro Fiorentini gas regulation, Riello burners and Gasvigil gas detectors in India. See each range.",
+          ),
+          itemListSchema(
+            "Brands We Represent",
+            "/brands/",
+            BRANDS.map((b) => ({
+              name: b.name,
+              desc: b.desc,
+              ...(b.name === "Gasvigil" ? { url: toRoute("gasvigil") } : {}),
+            })),
+          ),
+        ]}
+      />
       <main id="main">
         <section className="intro-hero">
           <div className="wrap">
@@ -108,8 +133,8 @@ export default function BrandsPage() {
             </div>
             <p className="eyebrow" data-reveal>Brands we represent</p>
             <h1 className="split">
-              <span className="line">Global brands,</span>
-              <span className="line"><em>local</em> accountability.</span>
+              <span className="line">Brands{" "}</span>
+              <span className="line"><em>We Represent</em></span>
             </h1>
             <p className="lede" data-reveal>Gastech Combustions is the Pune-based representative for world-class combustion and gas-safety manufacturers. We supply, size, install and service their equipment, so you get genuine products, correct engineering and one accountable partner from enquiry to uptime.</p>
             <div className="intro-cta" data-reveal>
@@ -190,7 +215,7 @@ export default function BrandsPage() {
                 if (!p) return null;
                 const img = p.slides[0]?.src;
                 return (
-                  <Link className="rel-card" key={slug} href={`/${slug}`}>
+                  <Link className="rel-card" key={slug} href={p.route}>
                     <div className="rc-media">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={img} alt={p.h1} loading="lazy" decoding="async" /></div>
                     <div className="rc-body">
                       <span>{p.brand}</span>

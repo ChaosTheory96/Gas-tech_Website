@@ -1,11 +1,14 @@
+/* ---------------------------------------------------------------------------
+   Product page renderer. One implementation shared by every product route,
+   whatever depth its URL sits at under the client scheme (/products/burners/...,
+   /products/gas-regulation/..., /brands/..., /gas-trains/). Content lives here
+   only, never duplicated per route folder.
+   --------------------------------------------------------------------------- */
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
-import { SITE, absoluteUrl } from "@/lib/site";
-import { PRODUCTS, getProduct } from "@/lib/products";
-import { productSchema, faqSchema, breadcrumbSchema, siteGraph } from "@/lib/schema";
-import { Icon } from "@/components/icons";
+import { SITE } from "@/lib/site";
+import { getProduct, type Product } from "@/lib/products";
+import { productGraph } from "@/lib/schema";
 import { Marquee, SectionHead, JsonLd } from "@/components/blocks";
 import { Carousel } from "@/components/carousel";
 import { EnquiryButton } from "@/components/enquiry";
@@ -16,40 +19,45 @@ import KeyValueTable from "@/components/KeyValueTable";
 import SpecStats from "@/components/SpecStats";
 import ArchChart from "@/components/ArchChart";
 
-export function generateStaticParams() {
-  return PRODUCTS.map((p) => ({ slug: p.slug }));
+/**
+ * Breadcrumb parents. Only hubs that actually exist are linked, so a product
+ * nested three levels deep never advertises an unbuilt category page.
+ */
+export function productCrumbs(p: Product) {
+  const hub = p.route.startsWith("/brands/")
+    ? { name: "Brands", href: "/brands/" }
+    : { name: "Products", href: "/products/" };
+  return [
+    { name: "Home", href: "/" },
+    hub,
+    { name: p.navLabel, href: p.route },
+  ];
 }
 
-type Ctx = { params: { slug: string } };
-
-export async function generateMetadata({ params }: Ctx): Promise<Metadata> {
-  const p = getProduct(params.slug);
-  if (!p) return {};
+export function productMetadata(p: Product) {
   return buildMetadata({
     title: p.metaTitle,
     description: p.metaDescription,
-    path: `/${p.slug}`,
+    path: p.route,
     image: p.slides[0]?.src ?? "/assets/gc-logo-flat.png",
     keywords: [p.brand, p.navLabel, p.h1, "Gastech Combustions", "Pune"],
   });
 }
 
-export default function ProductPage({ params }: Ctx) {
-  const p = getProduct(params.slug);
-  if (!p) notFound();
+/** Route segments for a product path, minus its owning prefix, for [...slug] params. */
+export function segmentsUnder(p: Product, prefix: string): string[] {
+  return p.route.slice(prefix.length).replace(/\/$/, "").split("/");
+}
 
-  const crumbs = [
-    { name: "Home", href: "/" },
-    { name: "Products", href: "/products" },
-    { name: p.navLabel, href: `/${p.slug}` },
-  ];
-  const related = p.related.map(getProduct).filter(Boolean) as NonNullable<ReturnType<typeof getProduct>>[];
+export default function ProductPage({ p }: { p: Product }) {
+  const crumbs = productCrumbs(p);
+  const related = p.related.map(getProduct).filter(Boolean) as Product[];
 
   // C / arch chart: regulator families compared by max design pressure.
   // Values are parsed from the REAL variant sub-copy ("Up to 102 bar …"),
-  // never invented. Only pf-regulators carries three comparable pressure families.
+  // never invented. Only pressure-regulators carries three comparable pressure families.
   const archData =
-    p.slug === "pf-regulators"
+    p.slug === "pressure-regulators"
       ? (p.variants
           .map((v) => {
             const m = /([\d.]+)\s*bar/.exec(v.sub ?? "");
@@ -62,14 +70,9 @@ export default function ProductPage({ params }: Ctx) {
 
   return (
     <>
-      <JsonLd
-        data={[
-          ...siteGraph(),
-          productSchema(p),
-          faqSchema(p.faq),
-          breadcrumbSchema(crumbs),
-        ]}
-      />
+      {/* Sheet-exact graph: each product route emits only the types listed in
+          its SEO Meta row (see lib/schema.ts productGraph). */}
+      <JsonLd data={productGraph(p, crumbs)} />
       <main id="main">
         {/* PRODUCT HERO */}
         <section className="p-hero">
@@ -94,7 +97,8 @@ export default function ProductPage({ params }: Ctx) {
               <div className="cta-dual">
                 <EnquiryButton className="btn--tech" type="technical" product={p.h1} icon="chat">Discuss technical specs</EnquiryButton>
               </div>
-              <p className="p-callnote" style={{ marginTop: 16 }}>
+              {/* margin-top promoted to the .p-callnote polish rule (Phase 3) */}
+              <p className="p-callnote">
                 or call <a href={SITE.contact.phonePrimaryHref}>{SITE.contact.phonePrimary}</a>
               </p>
             </div>
@@ -126,7 +130,7 @@ export default function ProductPage({ params }: Ctx) {
           </div>
         </section>
 
-        {/* ARCH CHART (real per-family design pressure — pf-regulators only) */}
+        {/* ARCH CHART (real per-family design pressure — pressure-regulators only) */}
         {archData && archData.length >= 2 && (
           <section className="sec">
             <div className="wrap">
@@ -194,7 +198,7 @@ export default function ProductPage({ params }: Ctx) {
               <SectionHead eyebrow="Explore more" title={<>Related products.</>} />
               <div className="rel-grid" data-stagger>
                 {related.map((r) => (
-                  <Link className="rel-card" key={r.slug} href={`/${r.slug}`} scroll={false}>
+                  <Link className="rel-card" key={r.slug} href={r.route} scroll={false}>
                     <div className="rc-media">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={r.slides[0]?.src} alt={r.slides[0]?.alt ?? r.h1} loading="lazy" decoding="async" /></div>
                     <div className="rc-body"><span>{r.brand}</span><h3>{r.navLabel}</h3></div>
                   </Link>

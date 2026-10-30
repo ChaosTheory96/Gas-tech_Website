@@ -12,7 +12,7 @@ export function GET() {
   lines.push("");
   lines.push(`> ${SITE.description}`);
   lines.push("");
-  lines.push("Gastech Combustions is the Pune-based representative and integrator for Riello industrial burners, Pietro Fiorentini gas regulation and metering, and Gasvigil gas-leak detection. We supply, size, install, commission and service complete gas systems, doing it right first time with one accountable partner.");
+  lines.push("Gastech Combustions engineers and manufactures gas trains as complete skid-mounted assemblies, and is the Pune-based representative and integrator for Riello industrial burners, Pietro Fiorentini gas regulation and metering, and Gasvigil gas-leak detection. It also converts diesel generators to run on dual fuel. We supply, size, install, commission and service complete gas systems, doing it right first time with one accountable partner.");
   lines.push("");
   lines.push("## Key facts");
   lines.push(`- Legal name: ${SITE.legalName}`);
@@ -29,17 +29,18 @@ export function GET() {
   lines.push("## Pages");
   const core = [
     ["Home", "/"],
-    ["Products (full range)", "/products"],
-    ["Brands we represent", "/brands"],
-    ["How we deliver", "/delivery"],
-    ["Services (consultancy, install, AMC)", "/services"],
-    ["Contact", "/contact"],
+    ["About Us (company, capability, capacity range)", "/about-us/"],
+    ["Products (full range)", "/products/"],
+    ["Brands we represent", "/brands/"],
+    ["How We Work (process, handover, AMC)", "/how-we-work/"],
+    ["Services (consultancy, install, AMC)", "/services/"],
+    ["Contact", "/contact-us/"],
   ] as const;
   for (const [label, path] of core) lines.push(`- [${label}](${absoluteUrl(path)})`);
   lines.push("");
   lines.push("## Products");
   for (const p of PRODUCTS) {
-    lines.push(`- [${p.navLabel} (${p.brand})](${absoluteUrl(`/${p.slug}`)}): ${p.metaDescription}`);
+    lines.push(`- [${p.navLabel} (${p.brand})](${absoluteUrl(p.route)}): ${p.metaDescription}`);
   }
   lines.push("");
 

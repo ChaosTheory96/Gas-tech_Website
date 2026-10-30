@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import { SITE } from "@/lib/site";
-import { siteGraph, breadcrumbSchema } from "@/lib/schema";
+import { contactPageSchema, localBusinessSchema } from "@/lib/schema";
 import { Icon } from "@/components/icons";
 import { Marquee, SectionHead, JsonLd } from "@/components/blocks";
 import { EnquiryButton } from "@/components/enquiry";
 
 export const metadata = buildMetadata({
-  title: "Contact Gastech Combustions | Phone, Email, Address & Enquiry | Pune",
+  title: "Contact Gastech Combustions | Pune Gas Train Supplier",
   description:
-    "Contact Gastech Combustions Pvt Ltd in Pune for industrial burners, gas regulation, metering, leak detection and hydrogen solutions. Call, email, send an enquiry or visit our Vantage Towers office. We reply within one business day.",
-  path: "/contact",
+    "Contact Gastech Combustions, Bavdhan, Pune. Call, WhatsApp or send an enquiry for gas trains, regulators, burners and leak detectors.",
+  path: "/contact-us/",
   keywords: ["contact gastech", "gas burner company pune", "burner enquiry", "gas systems contact", "Pune"],
 });
 
@@ -32,8 +32,8 @@ const DETAILS = [
     kicker: "Where we are",
     title: "Two Pune locations",
     points: [
-      "Works: Vantage Towers, C-1005, Bavdhan Khurd, Pune 411021",
-      "Registered: Dangat Industrial Estate, Shivane, Pune 411023",
+      `Works: ${C.worksAddress}`,
+      `Registered office: ${C.registeredAddress}`,
     ],
   },
   {
@@ -49,17 +49,29 @@ const DETAILS = [
 ];
 
 const MAP_SRC =
-  "https://maps.google.com/maps?q=Vantage%20Towers%2C%20Bavdhan%20Khurd%2C%20Pune%20411021&output=embed";
+  "https://maps.google.com/maps?q=Dangat%20Industrial%20Estate%2C%20NDA%20Road%2C%20Shivane%2C%20Pune%20411023&output=embed";
 
 const crumbs = [
   { name: "Home", href: "/" },
-  { name: "Contact", href: "/contact" },
+  { name: "Contact", href: "/contact-us/" },
 ];
+void crumbs; // breadcrumb markup retired per sheet row P03 (ContactPage + LocalBusiness only); visible crumbs stay
 
 export default function ContactPage() {
   return (
     <>
-      <JsonLd data={[...siteGraph(), breadcrumbSchema(crumbs)]} />
+      {/* Sheet row P03: ContactPage + LocalBusiness (address, phone, hours).
+          No geo block: unverified pinpoints would be an invented fact. */}
+      <JsonLd
+        data={[
+          contactPageSchema(
+            "/contact-us/",
+            "Contact Gastech Combustions",
+            "Contact Gastech Combustions, Bavdhan, Pune. Call, WhatsApp or send an enquiry for gas trains, regulators, burners and leak detectors.",
+          ),
+          localBusinessSchema(),
+        ]}
+      />
       <main id="main">
         <section className="intro-hero">
           <div className="wrap">
@@ -68,8 +80,8 @@ export default function ContactPage() {
             </div>
             <p className="eyebrow" data-reveal>Contact</p>
             <h1 className="split">
-              <span className="line">Talk to a</span>
-              <span className="line"><em>gas</em> engineer.</span>
+              <span className="line">Contact{" "}</span>
+              <span className="line"><em>Gastech Combustions</em></span>
             </h1>
             <p className="lede" data-reveal>Reach the Gastech team about burners, gas regulation, metering, leak detection or hydrogen solutions, or ask for a quote, a site study or technical advice. We reply within one business day.</p>
             <div className="intro-cta" data-reveal>
@@ -149,7 +161,7 @@ export default function ContactPage() {
             <SectionHead
               eyebrow="Visit us"
               title={<>Find the <u>works.</u></>}
-              sub={<>Vantage Towers, Bavdhan Khurd, Pune 411021. <a href={C.mapUrl} target="_blank" rel="noopener">Open in Google Maps</a>.</>}
+              sub={<>Dangat Industrial Estate, NDA Road, Shivane, Pune 411023. The registered office is at Vantage Towers, Bavdhan Khurd. <a href={C.mapUrl} target="_blank" rel="noopener">Open in Google Maps</a>.</>}
             />
             <div data-reveal>
               <iframe

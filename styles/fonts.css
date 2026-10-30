@@ -18,13 +18,25 @@
 
 /* ----------------------------------------------------------------------------
    MODERN DISPLAY PAIRING — self-hosted (same offline guarantee as above).
-   Oswald = condensed grotesque for titles. Source Sans 3 = humanist for body.
-   Both subset to latin for weight. Manrope/IBM Plex stay as deterministic fallback.
+   Source Sans 3 = humanist for body (still live in --font-sans).
+   Manrope/IBM Plex stay as deterministic fallback.
    ---------------------------------------------------------------------------- */
+
+/* ----------------------------------------------------------------------------
+   RETIRED — OSWALD (Phase 3 token consolidation, production decision).
+   The display stack resolves to Manrope in tokens.css (single source of
+   truth); Oswald — a condensed freebie template tell — names no surface on
+   this site. These four @font-face declarations are RETIRED BY DECISION, not
+   deleted (no-deletion rule): kept commented here so a future re-brand knows
+   the faces were curated, bundled and deliberate once. The woff2 files under
+   public/fonts/ stay in the repo; nothing references these names any more,
+   so the faces are never fetched at runtime.
+   ----------------------------------------------------------------------------
 @font-face{font-family:'Oswald';font-style:normal;font-weight:400;font-display:swap;src:url('/fonts/oswald-latin-400-normal.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:'Oswald';font-style:normal;font-weight:500;font-display:swap;src:url('/fonts/oswald-latin-500-normal.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:'Oswald';font-style:normal;font-weight:600;font-display:swap;src:url('/fonts/oswald-latin-600-normal.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:'Oswald';font-style:normal;font-weight:700;font-display:swap;src:url('/fonts/oswald-latin-700-normal.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+*/
 @font-face{font-family:'Source Sans 3';font-style:normal;font-weight:300;font-display:swap;src:url('/fonts/sourcesans3-latin-300-normal.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:'Source Sans 3';font-style:normal;font-weight:400;font-display:swap;src:url('/fonts/sourcesans3-latin-400-normal.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:'Source Sans 3';font-style:normal;font-weight:600;font-display:swap;src:url('/fonts/sourcesans3-latin-600-normal.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}

@@ -12,6 +12,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
+import { getSmoother } from "./SmoothScroll";
 
 export function FxBootstrap() {
   useEffect(() => {
@@ -52,16 +53,21 @@ export function PageTransition({ children }: { children: ReactNode }) {
   return (
     <motion.div
       key={pathname}
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+      // Phase 4 text-rendering contract: Framer leaves `transform: translateY(0px)`
+      // on the settled wrapper, which would composite every page's text. Emit
+      // `none` the instant y rests so the wrapper is uncomposited and type keeps
+      // native ClearType. Opacity is unaffected (it is not a transform).
+      transformTemplate={(latest) => (latest.y ? `translateY(${latest.y}px)` : "none")}
     >
       {children}
     </motion.div>
   );
 }
 
-/* Scrolls to a #hash target after a route change. Links like /delivery#process
+/* Scrolls to a #hash target after a route change. Links like /how-we-work/#process
    navigate but App Router does not scroll to in-page anchors on its own, and
    the navbar is sticky, so we offset by its height. Runs only in the browser. */
 export function HashScroller() {
@@ -77,7 +83,11 @@ export function HashScroller() {
         parseInt(getComputedStyle(document.documentElement).getPropertyValue("--nav-h")) || 78;
       const top = el.getBoundingClientRect().top + window.scrollY - navH - 12;
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      window.scrollTo({ top, behavior: reduce ? "auto" : "smooth" });
+      // When ScrollSmoother is active, route through it so the jump is eased and
+      // stays in sync with the smoothed scroller; otherwise use native scroll.
+      const s = getSmoother();
+      if (s && !reduce) { s.scrollTo(Math.max(0, top), true); }
+      else { window.scrollTo({ top, behavior: reduce ? "auto" : "smooth" }); }
     };
     const id = window.setTimeout(jump, 120);
     return () => window.clearTimeout(id);

@@ -38,4 +38,5 @@ yarn-error.log*
 
 # build logs and local scratch (not part of the site)
 *.log
+*.err
 *.txt.bak

@@ -21,6 +21,8 @@ export type Faq = { q: string; a: string };
 
 export type Product = {
   slug: string;
+  /** Canonical live path, trailing slash included, per the client URL scheme. */
+  route: string;
   navLabel: string;
   brand: string;
   brandline: [string, string];
@@ -45,18 +47,19 @@ export type Product = {
   faq: Faq[];
 };
 
-const IMG = "https://gastechcombustions.in/images";
+const IMG = "/images"; // self-hosted mirror of gastechcombustions.in/images — run `node qa/_fetch-assets.mjs` to populate public/images
 
 export const PRODUCTS: Product[] = [
   {
     slug: "gas-burners",
+    route: "/products/burners/gas-burners/",
     navLabel: "Gas Burners",
     brand: "Riello",
     brandline: ["Riello", "Industrial Burners"],
-    h1: "Riello Gas Burners",
-    metaTitle: "Gas Burners | 11 to 4885 kW | Gastech Combustions",
+    h1: "Industrial Gas Burners",
+    metaTitle: "Industrial Gas Burners: One, Two Stage, Modulating",
     metaDescription:
-      "Riello gas burners for natural gas and LPG. One-stage, two-stage, two-stage progressive and modulating models from 11 to 4885 kW for steam, hot-water and diathermic oil boilers, supplied, sized and serviced by Gastech Combustions in Pune.",
+      "Riello gas burners: one stage 11-220 kW, two stage 130-3,200 kW, progressive 45-2,290 kW and modulating 130-4,885 kW. Pune supplier with AMC.",
     lead: "One-stage, two-stage, two-stage progressive and modulating gas burners fired on natural gas or LPG. Gastech supplies, sizes and services Riello gas burners for steam, hot-water and diathermic oil boilers.",
     specs: [
       { value: "11 to 4885 kW", label: "Output range" },
@@ -89,7 +92,7 @@ export const PRODUCTS: Product[] = [
       { k: "Applications", v: "Steam boilers, hot-water boilers, diathermic oil boilers" },
       { k: "Gastech scope", v: "Supply, sizing, installation, commissioning & AMC" },
     ],
-    related: ["pf-regulators", "gas-trains", "light-oil-burners", "gasvigil"],
+    related: ["pressure-regulators", "gas-trains", "light-oil-burners", "gasvigil"],
     faq: [
       { q: "What fuels do Riello gas burners run on?", a: "The range fires on natural gas or LPG (propane / butane), selected to your site gas supply." },
       { q: "What output range is available?", a: "Model outputs span 11 to 4885 kW across one-stage, two-stage, two-stage progressive and modulating control modes." },
@@ -99,13 +102,14 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "light-oil-burners",
-    navLabel: "Light Oil Burners",
+    route: "/products/burners/oil-burners/",
+    navLabel: "Oil Burners",
     brand: "Riello",
     brandline: ["Riello", "Oil Burners"],
-    h1: "Light Oil Burners",
-    metaTitle: "Light Oil Burners | 14 to 5340 kW | Gastech Combustions",
+    h1: "Industrial Oil Burners (Light Oil and Heavy Oil)",
+    metaTitle: "Industrial Oil Burners: Light & Heavy Oil | Gastech",
     metaDescription:
-      "Riello light oil burners fired on gasoil and kerosene. One-stage, two-stage, three-stage and modulating models from 14 to 5340 kW for steam, hot-water and process boilers, supplied, sized and serviced by Gastech Combustions in Pune.",
+      "Light oil burners from 14 kW to 5,340 kW and heavy oil burners for boilers and furnaces. Riello distributor in Pune with installation and AMC.",
     lead: "One-stage, two-stage, three-stage and modulating light oil burners fired on gasoil or kerosene. Gastech supplies, sizes and services Riello light oil burners for steam, hot-water and process boilers across heating duty.",
     specs: [
       { value: "14 to 5340 kW", label: "Output range" },
@@ -117,7 +121,7 @@ export const PRODUCTS: Product[] = [
       { cap: "One-stage light oil burner / 23.8 to 240 kW", src: `${IMG}/burner/riello-burner/light-oil-burner-01-stage.jpg`, alt: "Riello one-stage light oil burner" },
       { cap: "Two-stage light oil burner / 14 to 296 kW", src: `${IMG}/burner/riello-burner/light-oil-burner-02-stage.jpg`, alt: "Riello two-stage light oil burner" },
       { cap: "Three-stage light oil burner / 830 to 5340 kW", src: `${IMG}/burner/riello-burner/light-oil-burner-03-stage.jpg`, alt: "Riello three-stage light oil burner" },
-      { cap: "Modulating light oil burner / 415 to 4340 kW", src: `${IMG}/burner/riello-burner/ligjt-oil-burner-modulating.jpg`, alt: "Riello modulating light oil burner" },
+      { cap: "Modulating light oil burner / 415 to 4340 kW", src: `${IMG}/burner/riello-burner/light-oil-product/gas-burner-MODULATING.jpg`, alt: "Riello modulating light oil burner" },
     ],
     modelEyebrow: "Model range",
     modelTitle: "Four firing modes, one light fuel.",
@@ -139,7 +143,7 @@ export const PRODUCTS: Product[] = [
       { k: "Applications", v: "Steam boilers, hot-water boilers, process and diathermic heating" },
       { k: "Gastech scope", v: "Supply, sizing, installation, commissioning & AMC" },
     ],
-    related: ["gas-burners", "dual-fuel-burners", "gas-trains", "pf-regulators"],
+    related: ["gas-burners", "dual-fuel-burners", "gas-trains", "pressure-regulators"],
     faq: [
       { q: "What fuels do light oil burners use?", a: "They fire on light oil fuels such as gasoil and kerosene (desktop fuel oil)." },
       { q: "What outputs are covered?", a: "The Gastech light oil range spans 14 to 5340 kW across one-stage, two-stage, three-stage and modulating models." },
@@ -148,13 +152,14 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "dual-fuel-burners",
+    route: "/products/burners/dual-fuel-burners/",
     navLabel: "Dual Fuel Burners",
     brand: "Riello",
     brandline: ["Riello", "Dual Fuel"],
-    h1: "Dual Fuel Burners",
-    metaTitle: "Dual Fuel Burners | 163 to 5000 kW | Gastech Combustions",
+    h1: "Dual-Fuel Burners",
+    metaTitle: "Dual-Fuel Burners: Gas and Oil | Gastech Combustions",
     metaDescription:
-      "Riello dual fuel burners that fire on gas, light oil or both. Two-stage models from 163 to 1395 kW and modulating models from 407 to 5000 kW for boilers and process heating, supplied, sized and serviced by Gastech Combustions in Pune.",
+      "Riello dual fuel burners: two stage 163-1,395 kW and modulating 407-5,000 kW. Switch between gas and oil. Supply and AMC from Gastech in Pune.",
     lead: "Burners that run on gas, on light oil, or on both, so a fuel supply interruption does not stop your process. Gastech supplies, sizes and services Riello dual fuel burners for boilers and heating duty where fuel flexibility and continuity matter.",
     specs: [
       { value: "163 to 5000 kW", label: "Output range" },
@@ -185,7 +190,7 @@ export const PRODUCTS: Product[] = [
       { k: "Applications", v: "Steam boilers, hot-water boilers and process heating with fuel-security requirements" },
       { k: "Gastech scope", v: "Supply, sizing, installation, commissioning & AMC" },
     ],
-    related: ["gas-burners", "light-oil-burners", "gas-trains", "pf-regulators"],
+    related: ["gas-burners", "light-oil-burners", "gas-trains", "pressure-regulators"],
     faq: [
       { q: "Why choose a dual fuel burner?", a: "A second fuel keeps heat and steam online if the primary gas supply is cut, de-pressurised or priced out." },
       { q: "Which fuel combinations are possible?", a: "Natural gas or LPG with light-oil (gasoil) backup, fired separately or in combination." },
@@ -193,14 +198,15 @@ export const PRODUCTS: Product[] = [
     ],
   },
   {
-    slug: "pf-regulators",
-    navLabel: "Gas Regulators",
+    slug: "pressure-regulators",
+    route: "/products/gas-regulation/pressure-regulators/",
+    navLabel: "Gas Pressure Regulators",
     brand: "Pietro Fiorentini",
     brandline: ["Pietro Fiorentini", "Gas Regulation"],
-    h1: "Gas Pressure Regulators & Governors",
-    metaTitle: "Gas Pressure Regulators | Pietro Fiorentini | Gastech",
+    h1: "Gas Pressure Regulators",
+    metaTitle: "Gas Pressure Regulators for Industrial Use | Gastech",
     metaDescription:
-      "Pietro Fiorentini gas pressure regulators and governors for natural gas, LPG and biogas. High/medium, medium/low and low pressure families from DN 3/4 inch to DN 12 inch, up to 102 bar, with ASME B16.5 and ISO 7005 connections, supplied and serviced by Gastech Combustions in Pune.",
+      "Industrial gas pressure regulators by pressure class: low, medium-low and high-medium, direct or pilot operated. Pietro Fiorentini range from Gastech.",
     lead: "Pietro Fiorentini direct and pilot-operated gas regulators that hold downstream pressure steady across the flow range. Selected by gas type, inlet and outlet pressure and duty, from domestic low-pressure governors up to high/medium-pressure station regulators.",
     specs: [
       { value: 'DN 3/4" to 12"', label: "Nominal sizes" },
@@ -253,13 +259,14 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "flow-meters",
+    route: "/products/gas-measurement/flow-meters/",
     navLabel: "Flow Meters",
     brand: "Pietro Fiorentini",
     brandline: ["Pietro Fiorentini", "Gas Metering"],
-    h1: "Gas Flow Meters & Volume Correction",
-    metaTitle: "Gas Flow Meters & EVC | Pietro Fiorentini | Gastech",
+    h1: "Gas Flow Meters",
+    metaTitle: "Industrial Gas Flow Meters & Totalisers | Gastech",
     metaDescription:
-      "Pietro Fiorentini gas flow meters: RPD positive-displacement and turbine meters with electronic volume correctors (EVC) and intrinsically safe Ex barriers. DN sizes, flow ranges and hydrogen-ready metering supplied and serviced by Gastech Combustions in Pune.",
+      "Industrial gas flow meters: rotary, turbine and ultrasonic. Pietro Fiorentini meters with EVC, bypass and RS485 options from Gastech Combustions.",
     lead: "Accurate, billable gas measurement with Pietro Fiorentini RPD positive-displacement and turbine meters, electronic volume correctors and intrinsically safe Ex barriers. Selected by gas type, flow range and connection, from metering stations to plant and skid duty.",
     specs: [
       { value: "0.5 to 6500 m³/h", label: "Flow range" },
@@ -300,7 +307,7 @@ export const PRODUCTS: Product[] = [
       { k: "Hazardous areas", v: "INT-S3/N interface / Ex barrier, marking II(2)G [Ex ib Gb] IIA, installed outside the hazardous zone" },
       { k: "Gastech scope", v: "Sizing, supply, installation, commissioning & AMC" },
     ],
-    related: ["pf-regulators", "safety-valves", "gas-trains", "gasvigil"],
+    related: ["pressure-regulators", "safety-valves", "gas-trains", "gasvigil"],
     faq: [
       { q: "What types of gas flow meters are offered?", a: "RPD rotary positive-displacement meters and turbine meters, both with electronic volume correction (EVC)." },
       { q: "What flow range is covered?", a: "From 0.5 to 6500 m³/h across the RPD and turbine ranges, in DN 40 to DN 300 sizes." },
@@ -309,13 +316,14 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "safety-valves",
+    route: "/products/gas-regulation/safety-valves/",
     navLabel: "Safety Valves",
     brand: "Pietro Fiorentini",
     brandline: ["Pietro Fiorentini", "Gas Safety"],
-    h1: "Safety Shut-Off, Relief & Governing Valves",
-    metaTitle: "Gas Safety Valves | Pietro Fiorentini | Gastech",
+    h1: "Slam-Shut Valves (Safety Shut-Off Valves)",
+    metaTitle: "Slam-Shut Valves: Gas Safety Shut-Off | Gastech",
     metaDescription:
-      'Pietro Fiorentini gas safety devices: slam shut-off valves up to 102 bar and DN 12 inch, relief valves and direct-operated governors for natural gas and LPG systems, supplied and serviced by Gastech Combustions in Pune.',
+      "Pietro Fiorentini slam-shut valves for overpressure protection, design pressure up to 102 bar, up to DN 12. Authorised distributor Gastech Combustions.",
     lead: "Gas safety devices that protect people, plant and downstream equipment. Pietro Fiorentini slam shut-off valves cut the supply on failure, relief valves vent on overpressure, and governors hold downstream pressure, for natural gas and LPG regulation trains.",
     specs: [
       { value: "Up to 102 bar", label: "SSOV design pressure" },
@@ -355,7 +363,7 @@ export const PRODUCTS: Product[] = [
       { k: "Relief valves", v: "20 bar design, overpressure 500 / 1000 / 10000 mbar for BP / MP / TR, regulation range 15 to 7000 mbar, AG class 2.5 / 5 / 10" },
       { k: "Gastech scope", v: "Sizing, supply, installation, commissioning & AMC" },
     ],
-    related: ["pf-regulators", "gas-trains", "flow-meters", "gasvigil"],
+    related: ["pressure-regulators", "gas-trains", "flow-meters", "gasvigil"],
     faq: [
       { q: "What gas safety devices are supplied?", a: "Slam shut-off valves (rapid isolation on failure), relief valves (overpressure protection) and direct-operated governors (downstream pressure control)." },
       { q: "How robust are the shut-off valves?", a: 'Slam shut-off valves cover design pressure up to 102 bar and DN up to 12", built to EN 334 and EN 14382.' },
@@ -363,13 +371,14 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "gas-trains",
+    route: "/gas-trains/",
     navLabel: "Gas Trains",
     brand: "Gastech",
     brandline: ["Gastech", "Gas Systems"],
-    h1: "Gas Trains",
-    metaTitle: "Gas Trains & Skids | Gastech Combustions",
+    h1: "Gas Train Manufacturer in Pune: Custom, Skid-Mounted, Application-Specific",
+    metaTitle: "Gas Train Manufacturer in Pune, India | Gastech",
     metaDescription:
-      "Gastech gas trains are engineered, assembled and commissioned as complete skid-mounted assemblies for safe, reliable and precise fuel-gas supply to industrial burners. Manual and safety shut-off valves, filters, regulators, solenoid valves, pressure switches and flow meters, configured to your application.",
+      "Gastech Combustions designs and manufactures custom skid-mounted gas trains for burners, boilers and furnaces in Pune. Regulators, SSOV, filters, meters.",
     lead: "Engineered and manufactured to give safe, reliable and precise control of fuel-gas supply to industrial burners and combustion systems. Each gas train is configured to your application: gas type, flow, inlet and outlet pressure, safety requirements and applicable standards, supplied as a complete skid-mounted assembly.",
     specs: [
       { value: "Skid-mounted", label: "Complete assembly" },
@@ -408,7 +417,7 @@ export const PRODUCTS: Product[] = [
       { k: "Applications", v: "Monoblock / package burners, textile stenter, dual-fuel genset, galvanizing plant, steel plant" },
       { k: "Gastech scope", v: "Design, assembly, testing, installation, commissioning & AMC" },
     ],
-    related: ["gas-burners", "pf-regulators", "safety-valves", "flow-meters"],
+    related: ["gas-burners", "pressure-regulators", "safety-valves", "flow-meters"],
     faq: [
       { q: "What is a gas train?", a: "A complete skid-mounted assembly that gives safe, reliable and precise control of fuel-gas supply to industrial burners and combustion systems." },
       { q: "What devices are included?", a: "Manual and safety shut-off valves, filters, pressure regulators, solenoid valves, pressure switches and flow meters, configured to your application." },
@@ -417,13 +426,14 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "gasvigil",
+    route: "/brands/gasvigil/",
     navLabel: "Gas Leak Detection",
     brand: "Gasvigil",
     brandline: ["Gasvigil", "Gas Safety"],
-    h1: "Gasvigil Gas Leak Detection & Shutoff",
-    metaTitle: "Gas Leak Detection & Shutoff | Gasvigil | Gastech",
+    h1: "Gasvigil Gas Leak Detection Systems",
+    metaTitle: "Gasvigil Gas Leak Detectors Distributor | Gastech",
     metaDescription:
-      "Gasvigil gas leak detection and automatic shutoff systems: GV 108 gas detector, control panel, stand-alone units and portable detectors. Continuous sensing of CO, LPG/CNG, H2S and oxygen, supplied and commissioned by Gastech Combustions in Pune.",
+      "Authorised Gasvigil distributor in India: fixed and portable gas leak detectors, GV 108 detector and panels for LPG, PNG, toxic and other gases.",
     lead: "Continuous gas-leak sensing with automatic shutoff to protect people and plant. Gasvigil detectors and panels sense combustible gas (LPG / CNG), carbon monoxide, hydrogen sulphide and oxygen depletion, alarm early and interlock the supply.",
     specs: [
       { value: "All gases", label: "Combustible & toxic" },
@@ -459,7 +469,7 @@ export const PRODUCTS: Product[] = [
       { k: "Configuration", v: "Single stand-alone point to multi-zone panelled systems" },
       { k: "Gastech scope", v: "Supply, siting, installation, commissioning & AMC" },
     ],
-    related: ["gas-trains", "pf-regulators", "safety-valves", "gas-burners"],
+    related: ["gas-trains", "pressure-regulators", "safety-valves", "gas-burners"],
     faq: [
       { q: "Which gases can Gasvigil detect?", a: "Combustible LPG / CNG (in %LEL), carbon monoxide (CO), hydrogen sulphide (H₂S) and oxygen (O₂) depletion." },
       { q: "Does it just alarm or also act?", a: "It alarms and provides an automatic gas-shutoff interlock, from a single stand-alone point to multi-zone panelled systems." },
@@ -472,6 +482,28 @@ export const PRODUCT_MAP: Record<string, Product> = Object.fromEntries(
   PRODUCTS.map((p) => [p.slug, p]),
 );
 
+const ROUTE_MAP: Record<string, Product> = Object.fromEntries(
+  PRODUCTS.map((p) => [p.route, p]),
+);
+
 export function getProduct(slug: string): Product | undefined {
   return PRODUCT_MAP[slug];
+}
+
+/**
+ * Resolve a product from the segments a catch-all route receives, e.g.
+ * ("/products/", ["burners","gas-burners"]). The prefix is required: a route
+ * folder only ever hands over the segments beneath it, so rebuilding the path
+ * without it would look up "/burners/gas-burners/" and miss every product.
+ */
+export function getProductByRoute(
+  prefix: string,
+  segments: string[],
+): Product | undefined {
+  return ROUTE_MAP[prefix + segments.join("/") + "/"];
+}
+
+/** Products whose canonical path sits under a given prefix, e.g. "/products/" . */
+export function productsUnder(prefix: string): Product[] {
+  return PRODUCTS.filter((p) => p.route.startsWith(prefix) && p.route !== prefix);
 }

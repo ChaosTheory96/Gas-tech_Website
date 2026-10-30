@@ -128,9 +128,13 @@ export function Carousel({
           className={trackClassName}
           style={{
             display: "flex",
-            transform: `translate3d(${shift}px,0,0)`,
+            // 2D translate (not translate3d) and NO permanent will-change: a
+            // settled track must not sit on a composited layer or its slide
+            // text loses subpixel AA (Phase 4 text-rendering contract). The
+            // transition still animates the slide; only the resting state
+            // returns to native rendering.
+            transform: `translateX(${shift}px)`,
             transition: reduce ? "none" : `transform ${DUR}ms ${EASE}`,
-            willChange: "transform",
           }}
         >
           {slides.map((s, i) => (
@@ -145,7 +149,7 @@ export function Carousel({
       </div>
 
       {count > 1 && (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "14px", gap: "16px" }}>
+        <div className="car-ctl-row">
           {captions ? (
             // grid overlap: ALL captions share cell 1/1 and stay in-flow, so the
             // cell is as tall as the tallest one; only opacity/transform change.
@@ -162,7 +166,10 @@ export function Carousel({
                     position: "relative",
                     background: "none",
                     opacity: i === index ? 1 : 0,
-                    transform: `translateY(${i === index ? 0 : 6}px)`,
+                    // active caption rests at `none` (not translateY(0)) so its
+                    // text is not left on a composited layer (Phase 4 contract);
+                    // CSS still interpolates none<->translateY for the swap.
+                    transform: i === index ? "none" : "translateY(6px)",
                     transition: reduce ? "none" : `opacity ${DUR}ms ${EASE}, transform ${DUR}ms ${EASE}`,
                     pointerEvents: i === index ? "auto" : "none",
                   }}

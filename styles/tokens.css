@@ -76,39 +76,59 @@
   --scrim-60: rgba(0,0,0,.6);
   --scrim-70: rgba(0,0,0,.72);
 
+  /* ---- PROMOTED RAW VALUES (Phase 3 raw-colour sweep). These mirror the
+     former authored literals in enhancements.css so no style file outside
+     tokens.css carries a raw colour again. Theme-independent by design —
+     they rendered identically under both themes before, so no light-side
+     counterparts are introduced (would change rendering). ---- */
+  --sheen-sweep: linear-gradient(100deg,transparent 0,rgba(255,255,255,.34) 46%,rgba(255,255,255,.05) 62%,transparent 82%);        /* button hover gloss travel */
+  --sheen-sweep-strong: linear-gradient(100deg,transparent 0,rgba(255,255,255,.55) 50%,transparent 82%);                            /* same gloss on dark plates */
+  --text-shadow-veil: 0 1px 0 rgba(0,0,0,.06), 0 2px 10px rgba(0,0,0,.10);                                                          /* readability veil, data-gt-text-shadow */
+  --mask-opaque: #000;                          /* mask-image FULL-OPAQUE stop — a luminance keyword, not a paint colour */
+  --conv-shade: #0B1215;                        /* conveyor depth-dim shade (painted at low alpha over cards) */
+  --car-ctl-mt: 14px; --car-ctl-gap: 16px;      /* carousel controls row (promoted from the inline style in components/carousel.tsx) */
+
   /* ---- REALISTIC GLASS (physics-grounded pane, not frosted plastic) ----
-     Bright Fresnel rim, two-lobe catchlight, thickness tint, low haze blur,
-     grounding contact shadow. Light source: top-left, consistent. */
+     ACTIVE subset — consumed by the GLASS DISCIPLINE block in enhancements.css,
+     which applies glass to exactly two surfaces (production decision, Phase 3):
+     the sticky header layer above content, and modal surfaces. Nowhere else. */
   --glass-tint: rgba(255,255,255,.05);
-  --glass-rim: rgba(255,255,255,.28);
   --glass-rim-lo: rgba(0,0,0,.35);
   --glass-inner-ring: rgba(255,255,255,.06);
-  --glass-catch: rgba(255,255,255,.55);
   --glass-catch-soft: rgba(255,255,255,.30);
+  --glass-blur: 8px; --glass-blur-hover: 9px;
+  /* RESERVE BEGIN: glass physical (parked by production decision, Phase 3 —
+     kept as design-system material, never deleted, NOT live debt) */
+  --glass-rim: rgba(255,255,255,.28);
+  --glass-catch: rgba(255,255,255,.55);
   --glass-refract-dark: rgba(0,0,0,.22);
   --glass-contact: rgba(0,0,0,.55);
   --glass-ink: #F4F5F6;
-  --glass-blur: 8px; --glass-blur-hover: 9px; --glass-blur-press: 10px;
+  --glass-blur-press: 10px;
+  /* RESERVE END */
 
   /* ---- ICON GLYPH COLOUR ---- */
   --glyph:#FFFFFF; --glyph-on-black:#0C0F12;
 
-  /* ---- TYPE — modern pairing (client direction) ----
-     Titles: Oswald (condensed grotesque display). Paragraphs: Source Sans 3.
-     Both are self-hosted in assets/fonts (see fonts.css) — fully offline.
-     Bundled Manrope stays named last as a deterministic fallback. */
+  /* ---- TYPE — production standard (Phase 3 consolidation: ONE source). ----
+     --font-display = Manrope (the moodboard's Neue-Haas-class grotesque,
+     bundled in fonts.css). Oswald — a condensed freebie template tell — is
+     retired: its polish-layer token fork is gone (retired in enhancements.css)
+     and its @font-face rules are retired in fonts.css (woff2 files kept per
+     the no-deletion rule). Manrope runs slightly tighter at display sizes
+     than Oswald needed → --tracking-display carries the production -.022em. */
   --font-sans:"Source Sans 3","Source Sans Pro","Manrope", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
-  --font-display:"Oswald","Manrope","Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+  --font-display:"Manrope","Source Sans 3",ui-sans-serif,system-ui,"Segoe UI",sans-serif;
   --font-mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
   /* fixed ramp from the board: H1 64/72 · H2 40/48 · H3 28/36 · Body 16/28 · Caption 12/20 */
   --fs-display:64px; --lh-display:72px;
   --fs-h2:40px; --lh-h2:48px;
   --fs-h3:28px; --lh-h3:36px;
   --fs-base:16px; --lh-base:28px;
-  --fs-sm:14px; --fs-xs:12px; --lh-xs:20px;
+  --fs-sm:14px; --fs-xs:13px; --lh-xs:20px;
   --fw-thin:100; --fw-light:300; --fw-regular:400; --fw-medium:500; --fw-semibold:600; --fw-bold:700; --fw-black:900;
   --tracking-tight:-.02em; --tracking-macro:-.04em;   /* legacy tight tracking */
-  --tracking-display:-.005em;                          /* Oswald is condensed: run near-neutral */
+  --tracking-display:-.022em;                          /* production value (was redefined in the polish layer; fork collapsed here) */
   --tracking-wide:.02em; --tracking-caps:.16em;       /* mono microcopy runs wider */
 
   /* ---- RADII (ported from bank) ---- */
@@ -119,8 +139,10 @@
      border-radius fallback everywhere + corner-shape on Chromium 139+.
      --sq-edge-soft REPLACES the bank's brand-feather: neutral depth only. */
   --corner-squircle:   superellipse(2);
+  /* RESERVE BEGIN: squircle variants (base --corner-squircle is the live one) */
   --corner-squircle-sm: superellipse(1.4);
   --corner-squircle-lg: superellipse(2.6);
+  /* RESERVE END */
   --sq-tone: linear-gradient(180deg, var(--bg-elevated), var(--bg-surface) 88%);
   --sq-tone-brand: linear-gradient(180deg, var(--brand-hover), var(--brand-active));
   --sq-hi: rgba(255,255,255,.09);
@@ -177,31 +199,41 @@
   --parallax-strength:6;                   /* transform-only depth factor */
   --stagger-step:80ms;                     /* per-child reveal cadence */
 
-  /* ---- TOUCH / TARGET ---- */
+  /* ---- TOUCH / TARGET (bank shell carry-over) ---- */
+  /* RESERVE BEGIN: touch targets (marketing surface uses site.css sizing) */
   --target-min:44px; --target-comfort:48px; --touch-gap:8px;
+  /* RESERVE END */
 
   /* ---- A11Y FOCUS (house standard 3px ring) ---- */
   --focus-w:3px; --focus-offset:3px;
 
   /* ---- OVERLAY STACKING (never hand-roll a z-index) ---- */
-  --z-popover:50; --z-dropdown:60; --z-modal:100; --z-toast:110; --z-tooltip:120;
-  --z-header:40; --z-grain:9998;          /* sticky nav sits under overlays; grain is the top veil */
+  --z-dropdown:60; --z-modal:100; --z-toast:110;
+  /* RESERVE BEGIN: stacking tiers not yet consumed by the marketing pages */
+  --z-popover:50; --z-tooltip:120; --z-header:40; --z-grain:9998;
+  /* RESERVE END */
 
   /* ---- RESPONSIVE BREAKPOINT SCALE (naming; use in @container/preprocess) ---- */
+  /* RESERVE BEGIN: breakpoint names (media queries carry literals by port
+     discipline; these names document the scale, never render) */
   --bp-phone-sm:320px; --bp-phone:375px; --bp-phone-lg:430px;
   --bp-tablet:768px;   --bp-tablet-land:1024px;
   --bp-desktop:1280px; --bp-widescreen:1536px; --bp-ultra:1920px;
+  /* RESERVE END */
 
   /* ---- LAYOUT / MEASURE / SHELL ---- */
-  --measure-prose:68ch; --page-max:1120px; --page-max-wide:1440px;
-  --gutter:clamp(16px, 4vw, 40px);
+  --measure-prose:68ch; --page-max:1120px; --gutter:clamp(16px, 4vw, 40px);
+  /* RESERVE BEGIN: app-shell geometry (bank carry-over — the marketing site
+     is a document, not an app shell; parked, never deleted) */
+  --page-max-wide:1440px;
   --shell-sidebar-w:264px; --shell-rail-w:76px; --shell-topbar-h:60px;
   --shell-bottomnav-h:64px;
-  --safe-area-b:env(safe-area-inset-bottom, 0px);
   --safe-area-t:env(safe-area-inset-top, 0px);
   --safe-area-l:env(safe-area-inset-left, 0px);
   --safe-area-r:env(safe-area-inset-right, 0px);
   --fab-size:64px; --fab-mini:52px;
+  /* RESERVE END */
+  --safe-area-b:env(safe-area-inset-bottom, 0px);
 
   /* ---- FLUID TYPE (phone → widescreen clamps, ceilings per board) ---- */
   --fs-fluid-display: clamp(2.4rem, 1.4rem + 4.6vw, 4rem);   /* caps at board H1 */
@@ -216,9 +248,9 @@
   /* ---- SURFACES (client direction: WHITE base, COOL near-white for depth — warm brown retired) ---- */
   --bg-page:#FFFFFF; --bg-surface:#F4F6F8; --bg-elevated:#FFFFFF; --bg-sunken:#EAEFF4;
 
-  --border-subtle:#E4E8EC; --border-default:#D3DAE1; --border-strong:#B7C0C9;
+  --border-subtle:rgba(20,24,29,.065); --border-default:rgba(20,24,29,.11); --border-strong:rgba(20,24,29,.18); /* production alpha hairlines — values moved here from the enhancements.css S-block (Phase 3 fork collapse; rendering unchanged) */
 
-  --text-default:#14181D; --text-secondary:#3D4650; --text-muted:#6B6F73; --text-disabled:#A7ABB0;
+  --text-default:#14181D; --text-secondary:#3D4650; --text-muted:#545A62; --text-disabled:#8A8F95;
 
   /* ---- BRAND (deeper red on light for contrast; still accent-only) ---- */
   --brand:#D42E22; --brand-hover:#B8271D; --brand-active:#9E211A;
@@ -241,7 +273,7 @@
   /* ---- ELEVATION SHADOWS (soft ivory drop, layered) ---- */
   --neu-soft: 0 1px 2px rgba(20,24,29,.06), 0 2px 6px -1px rgba(20,24,29,.10), 0 6px 16px -6px rgba(20,24,29,.14);
   --neu-float:0 2px 4px rgba(20,24,29,.08), 0 12px 26px -8px rgba(20,24,29,.18), 0 28px 56px -18px rgba(20,24,29,.20);
-  --neu-inset:inset 2px 2px 5px rgba(20,24,29,.10), inset -2px -2px 5px rgba(255,255,255,.85);
+  --neu-inset:inset 0 1px 2px rgba(20,24,29,.06),inset 0 -1px 0 rgba(255,255,255,.9); /* engraved 1px — moved from the polish S-block (Phase 3) */
   --neu-border: rgba(255,255,255,.6);
   --btn-border: rgba(255,255,255,.7);
   --knob-border: rgba(20,24,29,.22);
@@ -256,17 +288,21 @@
   --scrim-60: rgba(20,24,29,.5);
   --scrim-70: rgba(20,24,29,.62);
 
-  /* ---- GLASS (light) ---- */
+  /* ---- GLASS (light) — ACTIVE subset mirrors the dark block; the physical
+     remainder is parked in the marked reserve below (never deleted). ---- */
   --glass-tint: rgba(255,255,255,.16);
-  --glass-rim: rgba(255,255,255,.78);
   --glass-rim-lo: rgba(20,24,29,.14);
   --glass-inner-ring: rgba(255,255,255,.5);
-  --glass-catch: rgba(255,255,255,.95);
   --glass-catch-soft: rgba(255,255,255,.55);
+  --glass-blur: 9px; --glass-blur-hover: 10px;
+  /* RESERVE BEGIN: glass physical, light counterpart (same parked members) */
+  --glass-rim: rgba(255,255,255,.78);
+  --glass-catch: rgba(255,255,255,.95);
   --glass-refract-dark: rgba(20,24,29,.16);
   --glass-contact: rgba(20,24,29,.22);
   --glass-ink: #14181D;
-  --glass-blur: 9px; --glass-blur-hover: 10px; --glass-blur-press: 11px;
+  --glass-blur-press: 11px;
+  /* RESERVE END */
 
   --glyph:#14181D; --glyph-on-black:#14181D;
 
@@ -279,4 +315,14 @@
   --sq-edge-soft: 0 0 26px -6px rgba(20,24,29,.14);
   --sq-shadow: var(--sq-bevel), var(--sq-float), var(--sq-edge-soft);
   --sq-border: 1px solid rgba(255,255,255,.75);
+
+  /* ---- Bright modal glass (polish) ----
+     The enquiry modal is a raised light surface, not a grey pane bleeding the
+     dark page through it. A light cool veil dims + defocuses the page without
+     going charcoal; the pane is a brighter frosted-white gradient with a light
+     rim and a soft float shadow. Production renders the light theme only. */
+  --scrim-bright: rgba(233,238,244,.66);
+  --glass-pane: linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.86));
+  --glass-rim-light: inset 0 0 0 1px rgba(255,255,255,.7), inset 0 1px 0 rgba(255,255,255,.9);
+  --pane-shadow: 0 40px 90px -34px rgba(20,24,29,.34), 0 16px 34px -18px rgba(20,24,29,.22);
 }

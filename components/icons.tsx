@@ -14,6 +14,7 @@ import {
   Waveform, Lightning, Cpu, Atom, Gear, ShieldCheck, Stack, GlobeSimple,
   SlidersHorizontal, Leaf, ChatCircle, Wrench, CalendarBlank, Phone,
   EnvelopeSimple, MapPin, Check, SealCheck, Factory, Flask, Quotes, Cube,
+  CircleHalf, SquaresFour, Siren,
 } from "@phosphor-icons/react";
 
 const GLYPHS: Record<string, typeof ArrowRight> = {
@@ -47,6 +48,11 @@ const GLYPHS: Record<string, typeof ArrowRight> = {
   factory: Factory,
   flask: Flask,
   quote: Quotes,
+  /* mega-menu product set: distinct, semantically right glyphs */
+  drop: Drop,          /* light oil burners: oil droplet */
+  dual: CircleHalf,    /* dual fuel: two fuels, half and half */
+  skid: SquaresFour,   /* gas trains: equipment grouped on a skid */
+  siren: Siren,        /* leak detection: sensing + alarm */
 };
 
 /** Legacy sprite host is no longer consumed (Phosphor renders inline). */

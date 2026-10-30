@@ -6,6 +6,8 @@ import { IconSprite } from "@/components/icons";
 import { EnquiryProvider } from "@/components/enquiry";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { SmoothScroll } from "@/components/SmoothScroll";
+import { Preloader } from "@/components/preloader";
 import { FxBootstrap, ScrollProgressBar, PageTransition, HashScroller } from "@/components/fx";
 
 export const metadata: Metadata = {
@@ -51,17 +53,35 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
+      <head>
+        {/* Critical type: fetch the faces actually used in parallel with the
+            giant chained stylesheet, so headings never sit on the Arial-class
+            fallback (font-display:swap otherwise shows it for seconds). */}
+        <link rel="preload" href="/fonts/manrope-latin-800-normal.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/manrope-latin-700-normal.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/manrope-latin-600-normal.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/sourcesans3-latin-400-normal.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/sourcesans3-latin-600-normal.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/ibmplexmono-latin-500-normal.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      </head>
       <body>
         <MotionConfig reducedMotion="user">
           <EnquiryProvider>
+            <Preloader />
             <FxBootstrap />
             <HashScroller />
             <IconSprite />
             <ScrollProgressBar />
             <a className="skip" href="#main">Skip to content</a>
             <Navbar />
-            <PageTransition>{children}</PageTransition>
-            <Footer />
+            {/* SmoothScroll wraps ONLY the scrolling document. The fixed navbar and
+                scroll-progress above, and the enquiry modal (a sibling rendered by
+                EnquiryProvider after this), stay OUTSIDE #smooth-content so
+                ScrollSmoother's transform never drags or scales them. */}
+            <SmoothScroll>
+              <PageTransition>{children}</PageTransition>
+              <Footer />
+            </SmoothScroll>
           </EnquiryProvider>
         </MotionConfig>
       </body>

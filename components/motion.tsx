@@ -20,6 +20,12 @@ function useMounted() {
 }
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+/* EDITORIAL PACE — deliberate, intentful. A single slower base duration +
+   a wider word stagger govern every enter animation on every page, so the
+   site reads as a considered editorial reveal rather than a quick UI fade.
+   Home already runs 0.9s (HomeScrollFx); these now match it site-wide. */
+const DUR = 0.9;
+const STAGGER = 0.085;
 
 /**
  * Word-rise for headings. Provide the full text; it splits on spaces and
@@ -43,7 +49,7 @@ export function SplitHeading({ text, className }: { text: ReactNode; className?:
             className="w-split-in"
             initial={{ y: "0.9em", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, ease: EASE, delay: i * 0.06 }}
+            transition={{ duration: DUR, ease: EASE, delay: i * STAGGER }}
           >
             {w}
             {i < words.length - 1 ? "\u00A0" : ""}
@@ -62,7 +68,7 @@ export function SplitHeading({ text, className }: { text: ReactNode; className?:
 export function Counter({
   to,
   suffix = "",
-  duration = 1200,
+  duration = 1500,
 }: {
   to: number;
   suffix?: string;
@@ -106,7 +112,7 @@ export function RiseIn({
   children,
   className,
   delay = 0,
-  y = 18,
+  y = 24,
   as = "div",
 }: {
   children: ReactNode;
@@ -128,7 +134,11 @@ export function RiseIn({
       className={className}
       initial={{ opacity: 0, y }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: EASE, delay }}
+      transition={{ duration: DUR, ease: EASE, delay }}
+      // Phase 4 text-rendering contract: clear the resting transform to `none`
+      // once the rise settles, so the hero heading it wraps renders with native
+      // subpixel AA instead of sitting on a composited layer.
+      transformTemplate={(latest) => (latest.y ? `translateY(${latest.y}px)` : "none")}
     >
       {children}
     </MotionTag>
@@ -136,7 +146,7 @@ export function RiseIn({
 }
 
 /**
- * Process timeline (Home "04 / How we work"). site.css draws the connector
+ * Process timeline (Home "03 / How we work"). site.css draws the connector
  * line via .steps.is-in li::before { transform:scaleX(1) } but nothing ever
  * added .is-in (site.js is not running). This observes the list and flips
  * .is-in once it scrolls into view, which triggers the existing CSS line-draw
@@ -172,7 +182,7 @@ export function StepsTimeline({
  */
 export function Reveal({
   children,
-  y = 22,
+  y = 28,
   className,
   delay = 0,
 }: {
@@ -194,7 +204,7 @@ export function Reveal({
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "0px 0px -8% 0px" }}
-      transition={{ duration: 0.6, ease: EASE, delay }}
+      transition={{ duration: DUR, ease: EASE, delay }}
     >
       {children}
     </motion.div>

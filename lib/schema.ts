@@ -29,7 +29,7 @@ export function organizationSchema() {
       streetAddress: SITE.contact.worksAddress,
       addressLocality: SITE.contact.city,
       addressRegion: SITE.contact.region,
-      postalCode: "411021",
+      postalCode: SITE.contact.worksPostal,
       addressCountry: SITE.contact.country,
     },
     contactPoint: [
@@ -75,6 +75,9 @@ export function websiteSchema() {
   };
 }
 
+/* "hours" are the office hours already published on the live contact page.
+   No geo coordinates and no priceRange: the build sheet's own checklist bans
+   invented geo/offers, and unverified pinpoints are not published. */
 export function localBusinessSchema() {
   return {
     "@context": "https://schema.org",
@@ -85,50 +88,141 @@ export function localBusinessSchema() {
     url: absoluteUrl("/"),
     telephone: SITE.contact.phonePrimary,
     email: SITE.contact.salesEmail,
-    priceRange: "$$",
     address: {
       "@type": "PostalAddress",
       streetAddress: SITE.contact.worksAddress,
       addressLocality: SITE.contact.city,
       addressRegion: SITE.contact.region,
-      postalCode: "411021",
+      postalCode: SITE.contact.worksPostal,
       addressCountry: SITE.contact.country,
     },
-    geo: { "@type": "GeoCoordinates", latitude: 18.5167, longitude: 73.8153 },
+    openingHoursSpecification: [
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        opens: "09:30",
+        closes: "17:30",
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Saturday"],
+        opens: "09:30",
+        closes: "13:00",
+      },
+    ],
     areaServed: [SITE.contact.city, SITE.contact.region, "India"],
     parentOrganization: { "@id": absoluteUrl("/#organization") },
   };
 }
 
+/* Build-sheet Schema column: "Product (brand, no offers)". No offers, no
+   aggregateRating, nothing that would claim stock or prices we cannot verify. */
 export function productSchema(p: Product) {
   return {
     "@context": "https://schema.org",
     "@type": "Product",
-    "@id": absoluteUrl(`/${p.slug}#product`),
+    "@id": absoluteUrl(`${p.route}#product`),
     name: p.h1,
     brand: { "@type": "Brand", name: p.brand },
     description: p.metaDescription,
     image: p.slides.map((s) => s.src),
-    url: absoluteUrl(`/${p.slug}`),
+    url: absoluteUrl(p.route),
     category: p.brandline[1],
     manufacturer: { "@type": "Organization", name: p.brand },
-    offers: {
-      "@type": "Offer",
-      url: absoluteUrl(`/${p.slug}`),
-      priceAvailability: "https://schema.org/MayFromOutStore",
-      availability: "https://schema.org/InStock",
-      businessFunction: { "@type": "BusinessFunction", name: "Sell" },
-      areaServed: "IN",
-      seller: { "@id": absoluteUrl("/#organization") },
-    },
   };
 }
 
-export function faqSchema(entries: { q: string; a: string }[]) {
+/* CollectionPage for hub-shaped pages (sheet rows P10, P24, P30, P40, P51,
+   P61, P90). Emitted as its own graph root next to its companion ItemList,
+   Brand, Service or BreadcrumbList roots. */
+export function collectionPageSchema(path: string, name: string, description: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": absoluteUrl(`${path}#collection`),
+    name,
+    description,
+    url: absoluteUrl(path),
+    publisher: { "@id": absoluteUrl("/#organization") },
+    isPartOf: { "@id": absoluteUrl("/#website") },
+  };
+}
+
+export type ListEntry = { name: string; url?: string; desc?: string };
+
+export function itemListSchema(name: string, base: string, entries: ListEntry[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": absoluteUrl(`${base}#itemlist`),
+    name,
+    numberOfItems: entries.length,
+    itemListElement: entries.map((it, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: it.name,
+      ...(it.desc ? { description: it.desc } : {}),
+      ...(it.url ? { url: absoluteUrl(it.url) } : {}),
+    })),
+  };
+}
+
+export function brandSchema(name: string, path: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Brand",
+    "@id": absoluteUrl(`${path}#brand`),
+    name,
+  };
+}
+
+export function aboutPageSchema(path: string, name: string, description: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "@id": absoluteUrl(`${path}#about`),
+    name,
+    description,
+    url: absoluteUrl(path),
+    mainEntity: { "@id": absoluteUrl("/#organization") },
+    isPartOf: { "@id": absoluteUrl("/#website") },
+  };
+}
+
+export function contactPageSchema(path: string, name: string, description: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "@id": absoluteUrl(`${path}#contact`),
+    name,
+    description,
+    url: absoluteUrl(path),
+    mainEntity: { "@id": absoluteUrl("/#business") },
+    isPartOf: { "@id": absoluteUrl("/#website") },
+  };
+}
+
+export function webPageSchema(path: string, name: string, description: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": absoluteUrl(`${path}#webpage`),
+    name,
+    description,
+    url: absoluteUrl(path),
+    inLanguage: "en-IN",
+    isPartOf: { "@id": absoluteUrl("/#website") },
+  };
+}
+
+/* FAQPage. `url` defaults to the home anchor for the historic site-wide FAQ;
+   any page with its own question set passes its own path so the entity @id is
+   never shared by two different FAQ lists. */
+export function faqSchema(entries: { q: string; a: string }[], url = "/") {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "@id": absoluteUrl("/#faq"),
+    "@id": absoluteUrl(`${url}#faq`),
     mainEntity: entries.map((f) => ({
       "@type": "Question",
       name: f.q,
@@ -167,6 +261,37 @@ export function serviceSchema(name: string, description: string, url: string) {
 /* Bundle the always-on graph (org + website + business) once per page. */
 export function siteGraph() {
   return [organizationSchema(), websiteSchema(), localBusinessSchema()];
+}
+
+/* Product-route graph, exactly per each page's Schema.org column in the build
+   sheet SEO Meta tab. No site identity bundle here; the sheet rows list only
+   the page-level types. FAQPage only where the row asks for one, even when the
+   page shows FAQs (Gasvigil per P24). */
+export function productGraph(p: Product, crumbs: { name: string; href: string }[]) {
+  const bc = breadcrumbSchema(crumbs);
+  const faq = faqSchema(p.faq, p.route);
+  const collection = collectionPageSchema(p.route, p.h1, p.metaDescription);
+  switch (p.slug) {
+    case "pressure-regulators": // P51: CollectionPage + ItemList + FAQPage + BreadcrumbList
+      return [
+        collection,
+        itemListSchema(
+          p.h1,
+          p.route,
+          p.variants.map((v) => ({ name: v.title, desc: [v.spec, v.sub].filter(Boolean).join(" / ") })),
+        ),
+        faq,
+        bc,
+      ];
+    case "flow-meters": // P61: CollectionPage + FAQPage + BreadcrumbList
+      return [collection, faq, bc];
+    case "gas-trains": // P30: CollectionPage + Service + FAQPage + BreadcrumbList
+      return [collection, serviceSchema(p.h1, p.metaDescription, p.route), faq, bc];
+    case "gasvigil": // P24: CollectionPage + Brand + BreadcrumbList
+      return [collection, brandSchema(p.brand, p.route), bc];
+    default: // P42/P43/P44/P52: Product (brand, no offers) + FAQPage + BreadcrumbList
+      return [productSchema(p), faq, bc];
+  }
 }
 
 /* A compact <script> payload helper. */

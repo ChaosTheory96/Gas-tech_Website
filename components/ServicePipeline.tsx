@@ -1,4 +1,8 @@
 "use client";
+// QA-RETIRED — not wired to any route (the Services page ships ServiceStation
+// instead). Kept in place per the no-deletion rule; the audit classifies this
+// file RETIRED BY DECISION, not accidental redundancy. Do not import without a
+// fresh decision; do not delete.
 // ============================================================================
 // ServicePipeline — I / SERVICE PIPELINE + valve stations (Services "lines").
 // Three service lines read as valve stations on a running pipe: the pipe fills
