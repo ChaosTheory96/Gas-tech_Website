@@ -47,8 +47,9 @@ const nextConfig = {
       { source: "/safety-valves", destination: "/products/gas-regulation/safety-valves/", permanent: false, statusCode: 301 },
       { source: "/gasvigil", destination: "/brands/gasvigil/", permanent: false, statusCode: 301 },
       { source: "/contact", destination: "/contact-us/", permanent: false, statusCode: 301 },
-      { source: "/delivery", destination: "/how-we-work/", permanent: false, statusCode: 301 },
-      { source: "/how-we-deliver", destination: "/how-we-work/", permanent: false, statusCode: 301 },
+      { source: "/delivery", destination: "/about-us/#how", permanent: false, statusCode: 301 },
+      { source: "/how-we-deliver", destination: "/about-us/#how", permanent: false, statusCode: 301 },
+      { source: "/how-we-work", destination: "/about-us/#how", permanent: false, statusCode: 301 },
 
       /* ---- Legacy .html 301s (Redirects sheet) --------------------------
          Activated only where the new target exists on this site today. */

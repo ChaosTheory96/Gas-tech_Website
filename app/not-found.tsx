@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Icon } from "@/components/icons";
+import { REPRESENTED_BRAND_LIST } from "@/lib/site";
 import { EnquiryButton } from "@/components/enquiry";
 
 /* 404 — "no flow on this line". Red plate + closed-valve flow animation
@@ -15,7 +16,7 @@ import { EnquiryButton } from "@/components/enquiry";
 const WAYPOINTS = [
   { href: "/products/", num: "01", label: "Products", sub: "Burners, regulation, metering and gas safety" },
   { href: "/services/", num: "02", label: "Services", sub: "Consultancy, installation and annual maintenance" },
-  { href: "/brands/", num: "03", label: "Brands", sub: "Riello, Pietro Fiorentini and Gasvigil" },
+  { href: "/brands/", num: "03", label: "Brands", sub: REPRESENTED_BRAND_LIST },
   { href: "/contact-us/", num: "04", label: "Contact", sub: "Talk to an engineer in Pune" },
 ];
 
@@ -82,7 +83,7 @@ export default function NotFound() {
           </header>
           <div className="cta-dual">
             <EnquiryButton className="btn btn--primary" type="sales" product="General enquiry">Send an enquiry</EnquiryButton>
-            <Link className="btn--tech" href="/contact-us/"><Icon name="phone" /> Contact us</Link>
+            <Link className="btn--tech" href="/contact-us/"><Icon name="mail" /> Contact us</Link>
           </div>
         </div>
       </section>

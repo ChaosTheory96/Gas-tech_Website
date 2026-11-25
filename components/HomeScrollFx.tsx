@@ -141,7 +141,6 @@ export function HomeScrollFx() {
             );
           });
         };
-        parallax(".hero-media .hero-photo", 5, 1.14);
         parallax(".statement .statement-fig img", 6, 1.12);
         parallax(".fac-media img", 5, 1.12);
 

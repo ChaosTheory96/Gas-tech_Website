@@ -20,7 +20,7 @@ export function buildMetadata({
   title,
   description,
   path = "/",
-  image = "/assets/gc-logo-flat.png",
+  image = "/assets/og-image.png",
   type = "website",
   noindex = false,
   keywords,

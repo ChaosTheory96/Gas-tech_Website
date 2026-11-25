@@ -22,8 +22,11 @@ export const metadata: Metadata = {
   formatDetection: { telephone: false, email: false, address: false },
   alternates: { canonical: "/" },
   icons: {
-    icon: [{ url: "/assets/gc-logo.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/assets/gc-logo.svg" }],
+    icon: [
+      { url: "/assets/gc-logo.svg", type: "image/svg+xml" },
+      { url: "/assets/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/assets/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
   manifest: "/manifest.webmanifest",
   openGraph: {
@@ -33,13 +36,13 @@ export const metadata: Metadata = {
     url: SITE.url,
     title: SITE.name,
     description: SITE.description,
-    images: [{ url: "/assets/gc-logo-flat.png", width: 1200, height: 630, alt: SITE.name }],
+    images: [{ url: "/assets/og-image.png", width: 1200, height: 630, alt: SITE.name }],
   },
   twitter: {
     card: "summary_large_image",
     title: SITE.name,
     description: SITE.description,
-    images: ["/assets/gc-logo-flat.png"],
+    images: ["/assets/og-image.png"],
   },
   robots: { index: true, follow: true },
 };

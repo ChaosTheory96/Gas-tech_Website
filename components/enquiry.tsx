@@ -190,7 +190,7 @@ function EnquiryForm({
         <label htmlFor="eq-msg">Your requirement</label>
         <textarea id="eq-msg" name="message" placeholder="Service needed, equipment, site, timeline..." />
       </div>
-      {status === "error" && <p className="modal-note" style={{ color: "var(--brand)" }}>{errorMsg}</p>}
+      {status === "error" && <p className="modal-note modal-note--error">{errorMsg}</p>}
       <div className="modal-actions">
         <button className="btn btn--primary" type="submit" disabled={status === "sending"}>
           {status === "sending" ? "Sending..." : "Send enquiry"} <Icon name="arrow" />

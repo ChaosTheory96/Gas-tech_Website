@@ -3,7 +3,7 @@
    every route (a stated requirement).
    --------------------------------------------------------------------------- */
 import Link from "next/link";
-import { SITE, FOOTER_COLUMNS } from "@/lib/site";
+import { SITE, FOOTER_COLUMNS, REPRESENTED_BRAND_LIST } from "@/lib/site";
 import { Icon } from "./icons";
 
 export function Footer() {
@@ -19,7 +19,7 @@ export function Footer() {
             <span className="brand-word"><b>GAS</b><span>TECH</span></span>
           </Link>
           <p className="foot-tag">{SITE.tagline}</p>
-          <p className="foot-iso"><Icon name="award" /> Authorized distributor: Riello, Pietro Fiorentini &amp; Gasvigil</p>
+          <p className="foot-iso"><Icon name="award" /> Authorised distributor: {REPRESENTED_BRAND_LIST}</p>
         </div>
 
         {FOOTER_COLUMNS.map((col) => (
@@ -38,11 +38,8 @@ export function Footer() {
         <div className="foot-col">
           <h4>Contact</h4>
           <ul className="foot-contact">
-            <li><Icon name="phone" /><a href={c.phonePrimaryHref}>{c.phonePrimary}</a></li>
-            <li><Icon name="phone" /><a href={c.phoneSecondaryHref}>{c.phoneSecondary}</a></li>
             <li><Icon name="mail" /><a href={`mailto:${c.salesEmail}`}>{c.salesEmail}</a></li>
-            <li><Icon name="pin" /><span>Works: {c.worksAddress}</span></li>
-            <li><Icon name="pin" /><span>Registered: {c.registeredAddress}</span></li>
+            <li><Icon name="pin" /><span>Corporate office: {c.corporateAddress}</span></li>
           </ul>
         </div>
       </div>
@@ -50,8 +47,6 @@ export function Footer() {
       <div className="wrap foot-bar">
         <span>© {year} {SITE.legalName}. All rights reserved.</span>
         <span className="foot-legal">
-          <Link href="/">Home</Link>
-          <Link href="/contact-us/">Contact</Link>
           <Link href="/privacy-policy/">Privacy Policy</Link>
         </span>
       </div>

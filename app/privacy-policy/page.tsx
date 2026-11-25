@@ -27,7 +27,7 @@ export default function PrivacyPolicyPage() {
         ]}
       />
       <main id="main">
-        <section className="intro-hero">
+        <section className="intro-hero intro-hero--center">
           <div className="wrap">
             <p className="eyebrow" data-reveal>Legal</p>
             <h1 className="split">
@@ -35,9 +35,8 @@ export default function PrivacyPolicyPage() {
               <span className="line"><em>Policy</em></span>
             </h1>
             <p className="lede" data-reveal>
-              What this website collects, why it collects it and how to have it
-              removed. Written in plain language, in the order you would ask
-              about it.
+              What the enquiry form collects, what we do with it and how to have it
+              removed, in plain language and in the order you would ask.
             </p>
             <p className="mono-tag" data-reveal>Last updated 27 October 2026</p>
           </div>

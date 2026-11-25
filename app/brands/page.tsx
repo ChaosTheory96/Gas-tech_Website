@@ -1,17 +1,21 @@
 import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import { collectionPageSchema, itemListSchema } from "@/lib/schema";
+import { BRAND, BRAND_IDS, PF_FACTS, REPRESENTED_BRAND_LIST, REPRESENTED_BRAND_NAMES, type BrandId } from "@/lib/site";
 import { getProduct } from "@/lib/products";
 import { Icon } from "@/components/icons";
-import { Marquee, SectionHead, JsonLd } from "@/components/blocks";
+import { SectionHead, JsonLd } from "@/components/blocks";
 import { EnquiryButton } from "@/components/enquiry";
+import { PageHero } from "@/components/PageHero";
+import { BrandLockup } from "@/components/BrandLockup";
+
+const BRANDS_DESCRIPTION = `Gastech Combustions is the authorised distributor of ${REPRESENTED_BRAND_LIST} in India, and builds its own gas trains in Pune. See each range.`;
 
 export const metadata = buildMetadata({
-  title: "Authorised Brands: Pietro Fiorentini, Riello, Gasvigil",
-  description:
-    "Gastech Combustions is the authorised distributor of Pietro Fiorentini gas regulation, Riello burners and Gasvigil gas detectors in India. See each range.",
+  title: `Authorised Brands: ${REPRESENTED_BRAND_NAMES.join(", ")}`,
+  description: BRANDS_DESCRIPTION,
   path: "/brands/",
-  keywords: ["Riello distributor Pune", "Pietro Fiorentini India", "Gasvigil dealer", "industrial burner brands", "gas safety brands"],
+  keywords: ["Riello distributor Pune", "Pietro Fiorentini India", "Electrogas valves India", "Gasvigil dealer", "industrial burner brands", "gas safety brands"],
 });
 
 const IMG = "/images"; // self-hosted mirror of gastechcombustions.in/images — run `node qa/_fetch-assets.mjs` to populate public/images
@@ -20,86 +24,69 @@ const IMG = "/images"; // self-hosted mirror of gastechcombustions.in/images —
    written down exactly once. */
 const toRoute = (slug: string): string => getProduct(slug)?.route ?? "/";
 
-const BRANDS = [
-  {
-    idx: "01",
-    name: "Riello",
-    img: `${IMG}/burner/riello-burner/light-oil-burner-02-stage.jpg`,
-    alt: "Riello industrial burner",
-    desc: "Italian industrial burners for natural gas, LPG, light oil, heavy oil and dual-fuel duty, from one-stage to fully modulating, sized to your boiler or process.",
-    tagIcon: "flame",
-    tag: "Combustion",
-    flip: false,
-    links: [
-      { href: toRoute("gas-burners"), label: "Gas burners" },
-      { href: toRoute("light-oil-burners"), label: "Light oil" },
-      { href: toRoute("dual-fuel-burners"), label: "Dual fuel" },
-    ],
-  },
-  {
-    idx: "02",
-    name: "Pietro Fiorentini",
+type BrandCard = {
+  img: string | null; // null: no photograph yet, a plain panel is shown
+  alt: string;
+  desc: string;
+  tagIcon: string;
+  tag: string;
+  links: { href: string; label: string }[]; // empty: no detail page, the card offers "Enquire"
+};
+
+/* One card per brand, rendered in registry order (Pietro Fiorentini, Electrogas,
+   Gastech, Riello, Gasvigil). Names come from lib/site.ts. */
+const CARDS: Record<BrandId, BrandCard> = {
+  pf: {
     img: `${IMG}/PF/Aperflux%20851.jpg`,
     alt: "Pietro Fiorentini gas regulator",
-    desc: "Gas pressure regulation and metering: governors, slam shut-off and relief valves, flow meters with electronic volume correction, and hydrogen-ready trains for steady, measurable and protected supply.",
+    desc: `Founded in ${PF_FACTS.foundedCity} in ${PF_FACTS.foundedYear} and recognised as a Historic Brand of National Interest, with ${PF_FACTS.yearsProse} across the entire natural gas supply chain. Gas pressure regulation and metering: regulators and governors, slam shut-off and relief valves, and flow meters with electronic volume correction, for steady, measurable and protected supply. A hydrogen range covers regulation and metering for up to 100% H₂.`,
     tagIcon: "gauge",
     tag: "Regulation & metering",
-    flip: true,
     links: [
       { href: toRoute("pressure-regulators"), label: "Regulators" },
       { href: toRoute("flow-meters"), label: "Flow meters" },
       { href: toRoute("safety-valves"), label: "Safety valves" },
     ],
   },
-  {
-    idx: "03",
-    name: "Gasvigil",
+  electrogas: {
+    img: null,
+    alt: "",
+    desc: "Valves for gas lines: solenoid, motorised, butterfly and port valves, specified together with the regulation and burners on your gas train.",
+    tagIcon: "manifold",
+    tag: "Valves & actuation",
+    links: [],
+  },
+  gastech: {
+    img: `${IMG}/gas-train/compact-monoblock.jpg`,
+    alt: "Gastech compact gas train with filter, regulator and gauges",
+    desc: "Gas trains engineered and manufactured in Pune as complete skid-mounted assemblies: customized, reliable, safe and application-specific, assembled and tested by us before handover.",
+    tagIcon: "manifold",
+    tag: "Turnkey systems",
+    links: [{ href: toRoute("gas-trains"), label: "Gas trains" }],
+  },
+  riello: {
+    img: `${IMG}/burner/riello-burner/light-oil-burner-02-stage.jpg`,
+    alt: "Riello industrial burner",
+    desc: "Italian industrial burners for natural gas, LPG, light oil and dual-fuel duty, from one-stage to fully modulating, sized to your boiler or process.",
+    tagIcon: "flame",
+    tag: "Combustion",
+    links: [
+      { href: toRoute("gas-burners"), label: "Gas burners" },
+      { href: toRoute("light-oil-burners"), label: "Light oil" },
+      { href: toRoute("dual-fuel-burners"), label: "Dual fuel" },
+    ],
+  },
+  gasvigil: {
     img: `${IMG}/Gasvigil/GV%20108%20Gas%20Detector.jpg`,
     alt: "Gasvigil gas leak detector",
     desc: "Continuous gas-leak detection and automatic shutoff: fixed, panelled, stand-alone and portable systems that protect people and plant, with alarm and interlock outputs into your control scheme.",
     tagIcon: "shield",
     tag: "Gas safety",
-    flip: false,
     links: [{ href: toRoute("gasvigil"), label: "Leak detection" }],
   },
-  {
-    idx: "04",
-    name: "Gastech Systems",
-    img: `${IMG}/IM-TM%20turbine.jpg`,
-    alt: "Gastech gas systems and flow meters",
-    desc: "Our own turnkey gas-handling assemblies, gas trains and IM-series flow meters, engineered, assembled and tested in Pune, then installed and supported by our in-house service team.",
-    tagIcon: "manifold",
-    tag: "Turnkey systems",
-    flip: true,
-    links: [
-      { href: toRoute("gas-trains"), label: "Gas trains" },
-      { href: "/services/", label: "Services" },
-    ],
-  },
-];
+};
 
-const CHECKS = [
-  "Riello burners",
-  "Pietro Fiorentini",
-  "IM flow meters & EVC",
-  "Gasvigil safety",
-  "In-house engineering & service",
-];
-
-const WHY = [
-  { icon: "award", title: "Authorised supply", desc: "Genuine equipment and documentation from the brands we represent." },
-  { icon: "settings", title: "Application engineering", desc: "The right brand, model and sizing for your duty, not just a catalogue sale." },
-  { icon: "wrench", title: "Install & commission", desc: "On-site setup and performance proof by our own team." },
-  { icon: "calendar", title: "AMC & spares", desc: "Long-term uptime, genuine parts and priority support." },
-];
-
-const RANGE = ["gas-burners", "dual-fuel-burners", "pressure-regulators", "flow-meters", "safety-valves", "gasvigil"];
-
-const crumbs = [
-  { name: "Home", href: "/" },
-  { name: "Brands", href: "/brands/" },
-];
-void crumbs; // breadcrumb markup retired per sheet row P10 (CollectionPage + ItemList only); visible crumbs stay
+const RANGE = ["gas-trains", "pressure-regulators", "flow-meters", "safety-valves", "gas-burners", "gasvigil"];
 
 export default function BrandsPage() {
   return (
@@ -109,95 +96,76 @@ export default function BrandsPage() {
           stay on this page's own sections. */}
       <JsonLd
         data={[
-          collectionPageSchema(
-            "/brands/",
-            "Brands We Represent",
-            "Gastech Combustions is the authorised distributor of Pietro Fiorentini gas regulation, Riello burners and Gasvigil gas detectors in India. See each range.",
-          ),
+          collectionPageSchema("/brands/", "Brands We Represent", BRANDS_DESCRIPTION),
           itemListSchema(
             "Brands We Represent",
             "/brands/",
-            BRANDS.map((b) => ({
-              name: b.name,
-              desc: b.desc,
-              ...(b.name === "Gasvigil" ? { url: toRoute("gasvigil") } : {}),
+            BRAND_IDS.map((id) => ({
+              name: BRAND[id].name,
+              desc: CARDS[id].desc,
+              ...(id === "gasvigil" ? { url: toRoute("gasvigil") } : {}),
             })),
           ),
         ]}
       />
       <main id="main">
-        <section className="intro-hero">
-          <div className="wrap">
-            <div className="crumbs" aria-label="Breadcrumb" style={{ paddingTop: 0 }}>
-              <Link href="/">Home</Link><span className="sep">/</span><span className="cur">Brands</span>
-            </div>
-            <p className="eyebrow" data-reveal>Brands we represent</p>
-            <h1 className="split">
-              <span className="line">Brands{" "}</span>
-              <span className="line"><em>We Represent</em></span>
-            </h1>
-            <p className="lede" data-reveal>Gastech Combustions is the Pune-based representative for world-class combustion and gas-safety manufacturers. We supply, size, install and service their equipment, so you get genuine products, correct engineering and one accountable partner from enquiry to uptime.</p>
-            <div className="intro-cta" data-reveal>
-              <a className="btn btn--primary" href="#riello">Explore the brands <Icon name="arrow" /></a>
-              <EnquiryButton className="btn--tech" type="technical" product="Brand enquiry" icon="chat">Talk to a brand specialist</EnquiryButton>
-            </div>
-          </div>
-        </section>
+        <PageHero
+          crumbs={[{ label: "Brands" }]}
+          title={<>
+            <span className="line">Brands{" "}</span>
+            <span className="line"><em>We Represent</em></span>
+          </>}
+          lede={<>Gastech Combustions is the Pune-based representative for world-class combustion and gas-safety manufacturers. We supply, size, install and service their equipment, and put the right brand and model against your duty.</>}
+          primary={<a className="btn btn--primary" href="#pf">Explore the brands <Icon name="arrow" /></a>}
+          secondary={<EnquiryButton className="btn--tech" type="technical" product="Brand enquiry" icon="chat">Talk to a brand specialist</EnquiryButton>}
+          aside={<>
+            <p className="hero-card-k">The brands</p>
+            <BrandLockup ids={BRAND_IDS} label="Brands in the Gastech range" />
+          </>}
+        />
 
-        <Marquee />
-
-        <section className="sec sec--sunken" id="riello" aria-labelledby="bp-h">
+        <section className="sec sec--sunken" id="brands" aria-labelledby="bp-h">
           <div className="wrap">
             <SectionHead
               eyebrow="The manufacturers"
-              title={<>Four names behind <u>every system.</u></>}
+              title={<>The names behind <u>every system.</u></>}
               sub="Each brand is chosen for what it does best. We put the right one against your duty, then engineer, install and maintain it."
             />
             <div className="fac-list" data-stagger>
-              {BRANDS.map((b) => (
-                <article className={b.flip ? "fac-item fac-item--flip" : "fac-item"} key={b.idx}>
-                  <div className="fac-media">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={b.img} alt={b.alt} loading="lazy" decoding="async" />
-                    <span className="fac-idx">{b.idx}</span>
-                  </div>
-                  <div className="fac-body">
-                    <h3>{b.name}</h3>
-                    <p>{b.desc}</p>
-                    <span className="fac-tag"><Icon name={b.tagIcon} /> {b.tag}</span>
-                    <div className="hero-cta" style={{ marginTop: 16 }}>
-                      {b.links.map((l) => (
-                        <Link key={l.href} className="btn btn--ghost btn--sm" href={l.href}>
-                          {l.label} <Icon name="arrow" />
-                        </Link>
-                      ))}
+              {BRAND_IDS.map((id, i) => {
+                const b = CARDS[id];
+                const name = BRAND[id].name;
+                const mod = id === "pf" ? " usp-pf" : id === "gastech" ? " usp-gt" : "";
+                return (
+                  <article className={`${i % 2 ? "fac-item fac-item--flip" : "fac-item"}${mod}`} key={id} id={id}>
+                    <div className={b.img ? "fac-media" : "fac-media fac-media--plain"}>
+                      {b.img ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={b.img} alt={b.alt} loading="lazy" decoding="async" />
+                      ) : (
+                        <Icon name={b.tagIcon} />
+                      )}
+                      <span className="fac-idx">{String(i + 1).padStart(2, "0")}</span>
                     </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="sec sec--dark band-standards" aria-labelledby="why-h">
-          <div className="wrap">
-            <div className="std-head">
-              <p className="eyebrow eyebrow--light">Working with Gastech</p>
-              <h2 id="why-h" data-reveal>One partner, <u>start to uptime.</u></h2>
-            </div>
-            <ul className="std-strip" data-stagger>
-              {CHECKS.map((c) => (
-                <li key={c}><Icon name="check" /> {c}</li>
-              ))}
-            </ul>
-            <div className="mat-grid" data-stagger>
-              {WHY.map((w) => (
-                <div className="mat-item" key={w.title}>
-                  <Icon name={w.icon} />
-                  <h3>{w.title}</h3>
-                  <p>{w.desc}</p>
-                </div>
-              ))}
+                    <div className="fac-body">
+                      <h3>{name}</h3>
+                      <p>{b.desc}</p>
+                      <span className="fac-tag"><Icon name={b.tagIcon} /> {b.tag}</span>
+                      <div className="hero-cta hero-cta--spaced">
+                        {b.links.length > 0 ? (
+                          b.links.map((l) => (
+                            <Link key={l.href} className="btn btn--ghost btn--sm" href={l.href}>
+                              {l.label} <Icon name="arrow" />
+                            </Link>
+                          ))
+                        ) : (
+                          <EnquiryButton className="btn btn--ghost btn--sm" type="technical" product={`${name} enquiry`} icon="chat">Enquire</EnquiryButton>
+                        )}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -232,10 +200,9 @@ export default function BrandsPage() {
 
         <section className="sec sec--dark" id="enquire">
           <div className="wrap">
-            <SectionHead light eyebrow="Next step" title="Talk to a brand specialist." sub="Tell us the fuel, duty and site, and we will put the right brand and model against your application." />
+            <SectionHead light eyebrow="Next step" title="Tell us the fuel, duty and site." sub="We will put the right brand and model against your application and come back with a quotation." />
             <div className="cta-dual">
               <EnquiryButton className="btn btn--primary" type="sales" product="Brand enquiry">Request a quote</EnquiryButton>
-              <EnquiryButton className="btn--tech" type="technical" product="Brand enquiry" icon="chat">Ask a technical question</EnquiryButton>
             </div>
           </div>
         </section>

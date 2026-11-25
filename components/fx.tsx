@@ -10,9 +10,13 @@
      via MotionConfig in the layout).
    --------------------------------------------------------------------------- */
 import { motion, useReducedMotion } from "framer-motion";
-import { usePathname } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { getSmoother } from "./SmoothScroll";
+import { EASE } from "./motion";
+
+/* Route-change fade, seconds. */
+const PAGE_FADE_DUR = 0.4;
 
 export function FxBootstrap() {
   useEffect(() => {
@@ -46,28 +50,104 @@ export function ScrollProgressBar() {
   );
 }
 
+/* Page transition: a full-screen red panel slides in from the left, holds
+   while the next route loads, then slides out to the right. The page behind is
+   scroll-locked until the panel has left. Only plain same-site link clicks are
+   taken over; hash-only links, new tabs, downloads, modified clicks and browser
+   back/forward keep their native behaviour (they get the short fade below). */
+const WIPE_IN = 560; // ms, must match .gt-wipe in enhancements.css
+const WIPE_OUT = 620;
+const MIN_HOLD = 380; // the panel is never a flash: it stays at least this long
+const MAX_HOLD = 6000; // safety: never trap the user behind the panel
+
+type WipePhase = "idle" | "in" | "hold" | "out";
+
 export function PageTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const reduce = useReducedMotion();
-  if (reduce) return <>{children}</>;
+  const [phase, setPhase] = useState<WipePhase>("idle");
+  const phaseRef = useRef<WipePhase>("idle");
+  const target = useRef<string>("");
+  const holdSince = useRef(0);
+  const timers = useRef<number[]>([]);
+
+  const go = (next: WipePhase) => {
+    phaseRef.current = next;
+    setPhase(next);
+  };
+  const later = (fn: () => void, ms: number) => {
+    timers.current.push(window.setTimeout(fn, ms));
+  };
+  const finish = () => {
+    go("out");
+    later(() => {
+      go("idle");
+      document.documentElement.classList.remove("gt-lock");
+    }, WIPE_OUT);
+  };
+
+  useEffect(() => {
+    if (reduce) return;
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = (e.target as Element | null)?.closest?.("a");
+      if (!a || !a.href) return;
+      if ((a.target && a.target !== "_self") || a.hasAttribute("download")) return;
+      let url: URL;
+      try { url = new URL(a.href, window.location.href); } catch { return; }
+      if (url.origin !== window.location.origin) return;
+      if (url.pathname === window.location.pathname && url.search === window.location.search) return;
+      e.preventDefault();
+      if (phaseRef.current !== "idle") return; // already travelling: ignore extra clicks
+      target.current = url.pathname + url.search + url.hash;
+      document.documentElement.classList.add("gt-lock");
+      go("in");
+      later(() => {
+        go("hold");
+        holdSince.current = Date.now();
+        router.push(target.current);
+        later(() => { if (phaseRef.current === "hold") finish(); }, MAX_HOLD);
+      }, WIPE_IN);
+    };
+    document.addEventListener("click", onClick, true);
+    return () => {
+      document.removeEventListener("click", onClick, true);
+      timers.current.forEach((t) => window.clearTimeout(t));
+      timers.current = [];
+      document.documentElement.classList.remove("gt-lock");
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reduce, router]);
+
+  // the new route has rendered: leave the panel after the minimum hold
+  useEffect(() => {
+    if (phaseRef.current !== "hold") return;
+    const wait = Math.max(0, MIN_HOLD - (Date.now() - holdSince.current));
+    later(() => { if (phaseRef.current === "hold") finish(); }, wait);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
   return (
-    <motion.div
-      key={pathname}
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-      // Phase 4 text-rendering contract: Framer leaves `transform: translateY(0px)`
-      // on the settled wrapper, which would composite every page's text. Emit
-      // `none` the instant y rests so the wrapper is uncomposited and type keeps
-      // native ClearType. Opacity is unaffected (it is not a transform).
-      transformTemplate={(latest) => (latest.y ? `translateY(${latest.y}px)` : "none")}
-    >
-      {children}
-    </motion.div>
+    <>
+      <motion.div
+        key={pathname}
+        initial={reduce ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: PAGE_FADE_DUR, ease: EASE }}
+      >
+        {children}
+      </motion.div>
+      <div className="gt-wipe" data-phase={phase} aria-hidden="true">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/assets/gc-logo.svg" alt="" />
+        <span className="gw-bar" />
+      </div>
+    </>
   );
 }
 
-/* Scrolls to a #hash target after a route change. Links like /how-we-work/#process
+/* Scrolls to a #hash target after a route change. Links like /about-us/#how
    navigate but App Router does not scroll to in-page anchors on its own, and
    the navbar is sticky, so we offset by its height. Runs only in the browser. */
 export function HashScroller() {

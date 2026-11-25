@@ -12,16 +12,14 @@ export function GET() {
   lines.push("");
   lines.push(`> ${SITE.description}`);
   lines.push("");
-  lines.push("Gastech Combustions engineers and manufactures gas trains as complete skid-mounted assemblies, and is the Pune-based representative and integrator for Riello industrial burners, Pietro Fiorentini gas regulation and metering, and Gasvigil gas-leak detection. It also converts diesel generators to run on dual fuel. We supply, size, install, commission and service complete gas systems, doing it right first time with one accountable partner.");
+  lines.push("Gastech Combustions engineers and manufactures gas trains as complete skid-mounted assemblies, and is the Pune-based representative and integrator for Pietro Fiorentini gas regulation and metering, Riello industrial burners, and Gasvigil gas-leak detection. It also converts diesel generators to run on dual fuel. We supply, size, install, commission and service complete gas systems, doing it right first time with one accountable partner.");
   lines.push("");
   lines.push("## Key facts");
   lines.push(`- Legal name: ${SITE.legalName}`);
   lines.push(`- Also known as: ${SITE.name}`);
   lines.push(`- Website: ${SITE.url}`);
   lines.push(`- City / Region / Country: ${SITE.contact.city}, ${SITE.contact.region}, ${SITE.contact.country}`);
-  lines.push(`- Works address: ${SITE.contact.worksAddress}`);
-  lines.push(`- Registered address: ${SITE.contact.registeredAddress}`);
-  lines.push(`- Phone: ${SITE.contact.phonePrimary} / ${SITE.contact.phoneSecondary}`);
+  lines.push(`- Corporate office: ${SITE.contact.corporateAddress}`);
   lines.push(`- Sales email: ${SITE.contact.salesEmail}`);
   lines.push(`- Technical email: ${SITE.contact.technicalEmail}`);
   lines.push(`- Brands represented: ${SITE.brands.join(", ")}`);
@@ -32,7 +30,7 @@ export function GET() {
     ["About Us (company, capability, capacity range)", "/about-us/"],
     ["Products (full range)", "/products/"],
     ["Brands we represent", "/brands/"],
-    ["How We Work (process, handover, AMC)", "/how-we-work/"],
+    ["How we work (five-step process, on About Us)", "/about-us/#how"],
     ["Services (consultancy, install, AMC)", "/services/"],
     ["Contact", "/contact-us/"],
   ] as const;

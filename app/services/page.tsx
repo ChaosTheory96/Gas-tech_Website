@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import { serviceSchema, collectionPageSchema, itemListSchema } from "@/lib/schema";
+import { SERVICE_LINES } from "@/lib/site";
 import { Icon } from "@/components/icons";
-import { Marquee, SectionHead, JsonLd } from "@/components/blocks";
+import { SectionHead, JsonLd } from "@/components/blocks";
 import { EnquiryButton } from "@/components/enquiry";
+import { PageHero } from "@/components/PageHero";
 import ServiceStation, { type ServiceData } from "@/components/ServiceStation";
 
 export const metadata = buildMetadata({
@@ -21,7 +23,6 @@ export const metadata = buildMetadata({
 type ServiceEntry = ServiceData & {
   tone: "plain" | "sunken";
   flip: boolean;
-  cta: { type: "sales" | "technical"; label: string };
 };
 
 const SERVICES: ServiceEntry[] = [
@@ -30,16 +31,15 @@ const SERVICES: ServiceEntry[] = [
     code: "ENG",
     kicker: "Up front",
     title: "Technical Consultancy",
-    lead: "Detailed understanding of your application, then appropriate selection and sizing during your procurement stage, not just trading of products.",
+    lead: "Detailed understanding of your application, then appropriate selection and sizing during your procurement stage.",
     points: [
       { label: "Application study", text: "we understand your process, gas, duty and site before recommending anything." },
       { label: "Selection & sizing", text: "the right equipment and configuration during your procurement stage." },
     ],
-    img: "https://images.unsplash.com/photo-1487875961445-47a00398c267?auto=format&fit=crop&w=1200&q=80",
-    alt: "Gas pressure regulation station engineered to a site duty",
+    img: "/images/gas-train/customized-monoblock.jpg",
+    alt: "Customised gas train engineered to a site duty",
     tone: "plain",
     flip: false,
-    cta: { type: "technical", label: "Discuss your application" },
   },
   {
     num: "02",
@@ -51,11 +51,10 @@ const SERVICES: ServiceEntry[] = [
       { label: "Expert Installation", text: "skilled technicians set up your burner safely to manufacturer specifications and industry standards." },
       { label: "Comprehensive Commissioning", text: "detailed testing and calibration of all parameters, configurations and connections." },
     ],
-    img: "https://images.unsplash.com/photo-1565043666747-69f6646db940?auto=format&fit=crop&w=1200&q=80",
-    alt: "Complete gas handling system installed on site",
+    img: "/images/burner/riello-burner/light-oil-product/gas-burner-MODULATING.jpg",
+    alt: "Riello modulating burner ready for installation and commissioning",
     tone: "sunken",
     flip: true,
-    cta: { type: "sales", label: "Request an installation visit" },
   },
   {
     num: "03",
@@ -67,19 +66,12 @@ const SERVICES: ServiceEntry[] = [
       { label: "Scheduled Maintenance", text: "regularly planned inspections and servicing to keep your burner running efficiently and catch issues early." },
       { label: "Priority Support", text: "dedicated team with priority response for any issue or emergency, minimising disruption." },
     ],
-    img: "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=1200&q=80",
-    alt: "Scheduled maintenance and testing of gas equipment",
+    img: "/images/gas-train/steel-plant.jpg",
+    alt: "Gas train in service at a steel plant, kept running by scheduled maintenance",
     tone: "plain",
     flip: false,
-    cta: { type: "sales", label: "Ask about an AMC" },
   },
 ];
-
-const crumbs = [
-  { name: "Home", href: "/" },
-  { name: "Services", href: "/services/" },
-];
-void crumbs; // breadcrumb markup retired per sheet row P90 (CollectionPage + ItemList + Service); visible crumbs stay
 
 export default function ServicesPage() {
   return (
@@ -106,42 +98,29 @@ export default function ServicesPage() {
         ]}
       />
       <main id="main">
-        <section className="intro-hero">
-          <div className="wrap">
-            <div className="crumbs" aria-label="Breadcrumb" style={{ paddingTop: 0 }}>
-              <Link href="/">Home</Link><span className="sep">/</span><span className="cur">Services</span>
-            </div>
-            <p className="eyebrow" data-reveal>Professional services</p>
-            <h1 className="split">
-              <span className="line">Services:{" "}</span>
-              <span className="line">Installation, Commissioning <em>and</em> AMC</span>
-            </h1>
-            <p className="lede" data-reveal>From the first enquiry we work to understand your application and offer a comprehensive solution, not just a product. Our post-sales services carry the same trust seal as the equipment we supply.</p>
-            <div className="intro-cta" data-reveal>
-              <a className="btn btn--primary" href="#services">Explore services <Icon name="arrow" /></a>
-              <EnquiryButton className="btn--tech" type="technical" product="Service enquiry" icon="chat">Talk to our team</EnquiryButton>
-            </div>
-          </div>
-        </section>
+        <PageHero
+          crumbs={[{ label: "Services" }]}
+          title={<>
+            <span className="line">Installation, Commissioning</span>
+            <span className="line"><em>and AMC</em></span>
+          </>}
+          lede={<>Consultancy before you buy, installation and commissioning when you do, and maintenance contracts for the whole life of your gas system, all by our own team.</>}
+          primary={<a className="btn btn--primary" href="#services">Explore services <Icon name="arrow" /></a>}
+          secondary={<EnquiryButton className="btn--tech" type="technical" product="Service enquiry" icon="chat">Talk to our team</EnquiryButton>}
+          aside={<>
+            <p className="hero-card-k">Three service lines</p>
+            <ul className="brand-lockup" aria-label="Service lines">
+              {SERVICE_LINES.map((s) => (
+                <li key={s.num}><span className="brand-mark--text">{s.title}</span></li>
+              ))}
+            </ul>
+          </>}
+        />
 
-        <Marquee />
-
-        <section className="sec" id="services">
-          <div className="wrap">
-            <SectionHead
-              eyebrow="Three service lines"
-              title={<>Support across the <u>whole life</u> of your system.</>}
-              sub="Selection and sizing during procurement, then expert installation, commissioning and long-term care."
-            />
-          </div>
-        </section>
-
-        {SERVICES.map((s) => (
-          <section key={s.num} className={s.tone === "sunken" ? "sec sec--sunken" : "sec"}>
+        {SERVICES.map((s, i) => (
+          <section key={s.num} id={i === 0 ? "services" : undefined} className={s.tone === "sunken" ? "sec sec--sunken" : "sec"}>
             <div className="wrap">
-              <ServiceStation data={s} flip={s.flip}>
-                <EnquiryButton className="btn btn--primary" type={s.cta.type} product={`${s.title} enquiry`}>{s.cta.label}</EnquiryButton>
-              </ServiceStation>
+              <ServiceStation data={s} flip={s.flip} />
             </div>
           </section>
         ))}
@@ -151,7 +130,6 @@ export default function ServicesPage() {
             <SectionHead light eyebrow="Next step" title="Put your system in good hands." sub="Ask for an AMC, an installation and commissioning visit, or technical advice on a new application." />
             <div className="cta-dual">
               <EnquiryButton className="btn btn--primary" type="sales" product="Service enquiry">Request a quote</EnquiryButton>
-              <EnquiryButton className="btn--tech" type="technical" product="Service enquiry" icon="chat">Talk to our team</EnquiryButton>
             </div>
           </div>
         </section>

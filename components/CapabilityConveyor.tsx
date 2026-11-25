@@ -24,6 +24,8 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import "../styles/conveyor.css";
 import { Icon } from "./icons";
+import { BrandLockup } from "./BrandLockup";
+import type { BrandId } from "@/lib/site";
 
 export type ConveyorItem = {
   idx: string;
@@ -34,6 +36,8 @@ export type ConveyorItem = {
   desc: string;
   specs: string[];
   flag?: boolean;
+  /** brand marks shown above the title (e.g. Pietro Fiorentini + Gastech) */
+  brands?: BrandId[];
 };
 
 type Props = {
@@ -265,16 +269,16 @@ export function CapabilityConveyor({ items, speed = 35, fade = 0.08, className }
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={d.img} alt={d.alt} loading="lazy" decoding="async" draggable={false} />
               <span className="gt-conv-num">{d.idx}</span>
-              {d.flag && <span className="gt-conv-seal">Gastech Own Line</span>}
             </div>
             <div className="gt-conv-body">
+              {d.brands && <div className="gt-conv-brands"><BrandLockup inline ids={d.brands} label="Brands" /></div>}
               <h3>{d.title}</h3>
               <p>{d.desc}</p>
               <ul className="gt-conv-specs">
                 {d.specs.map((s) => <li key={s}>{s}</li>)}
               </ul>
               <Link className="gt-conv-cta" href={d.href}>
-                {d.flag ? "Explore" : "Enquire"} <Icon name="arrow" />
+                View range <Icon name="arrow" />
               </Link>
             </div>
             <span ref={(el) => { shadeRefs.current[i] = el; }} className="gt-conv-shade" aria-hidden="true" />

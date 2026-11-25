@@ -32,29 +32,6 @@ export default function FaqAccordion({ faqs }: { faqs: FaqItem[] }) {
     // initial state: first open, rest closed
     list.forEach((d, i) => (d.open = i === 0));
 
-    // Reserve the tallest answer's height so the band NEVER changes height when
-    // a panel opens/closes — otherwise the section grows and pushes the red
-    // Enquire band below it up and down. Answers are short, so this keeps the
-    // layout stable; a very long answer on a narrow screen can still grow.
-    const listEl = root.querySelector<HTMLElement>(".faq-list");
-    if (listEl) {
-      const base = listEl.getBoundingClientRect().height; // current (first open)
-      let tallest = 0;
-      list.forEach((d) => {
-        const was = d.open;
-        d.open = true;
-        const body = d.querySelector<HTMLElement>(".faq-body");
-        if (body) tallest = Math.max(tallest, body.scrollHeight);
-        d.open = was;
-      });
-      const openIdx = list.findIndex((d) => d.open);
-      const openH =
-        openIdx >= 0
-          ? list[openIdx].querySelector<HTMLElement>(".faq-body")?.scrollHeight || 0
-          : 0;
-      root.style.minHeight = Math.ceil(base - openH + tallest) + "px";
-    }
-
     // animate a panel open/closed by tweening the body height
     const DUR = 400; // same duration for open + close so a swap is height-neutral
     const anim = (d: HTMLDetailsElement, open: boolean) => {

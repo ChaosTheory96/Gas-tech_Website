@@ -19,7 +19,7 @@ function useMounted() {
   return mounted;
 }
 
-const EASE = [0.22, 1, 0.36, 1] as const;
+export const EASE = [0.22, 1, 0.36, 1] as const;
 /* EDITORIAL PACE — deliberate, intentful. A single slower base duration +
    a wider word stagger govern every enter animation on every page, so the
    site reads as a considered editorial reveal rather than a quick UI fade.

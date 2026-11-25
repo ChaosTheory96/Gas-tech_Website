@@ -44,6 +44,18 @@ export function Navbar() {
   const [megaOpen, setMegaOpen] = useState(false);
   const lastY = useRef(0);
 
+  // Publish the real header height as --nav-h so every full-height hero and
+  // sticky offset fits the frame, whatever the font scale or zoom.
+  useEffect(() => {
+    const head = document.querySelector<HTMLElement>(".site-head");
+    if (!head) return;
+    const set = () => document.documentElement.style.setProperty("--nav-h", `${Math.round(head.getBoundingClientRect().height)}px`);
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(head);
+    return () => ro.disconnect();
+  }, []);
+
   // Close overlays on route change.
   useEffect(() => {
     setNavOpen(false);
@@ -62,7 +74,11 @@ export function Navbar() {
       if (host && !host.contains(e.target as Node)) setMegaOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMegaOpen(false);
+      if (e.key !== "Escape") return;
+      const host = document.querySelector("[data-mega]");
+      const hadFocus = host?.contains(document.activeElement);
+      setMegaOpen(false);
+      if (hadFocus) host?.querySelector<HTMLElement>(".mega-trigger")?.focus();
     };
     document.addEventListener("pointerdown", onDown);
     document.addEventListener("keydown", onKey);
@@ -71,6 +87,39 @@ export function Navbar() {
       document.removeEventListener("keydown", onKey);
     };
   }, [megaOpen]);
+
+  // Mobile drawer: close on Escape or a tap outside, and lock page scroll while open.
+  useEffect(() => {
+    if (!navOpen) return;
+    const html = document.documentElement;
+    html.classList.add("nav-lock");
+    const onDown = (e: PointerEvent) => {
+      const head = document.querySelector(".site-head");
+      if (head && !head.contains(e.target as Node)) setNavOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setNavOpen(false);
+      document.querySelector<HTMLElement>(".nav-toggle")?.focus();
+    };
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      html.classList.remove("nav-lock");
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [navOpen]);
+
+  // Any link (or the quote button) pressed inside the nav closes the menus, even
+  // when it targets the page you are already on or a #hash, where the pathname
+  // never changes.
+  const onNavClick = (e: React.MouseEvent<HTMLElement>) => {
+    if ((e.target as Element).closest("a, .nav-cta")) {
+      setMegaOpen(false);
+      setNavOpen(false);
+    }
+  };
 
   // Scroll: is-scrolled state + drawer.
   useEffect(() => {
@@ -97,6 +146,7 @@ export function Navbar() {
   const headClass = [
     "site-head",
     scrolled ? "is-scrolled" : "",
+    pathname === "/" && !scrolled && !navOpen && !megaOpen ? "is-over-hero" : "",
     hidden ? "gt-head-hidden" : "",
   ].filter(Boolean).join(" ");
 
@@ -115,10 +165,10 @@ export function Navbar() {
           <span className="brand-word"><b>GAS</b><span>TECH</span></span>
         </Link>
 
-        <nav className={navClass} id="site-nav" aria-label="Primary">
+        <nav className={navClass} id="site-nav" aria-label="Primary" onClick={onNavClick}>
           {NAV.map((item) =>
             item.kind === "mega" ? (
-              <MegaItem key={item.label} item={item} megaOpen={megaOpen} onToggle={() => setMegaOpen((v) => !v)} active={isProductsActive(pathname)} />
+              <MegaItem key={item.label} item={item} megaOpen={megaOpen} onToggle={() => setMegaOpen((v) => !v)} onSet={setMegaOpen} active={isProductsActive(pathname)} />
             ) : (
               <Link
                 key={item.href}
@@ -157,18 +207,59 @@ function MegaItem({
   item,
   megaOpen,
   onToggle,
+  onSet,
   active,
 }: {
   item: Extract<NavItem, { kind: "mega" }>;
   megaOpen: boolean;
   onToggle: () => void;
+  onSet: (open: boolean) => void;
   active: boolean;
 }) {
   const pathname = usePathname();
+  const timer = useRef<number | undefined>(undefined);
+  const canHover = () =>
+    typeof window !== "undefined" && window.matchMedia("(hover: hover) and (min-width: 901px)").matches;
+  const later = (open: boolean, ms: number) => {
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => onSet(open), ms);
+  };
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  // Keyboard: ArrowDown on the trigger opens and enters the panel; arrows, Home and
+  // End walk the panel links; Tab out of the menu closes it.
+  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const host = e.currentTarget;
+    const links = Array.from(host.querySelectorAll<HTMLElement>(".mega a"));
+    const i = links.indexOf(document.activeElement as HTMLElement);
+    if (document.activeElement === host.querySelector(".mega-trigger") && e.key === "ArrowDown") {
+      e.preventDefault();
+      onSet(true);
+      // wait for the panel to become visible (hidden links cannot take focus)
+      window.setTimeout(() => links[0]?.focus(), 90);
+    } else if (i >= 0 && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+      e.preventDefault();
+      links[(i + (e.key === "ArrowDown" ? 1 : -1) + links.length) % links.length]?.focus();
+    } else if (i >= 0 && e.key === "Home") {
+      e.preventDefault();
+      links[0]?.focus();
+    } else if (i >= 0 && e.key === "End") {
+      e.preventDefault();
+      links[links.length - 1]?.focus();
+    }
+  };
+
   return (
     <div
       className={["nav-item has-mega", megaOpen ? "is-open" : ""].filter(Boolean).join(" ")}
       data-mega
+      onPointerEnter={(e) => { if (e.pointerType === "mouse" && canHover()) later(true, 90); }}
+      onPointerLeave={(e) => { if (e.pointerType === "mouse" && canHover()) later(false, 200); }}
+      onKeyDown={onKeyDown}
+      onBlur={(e) => {
+        const next = e.relatedTarget as Node | null;
+        if (next && !e.currentTarget.contains(next)) onSet(false);
+      }}
     >
       <button
         className="mega-trigger"
@@ -177,11 +268,10 @@ function MegaItem({
         aria-controls="mega-products"
         aria-current={active ? "page" : undefined}
         onClick={(e) => {
-          // Blur so site.css :focus-within doesn't pin the panel open after we
-          // toggle it shut (the close bug). Keyboard focus still opens via
-          // :focus-within; Tab users are unaffected.
-          e.currentTarget.blur();
-          onToggle();
+          // With a mouse on desktop the menu already opened on hover, so a click
+          // keeps it open; touch and keyboard toggle.
+          if (e.detail > 0 && canHover()) { window.clearTimeout(timer.current); onSet(true); }
+          else onToggle();
         }}
       >
         <span className="n">{item.num}</span>
@@ -190,16 +280,14 @@ function MegaItem({
       <div className="mega" id="mega-products">
         <div className="mega-inner">
           <Link className="mega-feature" href={item.feature.href}>
-            {/* Red duotone photo under the panel copy (luminosity blend over the
-                plate, see .mf-photo): kills the flat red block without touching
-                the white-only-on-red-plate text rule. Decorative + lazy, so the
-                menu stays instant. */}
+            {/* Decorative photo under a bottom scrim (see .mf-photo); lazy so the menu stays instant. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="mf-photo" src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=70" alt="" aria-hidden="true" loading="lazy" decoding="async" draggable={false} />
-            <span className="mf-kicker">{item.feature.kicker}</span>
-            <span className="mf-title">{item.feature.title}</span>
-            <span className="mf-sub">{item.feature.sub}</span>
-            <span className="mf-cta">{item.feature.cta} <Icon name="arrow" prefix="mg" /></span>
+            <img className="mf-photo" src={item.feature.img} alt="" aria-hidden="true" loading="lazy" decoding="async" draggable={false} />
+            <span className="mf-body">
+              <span className="mf-title">{item.feature.title}</span>
+              <span className="mf-sub">{item.feature.sub}</span>
+              <span className="mf-cta">{item.feature.cta} <Icon name="arrow" prefix="mg" /></span>
+            </span>
           </Link>
           {item.groups.map((group) => (
             <div className="mega-col" key={group.heading}>
@@ -207,7 +295,7 @@ function MegaItem({
               {group.items.map((c) => (
                 <Link
                   key={c.href}
-                  className={["mega-card", pathname === c.href ? "is-current" : ""].filter(Boolean).join(" ")}
+                  className={pathname === c.href ? "mega-card is-current" : "mega-card"}
                   href={c.href}
                   aria-current={pathname === c.href ? "page" : undefined}
                 >
@@ -216,6 +304,11 @@ function MegaItem({
                   <Icon name="arrow" prefix="mg" className="mc-go" />
                 </Link>
               ))}
+              {group.cta ? (
+                <Link className="btn btn--primary mega-pill" href={group.cta.href}>
+                  {group.cta.label} <Icon name="arrow" prefix="mg" />
+                </Link>
+              ) : null}
             </div>
           ))}
         </div>

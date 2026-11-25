@@ -157,7 +157,7 @@ export default function PrivacyDoc() {
               Within Gastech, enquiry data is seen only by the sales and
               engineering staff who handle your enquiry. We do not share data
               with third-party processors. If a manufacturer whose equipment
-              you asked about (Riello, Pietro Fiorentini or Gasvigil) needs
+              you asked about (Pietro Fiorentini, Riello or Gasvigil) needs
               your details to answer a technical or warranty question, we pass
               on only what is necessary and we tell you first.
             </p>
@@ -208,12 +208,10 @@ export default function PrivacyDoc() {
             <h2><span className="cnum">11</span>Contact</h2>
             <p>
               Questions about this policy or your data: write to{" "}
-              <a href={`mailto:${c.salesEmail}`}>{c.salesEmail}</a> or call{" "}
-              <a href={c.phonePrimaryHref}>{c.phonePrimary}</a>.
+              <a href={`mailto:${c.salesEmail}`}>{c.salesEmail}</a>.
             </p>
             <p>
-              {SITE.legalName}, Registered office: {c.registeredAddress}.
-              Works: {c.worksAddress}.
+              {SITE.legalName}, Corporate office: {c.corporateAddress}.
             </p>
           </section>
         </div>

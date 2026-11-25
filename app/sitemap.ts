@@ -11,7 +11,6 @@ const STATIC: { path: string; priority: number; changeFrequency: MetadataRoute.S
   { path: "/services/", priority: 0.8, changeFrequency: "monthly" },
   { path: "/brands/", priority: 0.7, changeFrequency: "monthly" },
   { path: "/about-us/", priority: 0.7, changeFrequency: "monthly" },
-  { path: "/how-we-work/", priority: 0.6, changeFrequency: "monthly" },
   { path: "/contact-us/", priority: 0.7, changeFrequency: "yearly" },
   /* Sheet row P06 marks privacy index, follow, so it belongs in the sitemap:
      the 16 indexable URLs are exactly the live pages minus the 404. */

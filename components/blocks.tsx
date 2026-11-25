@@ -29,9 +29,6 @@ export const DEFAULT_MARQUEE = [
   "Hydrogen Solutions",
   "Gas Leak Detection",
   "Complete Gas Systems",
-  "Riello",
-  "Pietro Fiorentini",
-  "Gasvigil",
 ];
 
 /** Infinite capability marquee (the .ticker treatment). */

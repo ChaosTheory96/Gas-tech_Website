@@ -3,7 +3,7 @@
    Preloader — a one-time branded intro overlay using the REAL Gastech logo
    (/assets/gc-logo.svg) + the GAS/TECH wordmark lockup. No invented motif.
    - Shows on the FIRST paint of a session only; a sessionStorage flag stops it
-     replaying on every route change (route changes use app/loading.tsx instead).
+     replaying on every route change (route changes use the red page wipe in fx.tsx).
    - It is a self-removing overlay, so page content is NEVER gated behind it and
      the `.js` class is never added. After it fades it unmounts entirely.
    - CLIENT DIRECTION: the overlay must NOT go away until its intro animation
