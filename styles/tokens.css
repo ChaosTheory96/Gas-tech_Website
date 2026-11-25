@@ -327,14 +327,13 @@
   --sq-shadow: var(--sq-bevel), var(--sq-float), var(--sq-edge-soft);
   --sq-border: 1px solid rgba(255,255,255,.75);
 
-  /* ---- Bright modal glass (polish) ----
-     The enquiry modal is a raised light surface, not a grey pane bleeding the
-     dark page through it. A light cool veil dims + defocuses the page without
-     going charcoal; the pane is a brighter frosted-white gradient with a light
-     rim and a soft float shadow. Production renders the light theme only. */
-  --scrim-bright: rgba(233,238,244,.66);
-  --glass-pane: linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.86));
-  --glass-pane-border: rgba(255,255,255,.6);
-  --glass-rim-light: inset 0 0 0 1px rgba(255,255,255,.7), inset 0 1px 0 rgba(255,255,255,.9);
-  --pane-shadow: 0 40px 90px -34px rgba(20,24,29,.34), 0 16px 34px -18px rgba(20,24,29,.22);
+  /* ---- ENQUIRY MODAL: solid brand-red panel, white copy and controls ---- */
+  --modal-surface:var(--brand); --modal-ink:var(--brand-fg); --modal-accent:var(--brand-active); --modal-chip:var(--brand-active);
+  --modal-scrim:rgba(20,6,5,.82);
+  --modal-field-bg:var(--bg-elevated); --modal-field-border:var(--border-strong);
+  --modal-rule:color-mix(in srgb, var(--brand-fg) 30%, transparent);
+  --modal-shadow:0 40px 90px -30px rgba(0,0,0,.6);
+  --modal-w:560px; --modal-control:44px;
+  --modal-gutter:clamp(10px,3vw,24px); --modal-pad:clamp(18px,4vw,32px);
+  --modal-title:clamp(1.375rem,1.1rem + 1.1vw,1.75rem);
 }

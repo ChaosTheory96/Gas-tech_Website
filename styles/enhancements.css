@@ -414,7 +414,7 @@ html{scroll-padding-top:calc(var(--nav-h,78px) + 16px)}
 /* ==========================================================================
    Q · TARGETED FIXES (unlayered, wins site.css + Section P). Tokens only.
    Home hero red leak · capabilities rail sizing/border · materials depth ·
-   process scroll animation · sunken depth · company red accent · modal polish.
+   process scroll animation · sunken depth · company red accent.
    ========================================================================== */
 
 /* ---- Q3 · CAPABILITIES rail. React owns sizing: neutralise the CSS gap (it
@@ -450,14 +450,6 @@ html{scroll-padding-top:calc(var(--nav-h,78px) + 16px)}
       page plane. */
 .sec--sunken{background:linear-gradient(180deg,var(--bg-surface) 0%,var(--bg-sunken) 100%);box-shadow:inset 0 1px 0 var(--border-subtle),inset 0 46px 60px -50px color-mix(in srgb,var(--text-default) 34%,transparent)}
 
-/* ---- Q8 · MODAL polish. Content is now wrapped in .modal-scroll (restores
-      the padding + scroll the bare .modal-panel lacked). Add a brand top rule
-      and a calm entrance so it reads as a finished, elevated surface. */
-.modal-panel::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:var(--plate);z-index:var(--z-2)}
-.js-fx .modal-panel{animation:gt-modal-in var(--dur-sheet) var(--ease-out)}
-@keyframes gt-modal-in{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){ .js-fx .modal-panel{animation:none} }
-
 /* ---- Q9 · SEAMLESS BAND BACKGROUNDS. .sec--tint (product Model range + FAQ)
       were white→pink fade gradients with corner glows, so a
       tint band sitting next to a plain white .sec showed a clipped half-white /
@@ -468,47 +460,6 @@ html{scroll-padding-top:calc(var(--nav-h,78px) + 16px)}
    read as dirty gradients; flattened to the plain page surface. Texture
    force-hidden via ::before:none, selector kept (no-deletion). */
 .sec--tint::before{display:none}
-
-/* ---- Q10 · MODAL MATERIAL + DEPTH. Rebuild the enquiry dialog as a real,
-      tactile object: an illuminated carbon surface with a layered grounding
-      shadow + inner bevel + top sheen, carved (inset) form fields, a raised
-      knob close button, a beveled primary action and an embossed confirmation
-      tick. Tokens only (material recipes adapt light/dark); this is the
-      enhancements layer so it overrides site.css by source order. */
-
-/* bright cool veil — dims + defocuses the page WITHOUT the charcoal bleed that
-   made the old --scrim-70 backdrop grey out the translucent panel */
-.modal-backdrop{background:var(--scrim-bright);backdrop-filter:blur(18px) saturate(1.1);-webkit-backdrop-filter:blur(18px) saturate(1.1)}
-
-/* panel: illuminated surface + layered depth + bevel + hairline ring */
-.modal-panel{background:var(--grad-carbon);border:1px solid color-mix(in srgb,var(--text-default) 12%,var(--border-subtle));box-shadow:0 40px 90px -30px var(--scrim),0 14px 30px -14px var(--scrim),var(--sq-bevel),var(--ring-1)}
-/* top sheen (real-material gloss) sits above the surface, below the content */
-.modal-panel::after{content:"";position:absolute;inset:0;z-index:var(--z-base);border-radius:inherit;background:var(--gloss);pointer-events:none}
-.modal-scroll{position:relative;z-index:var(--z-3)}
-/* brand cap rule reads as an inlaid band with a lit lower edge */
-.modal-panel::before{height:5px;box-shadow:inset 0 -1px 0 color-mix(in srgb,var(--brand-fg) 22%,transparent)}
-
-/* carved, pressed-in fields */
-.field input,.field textarea,.field select{background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;box-shadow:var(--neu-inset);transition:border-color var(--dur-hover) var(--ease-out),box-shadow var(--dur-hover) var(--ease-out),background var(--dur-hover) var(--ease-out)}
-.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--brand);background:var(--bg-elevated);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 20%,transparent),var(--neu-inset)}
-
-/* raised knob close button — z-index above the scroll layer so it stays clickable */
-.modal-x{z-index:var(--z-4);background:var(--bg-elevated);border:1px solid var(--border-default);box-shadow:var(--neu-soft),var(--sq-bevel);transition:transform var(--dur-hover) var(--ease-out),box-shadow var(--dur-hover) var(--ease-out),color var(--dur-hover),border-color var(--dur-hover)}
-.modal-x:hover{transform:translateY(-1px);border-color:var(--brand);color:var(--brand);box-shadow:var(--neu-float),var(--sq-bevel)}
-.modal-x:active{transform:translateY(0) scale(.95);box-shadow:var(--neu-inset)}
-
-/* etched product chip. The primary action deliberately keeps the SHARED
-   site-wide .btn--primary style (no modal-only override) so it matches every
-   other button on the site. */
-.modal-tag{background:var(--bg-surface);border-color:var(--border-default);box-shadow:var(--neu-inset)}
-
-/* embossed confirmation tick */
-.modal-done .tick{background:radial-gradient(circle at 38% 30%,color-mix(in srgb,var(--brand) 22%,var(--bg-elevated)),var(--bg-surface) 78%);box-shadow:var(--neu-float),var(--sq-bevel),inset 0 0 0 1px color-mix(in srgb,var(--brand) 30%,transparent)}
-
-/* springier settle on open (reduced-motion still honoured below) */
-.js-fx .modal-panel{animation:gt-modal-in var(--dur-400) var(--spring-glide)}
-@keyframes gt-modal-in{from{opacity:0;transform:translateY(22px) scale(.965)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.js-fx .modal-panel{animation:none}}
 
 /* ---- R · LEGAL DOCUMENT + 404 REDESIGN. New-page styles only (no site.css
       selectors restated). Tokens only. Content is visible without JS; the
@@ -605,23 +556,17 @@ body{font-optical-sizing:auto}
 .intro-hero h1,.page-hero h1,.p-hero h1,.sec-head h2{font-weight:800}
 
 /* ---- U · GLASS DISCIPLINE (Phase 3 production decision). Frosted glass
-      (backdrop blur) is permitted on the TWO zones the client allowed:
+      (backdrop blur) is permitted on ONE zone:
         (a) the header z-layer that floats above content — the sticky
             .site-head band, its progress hairline, and (on <=900px) the
-            .site-nav drawer, which IS the header on small screens; and
-        (b) the modal — both the .modal-panel surface and its .modal-backdrop
-            scrim, since the modal is one overlay unit (dim + defocus behind
-            the panel is what makes the panel read as lifted).
+            .site-nav drawer, which IS the header on small screens.
+      The enquiry modal is a solid brand-red panel (site.css), no blur.
       Blur + rim + tint are consumed from the ACTIVE --glass-* subset in
       tokens.css; the physical remainder of the family is parked in the marked
       RESERVE block there — never deleted, never counted as live debt.
-      Everything OUTSIDE those two zones stays opaque material. ---- */
+      Everything OUTSIDE that zone stays opaque material. ---- */
 .site-head{background:color-mix(in srgb,var(--bg-elevated) 84%,var(--glass-tint));backdrop-filter:blur(var(--glass-blur)) saturate(1.3);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.3);border-bottom:1px solid var(--glass-rim-lo);box-shadow:inset 0 1px 0 var(--glass-catch-soft)}
 .site-head.is-scrolled{background:color-mix(in srgb,var(--bg-elevated) 94%,var(--glass-tint));box-shadow:inset 0 1px 0 var(--glass-catch-soft),var(--neu-soft)}
-/* bright frosted pane — a raised light surface. The 94->86% white gradient sits
-   BRIGHTER than the light veil behind it, so it lifts; a light rim + soft float
-   shadow finish the glass. Form text stays well past AA on the near-white pane. */
-.modal-panel{background:var(--glass-pane);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border:1px solid var(--glass-pane-border);box-shadow:var(--pane-shadow),var(--glass-rim-light)}
 /* stray blur surfaces OUTSIDE the two permitted zones: (1) .fac-idx badges
    carried a 6px backdrop blur in the verbatim site.css — force-disabled here
    so the badge is an opaque token-mixed plate (white index digits keep full

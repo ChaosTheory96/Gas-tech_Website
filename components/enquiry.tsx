@@ -15,6 +15,7 @@ import {
   type ReactNode,
 } from "react";
 import { Icon } from "./icons";
+import { SITE } from "@/lib/site";
 
 type EnquiryType = "sales" | "technical";
 type OpenArgs = { type?: EnquiryType; product?: string };
@@ -33,7 +34,6 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
   const [type, setType] = useState<EnquiryType>("sales");
   const [product, setProduct] = useState("General enquiry");
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
-  const panelRef = useRef<HTMLDivElement>(null);
   const firstFieldRef = useRef<HTMLInputElement>(null);
   const lastFocused = useRef<HTMLElement | null>(null);
 
@@ -54,7 +54,7 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
     };
     document.body.style.overflow = "hidden";
     document.addEventListener("keydown", onKey);
-    const t = window.setTimeout(() => firstFieldRef.current?.focus(), 40);
+    const t = window.setTimeout(() => firstFieldRef.current?.focus({ preventScroll: true }), 40);
     return () => {
       document.body.style.overflow = "";
       document.removeEventListener("keydown", onKey);
@@ -65,34 +65,27 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
 
   const ctx = useMemo(() => ({ open, close }), [open, close]);
 
+  const title = type === "technical" ? "Talk to an engineer" : "Request a quote";
+
   return (
     <EnquiryContext.Provider value={ctx}>
       {children}
       {isOpen && (
         <div className="modal open" id="enquiry-modal" role="dialog" aria-modal="true" aria-labelledby="eq-title">
           <div className="modal-backdrop" onClick={close} />
-          <div className="modal-panel" ref={panelRef}>
-            <button className="modal-x" type="button" onClick={close} aria-label="Close">&times;</button>
-            <div className="modal-scroll">
-            <p className="modal-k">{type === "technical" ? "Technical discussion" : "Request a quote"}</p>
-            <h2 id="eq-title">{type === "technical" ? "Talk to an engineer" : "Request a quote"}</h2>
-            <p className="m-sub">
-              {type === "technical"
-                ? "Share your application and specs; a Gastech engineer will follow up."
-                : "Tell us about your requirement and we will prepare a quotation."}
-            </p>
-            {type === "technical" && (
-              <p className="m-sub">
-                Prefer email? Write to our engineers at{" "}
-                <a href="mailto:technical@gastechcombustions.in">technical@gastechcombustions.in</a>
-              </p>
-            )}
-            <span className="modal-tag">{product}</span>
+          <div className="modal-panel">
+            <div className="modal-head">
+              <h2 id="eq-title">{title}</h2>
+              <button className="modal-x" type="button" onClick={close} aria-label="Close">&times;</button>
+            </div>
             {status === "done" ? (
-              <div className="modal-done">
-                <div className="tick"><Icon name="check" /></div>
-                <h2>Thank you</h2>
-                <p className="m-sub">We have received your enquiry. Our team will get back to you shortly.</p>
+              <div className="modal-body" role="status">
+                <div className="modal-done">
+                  <div className="tick"><Icon name="check" /></div>
+                  <p className="modal-done-title">Thank you</p>
+                  <p className="m-sub">We have received your enquiry. Our team will get back to you shortly.</p>
+                  <button className="btn btn--primary" type="button" onClick={close}>Close</button>
+                </div>
               </div>
             ) : (
               <EnquiryForm
@@ -103,13 +96,15 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
                 firstFieldRef={firstFieldRef}
               />
             )}
-            </div>
           </div>
         </div>
       )}
     </EnquiryContext.Provider>
   );
 }
+
+/** Context labels that only repeat the heading; anything more specific is shown. */
+const GENERIC_PRODUCT = /(enquiry$|^contact$|^about gastech$)/i;
 
 function EnquiryForm({
   type,
@@ -162,40 +157,53 @@ function EnquiryForm({
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate>
-      <div className="honeypot" aria-hidden="true">
-        <label>Do not fill this<input name="website" tabIndex={-1} autoComplete="off" /></label>
-      </div>
-      <div className="field row2">
-        <div className="field">
-          <label htmlFor="eq-name">Full name *</label>
-          <input id="eq-name" name="full_name" required autoComplete="name" ref={firstFieldRef} />
+    <form className="modal-form" onSubmit={onSubmit} noValidate>
+      <div className="modal-body">
+        <p className="m-sub">
+          {type === "technical"
+            ? "Share your application and specs; a Gastech engineer will follow up."
+            : "Tell us about your requirement and we will prepare a quotation."}
+        </p>
+        {!GENERIC_PRODUCT.test(product) && <span className="modal-tag">{product}</span>}
+        <div className="honeypot" aria-hidden="true">
+          <label>Do not fill this<input name="website" tabIndex={-1} autoComplete="off" /></label>
+        </div>
+        <div className="field row2">
+          <div className="field">
+            <label htmlFor="eq-name">Full name *</label>
+            <input id="eq-name" name="full_name" required autoComplete="name" ref={firstFieldRef} />
+          </div>
+          <div className="field">
+            <label htmlFor="eq-company">Company</label>
+            <input id="eq-company" name="company" autoComplete="organization" />
+          </div>
+        </div>
+        <div className="field row2">
+          <div className="field">
+            <label htmlFor="eq-email">Email *</label>
+            <input id="eq-email" type="email" name="email" required autoComplete="email" />
+          </div>
+          <div className="field">
+            <label htmlFor="eq-phone">Phone</label>
+            <input id="eq-phone" type="tel" name="phone" autoComplete="tel" />
+          </div>
         </div>
         <div className="field">
-          <label htmlFor="eq-company">Company</label>
-          <input id="eq-company" name="company" autoComplete="organization" />
+          <label htmlFor="eq-msg">Your requirement</label>
+          <textarea id="eq-msg" name="message" placeholder="Service needed, equipment, site, timeline..." />
         </div>
       </div>
-      <div className="field row2">
-        <div className="field">
-          <label htmlFor="eq-email">Email *</label>
-          <input id="eq-email" type="email" name="email" required autoComplete="email" />
-        </div>
-        <div className="field">
-          <label htmlFor="eq-phone">Phone</label>
-          <input id="eq-phone" type="tel" name="phone" autoComplete="tel" />
-        </div>
-      </div>
-      <div className="field">
-        <label htmlFor="eq-msg">Your requirement</label>
-        <textarea id="eq-msg" name="message" placeholder="Service needed, equipment, site, timeline..." />
-      </div>
-      {status === "error" && <p className="modal-note modal-note--error">{errorMsg}</p>}
-      <div className="modal-actions">
+      <div className="modal-foot">
+        {status === "error" && <p className="modal-note modal-note--error" role="alert">{errorMsg}</p>}
         <button className="btn btn--primary" type="submit" disabled={status === "sending"}>
           {status === "sending" ? "Sending..." : "Send enquiry"} <Icon name="arrow" />
         </button>
-        <span className="modal-note">We reply within one business day. Your details are used only to answer this enquiry.</span>
+        <p className="modal-note">
+          Your details are used only to answer this enquiry.
+          {type === "technical" && (
+            <> Or email <a href={`mailto:${SITE.contact.technicalEmail}`}>{SITE.contact.technicalEmail}</a>.</>
+          )}
+        </p>
       </div>
     </form>
   );
