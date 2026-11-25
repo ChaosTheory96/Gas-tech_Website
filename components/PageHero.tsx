@@ -16,11 +16,13 @@ type PageHeroProps = {
   aside?: ReactNode;
   /** the aside is a photograph: no padding, image fills the card */
   asideMedia?: boolean;
+  /** the aside brings its own panels: no card chrome around it */
+  asideBare?: boolean;
   compact?: boolean;
   center?: boolean;
 } & ({ crumbs: Crumb[]; eyebrow?: never } | { eyebrow: string; crumbs?: never });
 
-export function PageHero({ title, lede, primary, secondary, aside, asideMedia, compact, center, crumbs, eyebrow }: PageHeroProps) {
+export function PageHero({ title, lede, primary, secondary, aside, asideMedia, asideBare, compact, center, crumbs, eyebrow }: PageHeroProps) {
   const cls = ["page-hero", compact && "page-hero--compact", aside && "page-hero--aside", center && !aside && "page-hero--center"]
     .filter(Boolean)
     .join(" ");
@@ -49,7 +51,7 @@ export function PageHero({ title, lede, primary, secondary, aside, asideMedia, c
             </div>
           )}
         </div>
-        {aside && <aside className={asideMedia ? "page-hero-aside page-hero-aside--media" : "page-hero-aside"} data-reveal>{aside}</aside>}
+        {aside && <aside className={asideMedia ? "page-hero-aside page-hero-aside--media" : asideBare ? "page-hero-aside page-hero-aside--bare" : "page-hero-aside"} data-reveal>{aside}</aside>}
       </div>
     </section>
   );

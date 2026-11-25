@@ -37,6 +37,7 @@
 
   /* ---- BRAND: signal red (moodboard Primary Red; accent, never a fill flood) ---- */
   --brand:#E6392D; --brand-hover:#F04C40; --brand-active:#C92C22;
+  --brand-lift:var(--brand-hover); /* button hover fill: lighter than the idle red */
   --brand-subtle-bg:#2A1310; --brand-subtle-text:#F4907F;
   --brand-fg:#FFFFFF;                    /* white on red; bold/large per AA */
   --brand-range-bg:color-mix(in srgb, var(--brand) 16%, transparent); /* datepicker range band; adapts per theme */
@@ -257,7 +258,7 @@
 
 [data-theme="light"] {
   /* ---- SURFACES (client direction: WHITE base, COOL near-white for depth — warm brown retired) ---- */
-  --bg-page:#FFFFFF; --bg-surface:#F4F6F8; --bg-elevated:#FFFFFF; --bg-sunken:#EAEFF4;
+  --bg-page:#FFFFFF; --bg-surface:color-mix(in srgb, var(--brand) 3%, var(--bg-page)); --bg-elevated:#FFFFFF; --bg-sunken:color-mix(in srgb, var(--brand) 6%, var(--bg-page)); /* warm whites derived from the brand, no blue-grey */
 
   --border-subtle:rgba(20,24,29,.065); --border-default:rgba(20,24,29,.11); --border-strong:rgba(20,24,29,.18); /* production alpha hairlines — values moved here from the enhancements.css S-block (Phase 3 fork collapse; rendering unchanged) */
 
@@ -265,6 +266,7 @@
 
   /* ---- BRAND (deeper red on light for contrast; still accent-only) ---- */
   --brand:#D42E22; --brand-hover:#B8271D; --brand-active:#9E211A;
+  --brand-lift:color-mix(in srgb, var(--brand) 82%, var(--brand-fg)); /* button hover fill: lighter than the idle red (--brand-hover stays the darker text red) */
   --brand-subtle-bg:#FCE9E6; --brand-subtle-text:#B8271D;
   --brand-fg:#FFFFFF;
 

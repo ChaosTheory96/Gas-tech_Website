@@ -236,13 +236,8 @@ export default function AboutUsPage() {
             <span className="line"><em>Gastech Combustions</em></span>
           </>}
           lede={<>Gastech Combustions Pvt Ltd is a Pune-based supplier and integrator of industrial combustion, gas regulation, metering and gas-safety systems. We engineer and manufacture our own gas trains, represent reputed global brands, and support the equipment from the first enquiry through years of service.</>}
-          primary={<EnquiryButton className="btn btn--primary fx-magnetic" type="sales" product="About Gastech">Request a Quote</EnquiryButton>}
-          secondary={<Link className="btn--tech" href="/services/">Our services <Icon name="arrow" /></Link>}
-          asideMedia
-          aside={
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={`${IMG}/gas-train/textile-stenter.jpg`} alt="Gas train built by Gastech for a textile stenter" loading="eager" decoding="async" />
-          }
+          primary={<Link className="btn btn--primary fx-magnetic" href="/services/">Our services <Icon name="arrow" /></Link>}
+          center
         />
 
         {/* 2 / STATEMENT */}

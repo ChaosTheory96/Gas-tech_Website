@@ -40,11 +40,7 @@ export default function ContactPage() {
           </>}
           lede={<>Tell us your gas type, duty and site. We will come back with a quotation, a site study or technical advice on burners, gas regulation, metering, valves, leak detection or hydrogen solutions.</>}
           primary={<EnquiryButton className="btn btn--primary" type="sales" product="Contact">Send an enquiry</EnquiryButton>}
-          aside={<>
-            <p className="hero-card-k">Corporate office</p>
-            <address className="map-address">{C.corporateAddress}</address>
-            <a className="hero-card-link" href={C.mapUrl} target="_blank" rel="noopener">Open in Google Maps <Icon name="arrow" /></a>
-          </>}
+          center
         />
 
         <section className="sec sec--dark contact-cta" id="reach" aria-labelledby="contact-h">

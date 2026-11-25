@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import { serviceSchema, collectionPageSchema, itemListSchema } from "@/lib/schema";
-import { SERVICE_LINES } from "@/lib/site";
 import { Icon } from "@/components/icons";
 import { SectionHead, JsonLd } from "@/components/blocks";
 import { EnquiryButton } from "@/components/enquiry";
@@ -107,14 +106,7 @@ export default function ServicesPage() {
           lede={<>Consultancy before you buy, installation and commissioning when you do, and maintenance contracts for the whole life of your gas system, all by our own team.</>}
           primary={<a className="btn btn--primary" href="#services">Explore services <Icon name="arrow" /></a>}
           secondary={<EnquiryButton className="btn--tech" type="technical" product="Service enquiry" icon="chat">Talk to our team</EnquiryButton>}
-          aside={<>
-            <p className="hero-card-k">Three service lines</p>
-            <ul className="brand-lockup" aria-label="Service lines">
-              {SERVICE_LINES.map((s) => (
-                <li key={s.num}><span className="brand-mark--text">{s.title}</span></li>
-              ))}
-            </ul>
-          </>}
+          center
         />
 
         {SERVICES.map((s, i) => (

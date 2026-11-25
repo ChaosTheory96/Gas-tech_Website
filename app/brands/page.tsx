@@ -7,7 +7,7 @@ import { Icon } from "@/components/icons";
 import { SectionHead, JsonLd } from "@/components/blocks";
 import { EnquiryButton } from "@/components/enquiry";
 import { PageHero } from "@/components/PageHero";
-import { BrandLockup } from "@/components/BrandLockup";
+import { BrandBento } from "@/components/BrandLockup";
 
 const BRANDS_DESCRIPTION = `Gastech Combustions is the authorised distributor of ${REPRESENTED_BRAND_LIST} in India, and builds its own gas trains in Pune. See each range.`;
 
@@ -118,10 +118,8 @@ export default function BrandsPage() {
           lede={<>Gastech Combustions is the Pune-based representative for world-class combustion and gas-safety manufacturers. We supply, size, install and service their equipment, and put the right brand and model against your duty.</>}
           primary={<a className="btn btn--primary" href="#pf">Explore the brands <Icon name="arrow" /></a>}
           secondary={<EnquiryButton className="btn--tech" type="technical" product="Brand enquiry" icon="chat">Talk to a brand specialist</EnquiryButton>}
-          aside={<>
-            <p className="hero-card-k">The brands</p>
-            <BrandLockup ids={BRAND_IDS} label="Brands in the Gastech range" />
-          </>}
+          asideBare
+          aside={<BrandBento ids={BRAND_IDS} label="Brands in the Gastech range" />}
         />
 
         <section className="sec sec--sunken" id="brands" aria-labelledby="bp-h">

@@ -30,3 +30,20 @@ export function BrandLockup({ ids, label, inline }: { ids: readonly BrandId[]; l
     </ul>
   );
 }
+
+/* Brands hero: one bento panel per brand. Layout, tone and the role label come
+   from the registry order and role, so a new brand only needs a registry entry. */
+const BENTO_TONE: Partial<Record<BrandId, string>> = { electrogas: " bb--ink", gastech: " bb--red", gasvigil: " bb--wide bb--soft" };
+
+export function BrandBento({ ids, label }: { ids: readonly BrandId[]; label: string }) {
+  return (
+    <ul className="brand-bento" aria-label={label}>
+      {ids.map((id) => (
+        <li className={`bb${BENTO_TONE[id] ?? ""}`} key={id}>
+          <span className="bb-k">{BRAND[id].role === "own" ? "Our own" : "Represented"}</span>
+          <BrandMark id={id} />
+        </li>
+      ))}
+    </ul>
+  );
+}

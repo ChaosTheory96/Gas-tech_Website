@@ -103,7 +103,6 @@ export default function ProductPage({ p }: { p: Product }) {
               <SpecStats specs={p.specs} />
               <div className="cta-dual">
                 <a className="btn btn--primary" href={hasRange ? "#range" : "#specs"}>See the range</a>
-                <EnquiryButton className="btn--tech" type="technical" product={p.h1} icon="chat">Discuss technical specs</EnquiryButton>
               </div>
             </div>
 
@@ -114,7 +113,7 @@ export default function ProductPage({ p }: { p: Product }) {
               maxPerView={1}
               captions={p.slides.map((s) => s.cap)}
               slides={p.slides.map((s) => (
-                <div className="pcar-slide" key={s.src}>
+                <div className="pcar-slide" key={s.src} style={{ ["--bg" as string]: `url("${s.src}")` }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={s.src} alt={s.alt} loading="lazy" decoding="async" />
                 </div>
