@@ -49,16 +49,35 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isOpen) return;
+    // the page behind the dialog is unreachable until it closes
+    const behind = Array.from(document.querySelectorAll<HTMLElement>(".skip, .site-head, main, .site-foot"));
+    behind.forEach((el) => el.setAttribute("inert", ""));
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
+      if (e.key === "Escape") return close();
+      if (e.key !== "Tab") return;
+      // keep keyboard focus inside the dialog
+      const panel = document.querySelector<HTMLElement>(".modal-panel");
+      if (!panel) return;
+      const stops = Array.from(panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([tabindex="-1"]), textarea'));
+      const first = stops[0];
+      const last = stops[stops.length - 1];
+      const inside = panel.contains(document.activeElement);
+      if (e.shiftKey && (document.activeElement === first || !inside)) {
+        e.preventDefault();
+        last?.focus();
+      } else if (!e.shiftKey && (document.activeElement === last || !inside)) {
+        e.preventDefault();
+        first?.focus();
+      }
     };
-    document.body.style.overflow = "hidden";
+    document.documentElement.classList.add("modal-lock"); // holds the page, and the eased scroller, still
     document.addEventListener("keydown", onKey);
     const t = window.setTimeout(() => firstFieldRef.current?.focus({ preventScroll: true }), 40);
     return () => {
-      document.body.style.overflow = "";
+      document.documentElement.classList.remove("modal-lock");
       document.removeEventListener("keydown", onKey);
       window.clearTimeout(t);
+      behind.forEach((el) => el.removeAttribute("inert"));
       lastFocused.current?.focus?.();
     };
   }, [isOpen, close]);
@@ -73,7 +92,7 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
       {isOpen && (
         <div className="modal open" id="enquiry-modal" role="dialog" aria-modal="true" aria-labelledby="eq-title">
           <div className="modal-backdrop" onClick={close} />
-          <div className="modal-panel">
+          <div className="modal-panel" data-lenis-prevent>
             <div className="modal-head">
               <h2 id="eq-title">{title}</h2>
               <button className="modal-x" type="button" onClick={close} aria-label="Close">&times;</button>
@@ -84,7 +103,7 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
                   <div className="tick"><Icon name="check" /></div>
                   <p className="modal-done-title">Thank you</p>
                   <p className="m-sub">We have received your enquiry. Our team will get back to you shortly.</p>
-                  <button className="btn btn--primary" type="button" onClick={close}>Close</button>
+                  <button className="btn btn--primary" type="button" onClick={close} autoFocus>Close</button>
                 </div>
               </div>
             ) : (
@@ -101,6 +120,28 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
       )}
     </EnquiryContext.Provider>
   );
+}
+
+type FieldErrors = { full_name?: string; email?: string };
+
+function checkFields(data: FormData): FieldErrors {
+  const errors: FieldErrors = {};
+  const email = String(data.get("email") ?? "").trim();
+  if (!String(data.get("full_name") ?? "").trim()) errors.full_name = "Please enter your name.";
+  if (!email) errors.email = "Please enter your email address.";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "That email address does not look right.";
+  return errors;
+}
+
+const describe = (name: keyof FieldErrors, errors: FieldErrors) =>
+  errors[name] ? { "aria-invalid": true, "aria-describedby": `eq-err-${name}` } : {};
+
+function FieldError({ name, errors }: { name: keyof FieldErrors; errors: FieldErrors }) {
+  return errors[name] ? (
+    <p className="field-error" id={`eq-err-${name}`} role="alert">
+      {errors[name]}
+    </p>
+  ) : null;
 }
 
 /** Context labels that only repeat the heading; anything more specific is shown. */
@@ -120,6 +161,9 @@ function EnquiryForm({
   firstFieldRef: React.RefObject<HTMLInputElement>;
 }) {
   const [errorMsg, setErrorMsg] = useState("");
+  const [invalid, setInvalid] = useState<FieldErrors>({});
+
+  const inbox = type === "technical" ? SITE.contact.technicalEmail : SITE.contact.salesEmail;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -128,6 +172,13 @@ function EnquiryForm({
     // honeypot: silently drop bots
     if ((data.get("website") as string)?.length) {
       setStatus("done");
+      return;
+    }
+    const errors = checkFields(data);
+    setInvalid(errors);
+    const first = Object.keys(errors)[0];
+    if (first) {
+      form.querySelector<HTMLElement>(`[name="${first}"]`)?.focus();
       return;
     }
     setStatus("sending");
@@ -157,7 +208,15 @@ function EnquiryForm({
   }
 
   return (
-    <form className="modal-form" onSubmit={onSubmit} noValidate>
+    <form
+      className="modal-form"
+      onSubmit={onSubmit}
+      onChange={(e) => {
+        const name = (e.target as HTMLInputElement).name as keyof FieldErrors;
+        if (invalid[name]) setInvalid({ ...invalid, [name]: undefined });
+      }}
+      noValidate
+    >
       <div className="modal-body">
         <p className="m-sub">
           {type === "technical"
@@ -171,7 +230,8 @@ function EnquiryForm({
         <div className="field row2">
           <div className="field">
             <label htmlFor="eq-name">Full name *</label>
-            <input id="eq-name" name="full_name" required autoComplete="name" ref={firstFieldRef} />
+            <input id="eq-name" name="full_name" required autoComplete="name" ref={firstFieldRef} {...describe("full_name", invalid)} />
+            <FieldError name="full_name" errors={invalid} />
           </div>
           <div className="field">
             <label htmlFor="eq-company">Company</label>
@@ -181,7 +241,8 @@ function EnquiryForm({
         <div className="field row2">
           <div className="field">
             <label htmlFor="eq-email">Email *</label>
-            <input id="eq-email" type="email" name="email" required autoComplete="email" />
+            <input id="eq-email" type="email" name="email" required autoComplete="email" {...describe("email", invalid)} />
+            <FieldError name="email" errors={invalid} />
           </div>
           <div className="field">
             <label htmlFor="eq-phone">Phone</label>
@@ -194,7 +255,11 @@ function EnquiryForm({
         </div>
       </div>
       <div className="modal-foot">
-        {status === "error" && <p className="modal-note modal-note--error" role="alert">{errorMsg}</p>}
+        {status === "error" && (
+          <p className="modal-note modal-note--error" role="alert">
+            {errorMsg} You can also email <a href={`mailto:${inbox}`}>{inbox}</a>.
+          </p>
+        )}
         <button className="btn btn--primary" type="submit" disabled={status === "sending"}>
           {status === "sending" ? "Sending..." : "Send enquiry"} <Icon name="arrow" />
         </button>

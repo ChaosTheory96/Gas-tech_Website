@@ -7,14 +7,15 @@
 import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import { SITE, BRAND, GASTECH_SCOPE } from "@/lib/site";
-import { getProduct, type Product } from "@/lib/products";
+import { getProduct, productShots, type Product } from "@/lib/products";
 import { productGraph } from "@/lib/schema";
 import { SectionHead, JsonLd } from "@/components/blocks";
 import { BrandLockup } from "@/components/BrandLockup";
-import { Carousel } from "@/components/carousel";
+import { ProductCard } from "@/components/cards/ProductCard";
+import { ProductCarousel } from "@/components/cards/ProductCarousel";
+import { StageCards } from "@/components/cards/StageCards";
 import { EnquiryButton } from "@/components/enquiry";
 import FaqAccordion from "@/components/FaqAccordion";
-import DatasheetRange from "@/components/DatasheetRange";
 import SpecTable from "@/components/SpecTable";
 import KeyValueTable from "@/components/KeyValueTable";
 import SpecStats from "@/components/SpecStats";
@@ -51,12 +52,21 @@ export function segmentsUnder(p: Product, prefix: string): string[] {
   return p.route.slice(prefix.length).replace(/\/$/, "").split("/");
 }
 
+const SECTION_NAMES: Record<string, string> = {
+  range: "Range",
+  design: "Pressure",
+  assembly: "Assembly",
+  compare: "Compare",
+  specs: "Specifications",
+  hydrogen: "Hydrogen",
+  faq: "Questions",
+};
+
 export default function ProductPage({ p }: { p: Product }) {
   const crumbs = productCrumbs(p);
   const related = p.related.map(getProduct).filter(Boolean) as Product[];
-  const gt = p.slug === "gas-trains"; // red emphasis panels
   const hasRange = p.variants.length > 0 || !!p.types;
-  const red = gt ? " p-panel p-panel--red" : "";
+  const redStage = p.slug === "gas-trains"; // gas train photos stand on brand red
   // enquiry-card facts: the brand plus the hero figures, equal labels merged
   const factMap = new Map<string, string[]>([["Brand", [p.brand]]]);
   p.specs.forEach((s) => factMap.set(s.label, [...(factMap.get(s.label) ?? []), s.value]));
@@ -77,6 +87,26 @@ export default function ProductPage({ p }: { p: Product }) {
           .filter(Boolean) as { value: number; unit: string; name: string; sub?: string }[])
       : null;
 
+  // Red emphasis panels alternate upwards from the FAQ, which is always red.
+  const order = [
+    hasRange && "range",
+    archData && archData.length >= 2 && "design",
+    p.assembly && "assembly",
+    p.columns && "compare",
+    "specs",
+    p.hydrogen && "hydrogen",
+    "faq",
+  ].filter(Boolean) as string[];
+  // The assembly section stays white so its cards can turn red on hover; the section before it takes the red.
+  const redPanels = new Set<string>();
+  let wantRed = true;
+  for (const id of [...order].reverse()) {
+    const isRed: boolean = id !== "assembly" && wantRed;
+    if (isRed) redPanels.add(id);
+    wantRed = !isRed;
+  }
+  const panel = (id: string) => (redPanels.has(id) ? " p-panel p-panel--red" : "");
+
   return (
     <>
       {/* Sheet-exact graph: each product route emits only the types listed in
@@ -84,7 +114,7 @@ export default function ProductPage({ p }: { p: Product }) {
       <JsonLd data={productGraph(p, crumbs)} />
       <main id="main">
         {/* PRODUCT HERO */}
-        <section className={`p-hero${p.brand === BRAND.pf.name ? " p-hero--usp p-hero--pf" : p.slug === "gas-trains" ? " p-hero--usp p-hero--gt" : ""}`}>
+        <section className="p-hero p-hero--usp">
           <div className="wrap p-hero-grid">
             <div className="p-hero-copy" data-reveal>
               <nav className="p-crumb" aria-label="Breadcrumb">
@@ -106,19 +136,7 @@ export default function ProductPage({ p }: { p: Product }) {
               </div>
             </div>
 
-            <Carousel
-              className="pcar"
-              viewportClassName="pcar-viewport"
-              trackClassName="pcar-track"
-              maxPerView={1}
-              captions={p.slides.map((s) => s.cap)}
-              slides={p.slides.map((s) => (
-                <div className="pcar-slide" key={s.src} style={{ ["--bg" as string]: `url("${s.src}")` }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={s.src} alt={s.alt} loading="lazy" decoding="async" />
-                </div>
-              ))}
-            />
+            <ProductCarousel slides={p.slides} tag={p.card.tag} brand={p.brandIds[0]} red={redStage} />
           </div>
         </section>
 
@@ -126,13 +144,29 @@ export default function ProductPage({ p }: { p: Product }) {
           <div className="p-main">
             {/* MODEL RANGE */}
             {p.variants.length > 0 && (
-              <section className="p-sec" id="range">
+              <section className={`p-sec${panel("range")}`} id="range">
                 <SectionHead eyebrow={p.modelEyebrow} title={p.modelTitle} sub={p.modelSub} />
-                <DatasheetRange variants={p.variants} cols={p.grid} />
+                <div className={redStage ? "pc-grid pc-grid--wide" : "pc-grid pc-grid--2"} data-stagger>
+                  {p.variants.map((v) => (
+                    <ProductCard
+                      key={v.title}
+                      title={v.title}
+                      line={v.desc}
+                      tag={v.kicker}
+                      brand={p.brandIds[0]}
+                      shots={v.img ? [{ src: v.img, alt: v.alt ?? v.title }] : []}
+                      red={redStage}
+                      fact={v.spec}
+                      sub={v.sub}
+                      list={v.list}
+                      action={<EnquiryButton className="pc-go" type="technical" product={`${p.h1}: ${v.title}`}>Enquire</EnquiryButton>}
+                    />
+                  ))}
+                </div>
               </section>
             )}
             {p.types && (
-              <section className="p-sec" id="range">
+              <section className={`p-sec${panel("range")}`} id="range">
                 <SectionHead eyebrow={p.modelEyebrow} title={p.modelTitle} sub={p.modelSub} />
                 <TypeTiles types={p.types} brand={p.brand} />
               </section>
@@ -140,49 +174,51 @@ export default function ProductPage({ p }: { p: Product }) {
 
             {/* ARCH CHART (real per-family design pressure, pressure-regulators only) */}
             {archData && archData.length >= 2 && (
-              <section className="p-sec" id="design">
+              <section className={`p-sec${panel("design")}`} id="design">
                 <SectionHead
                   eyebrow="Design pressure"
                   title={<>Three families, <u>drawn to scale.</u></>}
                   sub="Arch height is linear to the maximum design pressure of each Pietro Fiorentini regulator family."
                 />
-                <ArchChart data={archData} note="Linear scale · bar, max design pressure per family" />
+                <div className="p-surface" data-reveal><ArchChart data={archData} note="Linear scale · bar, max design pressure per family" /></div>
               </section>
             )}
 
             {/* ASSEMBLY (gas trains) */}
             {p.assembly && (
-              <section className={`p-sec${red}`} id="assembly">
+              <section className={`p-sec${panel("assembly")}`} id="assembly">
                 <SectionHead eyebrow="Assembly" title={<>What goes into the train.</>} sub="A complete skid-mounted assembly, incorporating the control and safety devices your application requires." />
-                <DatasheetRange variants={p.assembly} flow />
+                <StageCards items={p.assembly} />
               </section>
             )}
 
             {/* COMPARISON TABLE */}
             {p.columns && (
-              <section className="p-sec" id="compare">
+              <section className={`p-sec${panel("compare")}`} id="compare">
                 <SectionHead eyebrow={p.specEyebrow} title={p.specTitle} />
-                <SpecTable columns={p.columns} />
+                <div className="p-surface" data-reveal><SpecTable columns={p.columns} /></div>
               </section>
             )}
 
             {/* SPECIFICATIONS (key/value table) */}
-            <section className="p-sec" id="specs">
+            <section className={`p-sec${panel("specs")}`} id="specs">
               <SectionHead eyebrow={p.columns ? "At a glance" : p.specEyebrow} title={p.columns ? "Selection notes." : p.specTitle} />
-              <KeyValueTable rows={p.specRows} />
-              <p className="p-scope"><b>Gastech scope.</b> {GASTECH_SCOPE}</p>
+              <div className="p-surface" data-reveal>
+                <KeyValueTable rows={p.specRows} />
+                <p className="p-scope"><b>Gastech scope.</b> {GASTECH_SCOPE}</p>
+              </div>
             </section>
 
             {/* HYDROGEN (client item 4: regulation for up to 100% H2) */}
             {p.hydrogen && (
-              <section className="p-sec p-panel p-panel--tint" id="hydrogen">
+              <section className={`p-sec${panel("hydrogen") || " p-panel p-panel--tint"}`} id="hydrogen">
                 <SectionHead eyebrow={p.hydrogen.eyebrow} title={p.hydrogen.title} sub={p.hydrogen.sub} />
-                <KeyValueTable rows={p.hydrogen.rows} />
+                <div className="p-surface" data-reveal><KeyValueTable rows={p.hydrogen.rows} /></div>
               </section>
             )}
 
             {/* FAQ (AEO / GEO) */}
-            <section className={`p-sec${red}`} id="faq" aria-labelledby="faq-h">
+            <section className={`p-sec${panel("faq")}`} id="faq" aria-labelledby="faq-h">
               <SectionHead eyebrow="Questions" title={<>Common questions <u>answered.</u></>} />
               <FaqAccordion faqs={p.faq} />
             </section>
@@ -190,10 +226,15 @@ export default function ProductPage({ p }: { p: Product }) {
 
           {/* ENQUIRE: sticky beside the range, specs and FAQ */}
           <aside className="p-side" id="enquire" aria-label="Enquire">
-            <h3>Get the right {p.navLabel.toLowerCase()}</h3>
+            <h3>Get the right {p.askFor ?? p.navLabel.toLowerCase()}</h3>
             <p>Ask for a quotation, or reach a technical engineer for custom products, specifications and sizing.</p>
             <EnquiryButton className="btn btn--primary" type="sales" product={p.h1}>Request a quote</EnquiryButton>
             <EnquiryButton className="btn--tech" type="technical" product={p.h1} icon="chat">Discuss technical specs</EnquiryButton>
+            <nav className="p-spy" aria-label="On this page">
+              {order.filter((id) => SECTION_NAMES[id]).map((id) => (
+                <a key={id} href={`#${id}`} data-spy>{SECTION_NAMES[id]}</a>
+              ))}
+            </nav>
             <dl className="p-side-facts">
               {facts.map(([k, v]) => (
                 <div key={k}><dt>{k}</dt><dd>{v}</dd></div>
@@ -207,12 +248,9 @@ export default function ProductPage({ p }: { p: Product }) {
           <section className="sec sec--sunken">
             <div className="wrap">
               <SectionHead eyebrow="Explore more" title={<>Related products.</>} />
-              <div className="rel-grid" data-stagger>
+              <div className="pc-grid pc-grid--4" data-stagger>
                 {related.map((r) => (
-                  <Link className="rel-card" key={r.slug} href={r.route} scroll={false}>
-                    <div className="rc-media">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={r.slides[0]?.src} alt={r.slides[0]?.alt ?? r.h1} loading="lazy" decoding="async" /></div>
-                    <div className="rc-body"><span>{r.brand}</span><h3>{r.navLabel}</h3></div>
-                  </Link>
+                  <ProductCard key={r.slug} title={r.navLabel} line={r.card.line} tag={r.card.tag} brand={r.brandIds[0]} shots={productShots(r)} red={r.slug === "gas-trains"} fact={r.card.fact} href={r.route} />
                 ))}
               </div>
             </div>

@@ -5,6 +5,7 @@
    --------------------------------------------------------------------------- */
 
 import { BRAND } from "./site";
+import { cutout } from "./cutouts";
 
 export type Spec = { value: string; label: string };
 export type Slide = { cap: string; src: string; alt: string };
@@ -18,6 +19,7 @@ export type Variant = {
   list?: string[];
   img?: string; // product image shown on the range card
   alt?: string;
+  icon?: string; // assembly stages: the icon on the stage card
 };
 export type TableRow = { k: string; v: string };
 export type ColumnsTable = { headers: string[]; rows: string[][] };
@@ -30,6 +32,8 @@ export type Product = {
   /** Canonical live path, trailing slash included, per the client URL scheme. */
   route: string;
   navLabel: string;
+  /** wording on product cards: category tag, one line, one fact */
+  card: { tag: string; line: string; fact: string };
   brand: string;
   brandline: [string, string];
   /** brand marks shown in the hero, in registry order */
@@ -55,17 +59,28 @@ export type Product = {
   generalRows?: TableRow[];
   related: string[];
   faq: Faq[];
+  /** wording after "Get the right" on the enquiry card, when the lowercased navLabel would read wrongly */
+  askFor?: string;
   /** optional extra section after the specifications (e.g. hydrogen duty) */
   hydrogen?: { eyebrow: string; title: string; sub: string; rows: TableRow[] };
 };
 
-const IMG = "/images"; // self-hosted mirror of gastechcombustions.in/images — run `node qa/_fetch-assets.mjs` to populate public/images
+const IMG = "/images";  // self-hosted copy of the catalogue images
 
-export const PRODUCTS: Product[] = [
+/* The client-named Electrogas categories, shared by the valves page and the brand page. */
+const VALVE_TYPES: NonNullable<Product["types"]> = [
+  { id: "solenoid", label: "Solenoid valves" },
+  { id: "motorised", label: "Motorised valves" },
+  { id: "butterfly", label: "Butterfly valves" },
+  { id: "port", label: "Port valves" },
+];
+
+const ALL_PRODUCTS: Product[] = [
   {
     slug: "gas-burners",
     route: "/products/burners/gas-burners/",
     navLabel: "Gas Burners",
+    card: { tag: "Combustion", line: "Natural gas and LPG, in four firing modes.", fact: "11 to 4885 kW" },
     brand: BRAND.riello.name,
     brandline: [BRAND.riello.name, "Industrial Burners"],
     brandIds: ["riello"],
@@ -81,19 +96,18 @@ export const PRODUCTS: Product[] = [
       { value: "Boilers", label: "Steam & hot-water" },
     ],
     slides: [
-      { cap: "One-stage gas burner / 11 to 220 kW", src: `${IMG}/burner/riello-burner/light-oil-product/gas-burner-ONE-STAGE.jpg`, alt: "Riello one-stage gas burner" },
-      { cap: "Two-stage gas burner / 130 to 3200 kW", src: `${IMG}/burner/riello-burner/light-oil-product/gas-burner-TWO-STAGE.jpg`, alt: "Riello two-stage gas burner" },
-      { cap: "Modulating gas burner / 130 to 4885 kW", src: `${IMG}/burner/riello-burner/light-oil-product/gas-burner-MODULATING.jpg`, alt: "Riello modulating gas burner" },
+      { cap: "Riello gas burner / Brochure image 1", src: "/images/brochure/burners/gas-01.jpeg", alt: "Riello gas burner as shown in the Gastech brochure" },
+      { cap: "Riello gas burner / Brochure image 2", src: "/images/brochure/burners/gas-02.jpeg", alt: "Riello gas burner as shown in the Gastech brochure" },
     ],
     modelEyebrow: "Model range",
     modelTitle: "Four firing modes, one gas fuel.",
     modelSub: "Capacities below are from the Gastech range. Every burner is matched to your boiler, output and duty.",
     grid: 4,
     variants: [
-      { idx: "01", kicker: "On / Off", title: "One-Stage", img: "/images/burner/riello-burner/light-oil-product/gas-burner-ONE-STAGE.jpg", alt: "Riello one-stage gas burner", spec: "11 to 220 kW", desc: "Single-output firing for steady heat demand in small boilers and light heating duty." },
-      { idx: "02", kicker: "High / Low", title: "Two-Stage", img: "/images/burner/riello-burner/light-oil-product/gas-burner-TWO-STAGE.jpg", alt: "Riello two-stage gas burner", spec: "130 to 3200 kW", desc: "Two output levels match demand more closely across mid-sized civil and industrial boilers." },
-      { idx: "03", kicker: "Stepped", title: "Two-Stage Progressive", img: "/images/burner/gas-burner.png", alt: "Riello progressive gas burner", spec: "45 to 2290 kW", desc: "Progressive two-step control for smoother capacity modulation than simple high / low firing." },
-      { idx: "04", kicker: "Continuous", title: "Modulating", img: "/images/burner/riello-burner/light-oil-product/gas-burner-MODULATING.jpg", alt: "Riello modulating gas burner", spec: "130 to 4885 kW", desc: "Continuous output control for hot-water, steam and medium-temperature boilers under varying load." },
+      { idx: "01", kicker: "On / Off", title: "One-Stage", spec: "11 to 220 kW", desc: "Single-output firing for steady heat demand in small boilers and light heating duty." },
+      { idx: "02", kicker: "High / Low", title: "Two-Stage", spec: "130 to 3200 kW", desc: "Two output levels match demand more closely across mid-sized civil and industrial boilers." },
+      { idx: "03", kicker: "Stepped", title: "Two-Stage Progressive", spec: "45 to 2290 kW", desc: "Progressive two-step control for smoother capacity modulation than simple high / low firing." },
+      { idx: "04", kicker: "Continuous", title: "Modulating", spec: "130 to 4885 kW", desc: "Continuous output control for hot-water, steam and medium-temperature boilers under varying load." },
     ],
     specEyebrow: "Specifications",
     specTitle: "Sized to your duty.",
@@ -114,6 +128,7 @@ export const PRODUCTS: Product[] = [
     slug: "light-oil-burners",
     route: "/products/burners/oil-burners/",
     navLabel: "Oil Burners",
+    card: { tag: "Combustion", line: "Gasoil and kerosene, one-stage to modulating.", fact: "14 to 5340 kW" },
     brand: BRAND.riello.name,
     brandline: [BRAND.riello.name, "Oil Burners"],
     brandIds: ["riello"],
@@ -129,32 +144,30 @@ export const PRODUCTS: Product[] = [
       { value: "Boilers", label: "Steam & hot-water" },
     ],
     slides: [
-      { cap: "One-stage light oil burner / 23.8 to 240 kW", src: `${IMG}/burner/riello-burner/light-oil-burner-01-stage.jpg`, alt: "Riello one-stage light oil burner" },
-      { cap: "Two-stage light oil burner / 14 to 296 kW", src: `${IMG}/burner/riello-burner/light-oil-burner-02-stage.jpg`, alt: "Riello two-stage light oil burner" },
-      { cap: "Three-stage light oil burner / 830 to 5340 kW", src: `${IMG}/burner/riello-burner/light-oil-burner-03-stage.jpg`, alt: "Riello three-stage light oil burner" },
-      { cap: "Modulating light oil burner / 415 to 4340 kW", src: `${IMG}/burner/riello-burner/light-oil-product/gas-burner-MODULATING.jpg`, alt: "Riello modulating light oil burner" },
+      { cap: "Riello light-oil burner / Brochure image 1", src: "/images/brochure/burners/light-oil-01.jpeg", alt: "Riello light-oil burner as shown in the Gastech brochure" },
+      { cap: "Riello light-oil burner / Brochure image 2", src: "/images/brochure/burners/light-oil-02.jpeg", alt: "Riello light-oil burner as shown in the Gastech brochure" },
     ],
     modelEyebrow: "Model range",
     modelTitle: "Four firing modes, one light fuel.",
     modelSub: "Capacities below are from the Gastech light oil range. Every burner is matched to your boiler, output and duty.",
     grid: 4,
     variants: [
-      { idx: "01", kicker: "On / Off", title: "One-Stage", img: "/images/burner/riello-burner/light-oil-burner-01-stage.jpg", alt: "Riello one-stage light oil burner", spec: "23.8 to 240 kW", desc: "Single-output firing for steady heat demand in small boilers and light heating duty." },
-      { idx: "02", kicker: "High / Low", title: "Two-Stage", img: "/images/burner/riello-burner/light-oil-burner-02-stage.jpg", alt: "Riello two-stage light oil burner", spec: "14 to 296 kW", desc: "Two output levels match demand more closely across civil and light-industrial boilers." },
-      { idx: "03", kicker: "Stepped", title: "Three-Stage", img: "/images/burner/riello-burner/light-oil-burner-03-stage.jpg", alt: "Riello three-stage light oil burner", spec: "830 to 5340 kW", desc: "Three output steps give finer capacity control for larger steam and hot-water boilers." },
-      { idx: "04", kicker: "Continuous", title: "Modulating", img: "/images/burner/riello-burner/light-oil-product/gas-burner-MODULATING.jpg", alt: "Riello modulating light oil burner", spec: "415 to 4340 kW", desc: "Continuous output control holds set temperature or pressure under varying load." },
+      { idx: "01", kicker: "On / Off", title: "One-Stage", spec: "23.8 to 240 kW", desc: "Single-output firing for steady heat demand in small boilers and light heating duty." },
+      { idx: "02", kicker: "High / Low", title: "Two-Stage", spec: "14 to 296 kW", desc: "Two output levels match demand more closely across civil and light-industrial boilers." },
+      { idx: "03", kicker: "Stepped", title: "Three-Stage", spec: "830 to 5340 kW", desc: "Three output steps give finer capacity control for larger steam and hot-water boilers." },
+      { idx: "04", kicker: "Continuous", title: "Modulating", spec: "415 to 4340 kW", desc: "Continuous output control holds set temperature or pressure under varying load." },
     ],
     specEyebrow: "Specifications",
     specTitle: "Sized to your duty.",
     specRows: [
       { k: "Brand", v: BRAND.riello.name },
-      { k: "Fuels", v: "Light oil: gasoil, kerosene (desktop fuel oil)" },
+      { k: "Fuels", v: "Light oil" },
       { k: "Applications", v: "Steam boilers, hot-water boilers, process and diathermic heating" },
     ],
     related: ["gas-trains", "gas-burners", "dual-fuel-burners", "pressure-regulators"],
     faq: [
-      { q: "What fuels do light oil burners use?", a: "They fire on light oil fuels such as gasoil and kerosene (desktop fuel oil)." },
-      { q: "Can one boiler run on gas and oil?", a: "Yes, with a dual-fuel burner, which fires gas, light oil or both." },
+      { q: "What fuels do light oil burners use?", a: "They fire on light oil." },
+      { q: "Can one boiler run on gas and oil?", a: "Yes, with a dual-fuel burner, which is designed for dual-fuel operation." },
       { q: "Where are they applied?", a: "Steam boilers, hot-water boilers and process / diathermic heating duty." },
     ],
   },
@@ -162,6 +175,7 @@ export const PRODUCTS: Product[] = [
     slug: "dual-fuel-burners",
     route: "/products/burners/dual-fuel-burners/",
     navLabel: "Dual Fuel Burners",
+    card: { tag: "Combustion", line: "Gas and light oil, for fuel security.", fact: "163 to 5000 kW" },
     brand: BRAND.riello.name,
     brandline: [BRAND.riello.name, "Dual Fuel"],
     brandIds: ["riello"],
@@ -177,28 +191,28 @@ export const PRODUCTS: Product[] = [
       { value: "Fuel backup", label: "Run-through security" },
     ],
     slides: [
-      { cap: "Two-stage dual fuel burner / 163 to 1395 kW", src: `${IMG}/burner/riello-burner/light-oil-product/dual-fuel-two-stage.jpg`, alt: "Riello two-stage dual fuel burner" },
-      { cap: "Modulating dual fuel burner / 407 to 5000 kW", src: `${IMG}/burner/riello-burner/light-oil-product/dual-fuel-modulating.jpg`, alt: "Riello modulating dual fuel burner" },
+      { cap: "Riello dual-fuel burner / Brochure image 1", src: "/images/brochure/burners/dual-fuel-01.jpeg", alt: "Riello dual-fuel burner as shown in the Gastech brochure" },
+      { cap: "Riello dual-fuel burner / Brochure image 2", src: "/images/brochure/burners/dual-fuel-02.jpeg", alt: "Riello dual-fuel burner as shown in the Gastech brochure" },
     ],
     modelEyebrow: "Model range",
     modelTitle: "Two fuels, two control modes.",
     modelSub: "Capacities below are from the Gastech dual fuel range. Every burner is matched to your boiler, fuels and duty.",
     grid: 3,
     variants: [
-      { idx: "01", kicker: "High / Low", title: "Two-Stage", img: "/images/burner/riello-burner/light-oil-product/dual-fuel-two-stage.jpg", alt: "Riello two-stage dual fuel burner", spec: "163 to 1395 kW", desc: "Two output levels fired on gas or oil, matching demand across civil and industrial boilers." },
-      { idx: "02", kicker: "Continuous", title: "Modulating", img: "/images/burner/riello-burner/light-oil-product/dual-fuel-modulating.jpg", alt: "Riello modulating dual fuel burner", spec: "407 to 5000 kW", desc: "Continuous output control holds set temperature or pressure while switching between fuels." },
+      { idx: "01", kicker: "High / Low", title: "Two-Stage", spec: "163 to 1395 kW", desc: "Two output levels fired on gas or oil, matching demand across civil and industrial boilers." },
+      { idx: "02", kicker: "Continuous", title: "Modulating", spec: "407 to 5000 kW", desc: "Continuous output control holds set temperature or pressure while switching between fuels." },
       { idx: "03", kicker: "Fuel security", title: "Why dual fuel", img: "/images/gas-train/genset-dual-fuel-kit.jpg", alt: "Dual fuel gas train kit", sub: "Gas · light oil · combination", desc: "A second fuel keeps heat and steam online if the primary gas supply is cut, de-pressurised or priced out." },
     ],
     specEyebrow: "Specifications",
     specTitle: "Sized to your duty.",
     specRows: [
       { k: "Brand", v: BRAND.riello.name },
-      { k: "Fuels", v: "Natural gas or LPG with light-oil (gasoil) backup, fired separately or in combination" },
+      { k: "Fuels", v: "Natural gas or LPG with light-oil (gasoil) backup, selected for the application" },
       { k: "Applications", v: "Steam boilers, hot-water boilers and process heating with fuel-security requirements" },
     ],
     related: ["gas-trains", "gas-burners", "light-oil-burners", "pressure-regulators"],
     faq: [
-      { q: "Why choose a dual fuel burner?", a: "If the gas supply is interrupted, the burner switches to light oil, so the process keeps running." },
+      { q: "Why choose a dual fuel burner?", a: "Dual-fuel burners are listed in the brochure as two-stage and modulating ranges; the fuel configuration is confirmed for the application." },
       { q: "Can a diesel genset run on dual fuel?", a: "Yes. Gastech builds gas trains for dual-fuel genset kits (see Gas Trains)." },
     ],
   },
@@ -206,6 +220,7 @@ export const PRODUCTS: Product[] = [
     slug: "pressure-regulators",
     route: "/products/gas-regulation/pressure-regulators/",
     navLabel: "Gas Pressure Regulators",
+    card: { tag: "Regulation", line: "Hold downstream pressure steady across the flow range.", fact: 'DN 3/4" to 12"' },
     brand: BRAND.pf.name,
     brandline: [BRAND.pf.name, "Gas Regulation"],
     brandIds: ["pf", "gastech"],
@@ -215,25 +230,27 @@ export const PRODUCTS: Product[] = [
       "Industrial gas pressure regulators by pressure class: low, medium-low and high-medium, direct or pilot operated. Pietro Fiorentini range from Gastech.",
     lead: "Pietro Fiorentini direct and pilot-operated gas regulators that hold downstream pressure steady across the flow range. Selected by gas type, inlet and outlet pressure and duty, from domestic low-pressure governors up to high/medium-pressure station regulators.",
     specs: [
-      { value: 'DN 3/4" to 12"', label: "Nominal sizes" },
-      { value: "Up to 102 bar", label: "Design pressure" },
-      { value: "0.5 to 74 bar", label: "Downstream Wd" },
-      { value: "Up to 100% H₂", label: "Hydrogen range" },
+      { value: 'DN 1/2" to 12"', label: "Nominal sizes" },
+      { value: "Up to 250 bar", label: "Design pressure" },
+      { value: "Direct & pilot", label: "Operation" },
+      { value: "5 families", label: "Brochure categories" },
     ],
     slides: [
-      { cap: "APERFLUX high / medium pressure regulator", src: `${IMG}/PF/Aperflux%20851.jpg`, alt: "Pietro Fiorentini APERFLUX regulator" },
-      { cap: "STAFLUX low pressure governor", src: `${IMG}/PF/Staflux%20187.jpg`, alt: "Pietro Fiorentini STAFLUX governor" },
+      { cap: "APERFLUX 101 / High / medium pressure regulator", src: "/images/brochure/PF_APERFLUX101.png", alt: "APERFLUX 101 regulator as pictured in the brochure" },
+      { cap: "STAFLUX 185 / High / medium pressure regulator", src: "/images/brochure/PF_STAFLUX185.png", alt: "STAFLUX 185 regulator as pictured in the brochure" },
       { cap: "DIVAL 500 direct-operated regulator", src: `${IMG}/PF/gas/medium-low-pressure-regulator/direct-operated/dival-500.jpg`, alt: "Pietro Fiorentini DIVAL 500 regulator" },
-      { cap: "FE series low pressure regulator", src: `${IMG}/PF/gas/low-pressure-regulator/fex.jpg`, alt: "Pietro Fiorentini FE low pressure regulator" },
+      { cap: "FE 10 / Low pressure regulator", src: "/images/brochure/PF_FE10.png", alt: "FE 10 regulator as pictured in the brochure" },
     ],
     modelEyebrow: "Regulator families",
     modelTitle: "Three pressure classes.",
-    modelSub: "Each family is offered in direct-operated or pilot-operated form, sized to your flow and downstream pressure.",
+    modelSub: "Five direct-operated and pilot-operated groups shown in the Gastech brochure.",
     grid: 3,
     variants: [
-      { idx: "01", kicker: "Pilot operated", title: "High / Medium Pressure", img: "/images/PF/Aperflux%20851.jpg", alt: "Pietro Fiorentini APERFLUX pilot-operated regulator", spec: 'DN 1" to 12"', sub: "Up to 102 bar design pressure", desc: "Station and cabin regulators for high inlet pressure with tight downstream control.", list: ["APERFLUX 101", "ASX 176", "REFLUX 819"] },
+      { idx: "01", kicker: "Pilot operated", title: "High / Medium Pressure", img: "/images/brochure/PF_APERFLUX101.png", alt: "Pietro Fiorentini APERFLUX 101 regulator", spec: 'DN 1" to 12"', sub: "Up to 102 bar design pressure", desc: "Station and cabin regulators for high inlet pressure with tight downstream control.", list: ["APERFLUX 101", "ASX 176", "REFLUX 819"] },
       { idx: "02", kicker: "Direct operated", title: "Medium / Low Pressure", img: "/images/PF/gas/medium-low-pressure-regulator/direct-operated/dival-500.jpg", alt: "Pietro Fiorentini DIVAL 500 direct-operated regulator", spec: 'DN 3/4" to 8"', sub: "Up to 20 bar design pressure", desc: "Plant and works regulation where a compact direct-acting regulator is enough.", list: ["DIVAL 500", "DIVAL 600", "NORVAL", "HP 100"] },
-      { idx: "03", kicker: "Direct operated", title: "Low Pressure & Governors", img: "/images/PF/gas/low-pressure-regulator/fex.jpg", alt: "Pietro Fiorentini FE low pressure regulator", spec: 'DN 1/2" to 1"', sub: "Up to 8.6 bar design pressure", desc: "Low-pressure governors for burners, appliances and meter-set applications.", list: ["DIVAL 160 AP", "STAFLUX 185", "FE 10 / 25 / 50 / 100"] },
+      { idx: "03", kicker: "Direct operated", title: "High / Medium Pressure - Direct", img: "/images/brochure/PF_STAFLUX185.png", alt: "STAFLUX 185 regulator", spec: 'DN 3/4" to 2"', sub: "Direct-operated regulator family", desc: "Direct-operated regulators listed for high and medium pressure. Confirm model-specific ratings when selecting a unit.", list: ["STAFLUX 185", "DIVAL 160 AP"] },
+      { idx: "04", kicker: "Pilot operated", title: "Medium / Low Pressure - Pilot", img: "/images/brochure/PF_APERVAL.png", alt: "APERVAL regulator", spec: 'DN 1" to 4"', sub: "Up to 25 bar design pressure", desc: "Pilot-operated regulators listed for medium and low pressure.", list: ["APERVAL", "DIXI", "REVAL 182"] },
+      { idx: "05", kicker: "Direct operated", title: "Low Pressure & Governors", img: "/images/brochure/PF_FE10.png", alt: "Pietro Fiorentini FE 10 low pressure regulator", spec: 'DN 1/2" to 1"', sub: "Up to 8.6 bar design pressure", desc: "Low-pressure governors for burners, appliances and meter-set applications.", list: ["FE 10 / 25 / 50 / 100"] },
     ],
     specEyebrow: "Specifications",
     specTitle: "Family comparison.",
@@ -246,7 +263,7 @@ export const PRODUCTS: Product[] = [
         ["Min differential", "1 bar (rec. > 2 bar)", "0.1 bar", "0.1 bar"],
         ["Downstream Wd", "0.5 to 74 bar", "0.01 to 6 bar", "13 mbar to 4.5 bar"],
         ["Connections", "ASME B16.5 cl 150/300/600, PN 16 ISO 7005", "ASME B16.5 cl 150, PN 16 ISO 7005", "Threaded / flanged to size"],
-        ["Models", "APERFLUX 101, ASX 176, REFLUX 819", "DIVAL 500, DIVAL 600, NORVAL, HP 100", "DIVAL 160 AP, STAFLUX 185, FE 10/25/50/100"],
+        ["Models", "APERFLUX 101, ASX 176, REFLUX 819", "DIVAL 500, DIVAL 600, NORVAL, HP 100", "FE 10/25/50/100"],
       ],
     },
     specRows: [
@@ -255,21 +272,9 @@ export const PRODUCTS: Product[] = [
       { k: "Standards", v: "ASME B16.5 flange classes and PN 16 to ISO 7005" },
       { k: "Options", v: "Relief valves and slam shut-off valves for complete regulation trains" },
     ],
-    hydrogen: {
-      eyebrow: "Hydrogen",
-      title: "Regulation for hydrogen duty.",
-      sub: "Gas networks are adding hydrogen. Pietro Fiorentini's hydrogen range covers regulation and metering for up to 100% H₂.",
-      rows: [
-        { k: "Hydrogen content", v: "Up to 100% H₂ on the Pietro Fiorentini hydrogen range" },
-        { k: "Selection", v: "Model, pressure class and materials are confirmed for your duty before quotation" },
-        { k: "Metering", v: "A hydrogen-ready rotary and turbine meter range is available (see Flow Meters)" },
-        { k: "Gastech role", v: "Sizing, supply, commissioning and annual maintenance on hydrogen duty" },
-      ],
-    },
     related: ["gas-trains", "flow-meters", "safety-valves", "gas-burners"],
     faq: [
       { q: "Which gas types do Pietro Fiorentini regulators handle?", a: "Natural gas, LPG, biogas and other non-corrosive gases." },
-      { q: "Can they regulate hydrogen?", a: "Pietro Fiorentini has a hydrogen range for up to 100% H₂. We confirm the model, pressure class and materials for your duty before we quote." },
       { q: "Can you supply a complete regulation train?", a: "Yes. With relief and slam shut-off valves, filters and metering, built as a Gastech gas train or regulating station." },
     ],
   },
@@ -277,6 +282,7 @@ export const PRODUCTS: Product[] = [
     slug: "flow-meters",
     route: "/products/gas-measurement/flow-meters/",
     navLabel: "Flow Meters",
+    card: { tag: "Metering", line: "Gas measurement with electronic volume correction.", fact: "RPD and turbine" },
     brand: BRAND.pf.name,
     brandline: [BRAND.pf.name, "Gas Metering"],
     brandIds: ["pf", "gastech"],
@@ -292,15 +298,15 @@ export const PRODUCTS: Product[] = [
       { value: "Hydrogen-ready", label: "Rotary & turbine" },
     ],
     slides: [
-      { cap: "Turbine gas meter / DN 40 to DN 150", src: `${IMG}/IM-TM%20turbine.jpg`, alt: "Pietro Fiorentini turbine gas meter" },
+      { cap: "Turbine gas meter", src: `${IMG}/IM-TM%20turbine.jpg`, alt: "Pietro Fiorentini turbine gas meter" },
     ],
     modelEyebrow: "Meter range",
     modelTitle: "Measure, then correct.",
     modelSub: "Two meter principles cover most gas duty, with electronic volume correction turning raw flow into standard, corrected volume.",
     grid: 3,
     variants: [
-      { idx: "01", kicker: "Positive displacement", title: "RPD Meters", img: "/images/products/rpd-meter.jpg", alt: "Pietro Fiorentini RPD rotary positive displacement meter", spec: "8 to 6500 m³/h", sub: "DN 50 to DN 300", desc: "Rotary positive-displacement meters in aluminium or carbon steel for wide, accurate plant and station measurement." },
-      { idx: "02", kicker: "Turbine", title: "Turbine Meters", img: "/images/products/turbine-meters.jpg", alt: "Pietro Fiorentini turbine gas meters", spec: "0.5 to 1000 m³/h", sub: "DN 40 to DN 150", desc: "Turbine meters in aluminium or ductile iron for clean, dry gas at medium flow across commercial and industrial duty." },
+      { idx: "01", kicker: "Positive displacement", title: "RPD Meters", img: "/images/products/rpd-meter.jpg", alt: "Pietro Fiorentini RPD rotary positive displacement meter", spec: "0.5 to 1000 m³/h", sub: "DN 40 to DN 150", desc: "RPD meters in hard anodized aluminium alloy or spheroidal graphite cast iron." },
+      { idx: "02", kicker: "Turbine", title: "Turbine Meters", img: "/images/products/turbine-meters.jpg", alt: "Pietro Fiorentini turbine gas meters", spec: "8 to 6500 m³/h", sub: "DN 50 to DN 300", desc: "Turbine meters in hard anodized aluminium alloy or carbon steel." },
       { idx: "03", kicker: "Correction", title: "EVC & Ex Barrier", img: "/images/products/evc.jpg", alt: "Pietro Fiorentini electronic volume corrector", sub: "INT-S3/N · II(2)G [Ex ib Gb] IIA", desc: "Electronic volume correctors convert meter pulses with local pressure and temperature into standard volume, with intrinsically safe interfaces." },
     ],
     specEyebrow: "Specifications",
@@ -308,13 +314,12 @@ export const PRODUCTS: Product[] = [
     columns: {
       headers: ["Parameter", "RPD Meters", "Turbine Meters"],
       rows: [
-        ["Principle", "Rotary positive displacement", "Turbine"],
-        ["Body", "Hard anodized aluminium alloy or carbon steel", "Hard anodized aluminium alloy or spheroidal graphite cast iron"],
-        ["Nominal size DN", "DN 50 to 200 (alu), DN 50 to 300 (steel)", "DN 40 to DN 150 (1 ½\" to 6\")"],
-        ["Connections", "ANSI 150/300/600 ASME B16.5, PN 16 to 100 EN 1092-1", "ANSI 150 ASME B16.5 or PN 16/25 EN 1092-1"],
-        ["Working temp", "-40 °C to +55 °C (steel body)", "-25 °C to +55 °C"],
-        ["Min flow", "8 m³/h", "0.5 m³/h"],
-        ["Max flow", "6,500 m³/h", "1,000 m³/h"],
+        ["Body", "Hard anodized aluminium alloy or spheroidal graphite cast iron", "Hard anodized aluminium alloy or carbon steel"],
+        ["Nominal size DN", 'DN 40 to DN 150 (1 1/2" to 6")', "DN 50 to 200 (aluminium); DN 50 to 300 (carbon steel)"],
+        ["Connections", "ANSI 150 ASME B16.5 or PN 16/25 EN 1092-1", "ANSI 150/300/600 ASME B16.5; PN 16 to 100 EN 1092-1"],
+        ["Working temperature", "-25  degrees C to +55  degrees C", "-40  degrees C to +55  degrees C (steel body)"],
+        ["Minimum flow", "0.5 m3/h", "8 m3/h"],
+        ["Maximum flow", "1,000 m3/h", "6,500 m3/h"],
       ],
     },
     specRows: [
@@ -325,7 +330,7 @@ export const PRODUCTS: Product[] = [
     ],
     related: ["gas-trains", "pressure-regulators", "safety-valves", "gasvigil"],
     faq: [
-      { q: "Which meter type should I choose?", a: "Turbine meters suit clean, dry gas at medium flow; RPD meters cover the wider range up to the largest sizes." },
+      { q: "Which meter type should I choose?", a: "The brochure lists RPD meters from 0.5 to 1,000 m3/h and turbine meters from 8 to 6,500 m3/h. Selection depends on the application." },
       { q: "Are the meters hydrogen-ready?", a: "Yes. A hydrogen-ready rotary and turbine range is available." },
       { q: "Can the meter come as a complete skid?", a: "Yes. We build flow-meter bypass assemblies with electronic volume correction and RS485 communication." },
     ],
@@ -334,6 +339,7 @@ export const PRODUCTS: Product[] = [
     slug: "safety-valves",
     route: "/products/gas-regulation/safety-valves/",
     navLabel: "Safety Valves",
+    card: { tag: "Gas safety", line: "Slam shut-off and relief for people and plant.", fact: "Slam shut-off" },
     brand: BRAND.pf.name,
     brandline: [BRAND.pf.name, "Gas Safety"],
     brandIds: ["pf"],
@@ -357,7 +363,7 @@ export const PRODUCTS: Product[] = [
     grid: 3,
     variants: [
       { idx: "01", kicker: "Isolation", title: "Slam Shut Off Valves", img: "/images/PF/gas/shut-off-valves/dilock.jpg", alt: "Pietro Fiorentini slam shut-off valve", spec: "Up to 102 bar", desc: "Fast-acting valves that cut gas flow on overpressure or pressure drop, protecting downstream plant." },
-      { idx: "02", kicker: "Relief", title: "Relief Valves", img: "/images/products/reflux-819.jpg", alt: "Pietro Fiorentini REFLUX relief valve", spec: "20 bar design", sub: "AG class 2.5 / 5 / 10", desc: "Vent on overpressure to hold downstream pressure within a safe band across BP, MP and TR duties." },
+      { idx: "02", kicker: "Relief", title: "Relief Valves", spec: "20 bar design", sub: "AG class 2.5 / 5 / 10", desc: "Vent on overpressure to hold downstream pressure within a safe band across BP, MP and TR duties." },
       { idx: "03", kicker: "Governing", title: "Direct-Operated Governors", img: "/images/products/governor.jpg", alt: "Pietro Fiorentini direct-operated governor", spec: 'DN 1/2" to 4"', sub: "GOVAL, STD, ZERO, RATIO", desc: "Maintain a set downstream pressure for low-pressure burners, appliances and meter-set duty." },
     ],
     specEyebrow: "Specifications",
@@ -387,6 +393,7 @@ export const PRODUCTS: Product[] = [
     slug: "gas-trains",
     route: "/gas-trains/",
     navLabel: "Gas Trains",
+    card: { tag: "Turnkey systems", line: "Skid-mounted trains configured to your duty.", fact: "Built in Pune" },
     brand: BRAND.gastech.name,
     brandline: [BRAND.gastech.name, "Gas Systems"],
     brandIds: ["gastech"],
@@ -418,10 +425,10 @@ export const PRODUCTS: Product[] = [
       { idx: "03", kicker: "Turnkey", title: "Metering & Regulation Skids", img: "/images/gas-train/flowmeter-bypass.jpg", alt: "Skid with flow meter bypass and electronic volume correction", desc: "Flow-meter bypass assemblies with electronic volume correction and communication, built as a complete skid." },
     ],
     assembly: [
-      { idx: "", kicker: "Isolation", title: "Shut-off valves", img: "/images/PF/gas/shut-off-valves/dilock.jpg", alt: "Safety shut-off valve", desc: "Manual and safety shut-off valves with solenoid valves for positive gas isolation." },
-      { idx: "", kicker: "Conditioning", title: "Filters", img: "/images/gas-train/compact-monoblock.jpg", alt: "Gas train filter section on a compact monoblock", desc: "Gas filtration that protects regulators, meters and burners downstream." },
-      { idx: "", kicker: "Control", title: "Pressure regulators", img: "/images/PF/gas/low-pressure-regulator/fex.jpg", alt: "Gas pressure regulator", desc: "Regulators that hold downstream pressure steady across the flow range." },
-      { idx: "", kicker: "Monitoring", title: "Switches & meters", img: "/images/IM-TM%20turbine.jpg", alt: "Gas turbine flow meter", desc: "Pressure switches and flow meters for supervision and measurement." },
+      { idx: "", kicker: "Isolation", title: "Shut-off valves", icon: "shield", img: "/images/PF/gas/shut-off-valves/dilock.jpg", alt: "Safety shut-off valve", desc: "Manual and safety shut-off valves with solenoid valves for positive gas isolation." },
+      { idx: "", kicker: "Conditioning", title: "Filters", icon: "manifold", img: "/images/gas-train/compact-monoblock.jpg", alt: "Gas train filter section on a compact monoblock", desc: "Gas filtration that protects regulators, meters and burners downstream." },
+      { idx: "", kicker: "Control", title: "Pressure regulators", icon: "gauge", img: "/images/PF/gas/low-pressure-regulator/fex.jpg", alt: "Gas pressure regulator", desc: "Regulators that hold downstream pressure steady across the flow range." },
+      { idx: "", kicker: "Monitoring", title: "Switches & meters", icon: "flow", img: "/images/IM-TM%20turbine.jpg", alt: "Gas turbine flow meter", desc: "Pressure switches and flow meters for supervision and measurement." },
     ],
     specEyebrow: "Specifications",
     specTitle: "Engineered around your duty.",
@@ -440,6 +447,7 @@ export const PRODUCTS: Product[] = [
     slug: "valves",
     route: "/products/valves/electrogas-valves/",
     navLabel: "Valves & Actuation",
+    card: { tag: "Valves", line: "Solenoid, motorised, butterfly and port valves.", fact: `${VALVE_TYPES.length} valve types` },
     brand: BRAND.electrogas.name,
     brandline: [BRAND.electrogas.name, "Gas Valves"],
     brandIds: ["electrogas"],
@@ -462,12 +470,7 @@ export const PRODUCTS: Product[] = [
     modelSub: "Solenoid, motorised, butterfly and port valves.",
     grid: 4,
     variants: [],
-    types: [
-      { id: "solenoid", label: "Solenoid valves" },
-      { id: "motorised", label: "Motorised valves" },
-      { id: "butterfly", label: "Butterfly valves" },
-      { id: "port", label: "Port valves" },
-    ],
+    types: VALVE_TYPES,
     specEyebrow: "Specifications",
     specTitle: "Selected to your duty.",
     specRows: [
@@ -488,6 +491,7 @@ export const PRODUCTS: Product[] = [
     slug: "gasvigil",
     route: "/brands/gasvigil/",
     navLabel: "Gas Leak Detection",
+    card: { tag: "Leak detection", line: "Continuous sensing with automatic shutoff.", fact: "Fixed and portable" },
     brand: BRAND.gasvigil.name,
     brandline: [BRAND.gasvigil.name, "Gas Safety"],
     brandIds: ["gasvigil"],
@@ -504,7 +508,7 @@ export const PRODUCTS: Product[] = [
     ],
     slides: [
       { cap: "GV 108 gas detector", src: `${IMG}/Gasvigil/GV%20108%20Gas%20Detector.jpg`, alt: "Gasvigil GV 108 gas detector" },
-      { cap: "GV 108 control panel", src: `${IMG}/Gasvigil/GV%20108%20Panel.jpg`, alt: "Gasvigil GV 108 control panel" },
+      { cap: "Gas detector panel", src: `${IMG}/Gasvigil/GV%20108%20Panel.jpg`, alt: "Gasvigil Gas detector panel" },
       { cap: "Stand-alone detector unit", src: `${IMG}/Gasvigil/Stand%20Alone.png`, alt: "Gasvigil stand-alone gas detector" },
       { cap: "Portable gas leak detector", src: `${IMG}/Gasvigil/Untitled%20design%20(1).png`, alt: "Gasvigil portable gas leak detector" },
     ],
@@ -514,7 +518,7 @@ export const PRODUCTS: Product[] = [
     grid: 4,
     variants: [
       { idx: "01", kicker: "Point sensor", title: "GV 108 Detector", img: "/images/Gasvigil/GV%20108%20Gas%20Detector.jpg", alt: "Gasvigil GV 108 gas detector", spec: "Wall-mount LCD", desc: "Fixed wall-mount detector with LCD that continuously monitors for gas presence and raises an audible and visual alarm at the set point." },
-      { idx: "02", kicker: "Multi-point", title: "GV 108 Panel", img: "/images/Gasvigil/GV%20108%20Panel.jpg", alt: "Gasvigil GV 108 detector panel", spec: "Zoned interlock", desc: "Central panel that wires multiple detectors, shows zone status and drives alarm and automatic gas-shutoff interlocks across a plant." },
+      { idx: "02", kicker: "Multi-point", title: "Gas Detector Panel", img: "/images/Gasvigil/GV%20108%20Panel.jpg", alt: "Gasvigil gas detector panel", spec: "Zoned interlock", desc: "Central panel that wires multiple detectors, shows zone status and drives alarm and automatic gas-shutoff interlocks across a plant." },
       { idx: "03", kicker: "Self-contained", title: "Stand-Alone Unit", img: "/images/Gasvigil/Stand%20Alone.png", alt: "Gasvigil stand-alone gas detector on a post", spec: "Built-in relay", desc: "Independent detector with built-in relay for local alarm and shutoff, ideal for kitchens, boiler rooms and single-hazard points." },
       { idx: "04", kicker: "Mobile", title: "Portable Detector", img: "/images/Gasvigil/Untitled%20design%20(1).png", alt: "Gasvigil portable gas detectors", spec: "Handheld", desc: "Handheld leak detector for surveys, commissioning and spot checks where fixed sensing is not installed." },
     ],
@@ -541,13 +545,77 @@ export const PRODUCTS: Product[] = [
   },
 ];
 
+/* Brand pages that use the product template but are not extra product
+   categories, so category counts and the products hub ignore them. Only facts
+   already published elsewhere on the site: no specs until datasheets arrive. */
+export const PRODUCTS: Product[] = ALL_PRODUCTS;
+
+const ALL_BRAND_PAGES: Product[] = [
+  {
+    slug: "electrogas",
+    route: "/brands/electrogas/",
+    navLabel: "Electrogas",
+    card: { tag: "Valves", line: "Electrogas valves, selected and installed by Gastech.", fact: `${VALVE_TYPES.length} valve types` },
+    askFor: "Electrogas valves",
+    brand: BRAND.electrogas.name,
+    brandline: [BRAND.electrogas.name, "Gas Valves"],
+    brandIds: ["electrogas"],
+    h1: "Electrogas in India: Gas Valves Supplied by Gastech",
+    metaTitle: "Electrogas Distributor in India: Gas Valves | Gastech",
+    metaDescription:
+      "Gastech Combustions is the authorised Electrogas distributor in India: solenoid, motorised, butterfly and port valves, selected, supplied and installed from Pune.",
+    lead: "Gastech Combustions is the authorised distributor of Electrogas in India. We select its solenoid, motorised, butterfly and port valves to your duty, supply them on their own or built into a Gastech gas train, and install and commission them.",
+    specs: [
+      { value: String(VALVE_TYPES.length), label: "Valve types" },
+      { value: "Pune", label: "Supplied from" },
+      { value: "Skid-ready", label: "Built into gas trains" },
+      { value: "On site", label: "Installed & commissioned" },
+    ],
+    slides: [
+      { cap: "Gas train with a solenoid valve", src: `${IMG}/gas-train/steel-plant.jpg`, alt: "Gastech gas train with a solenoid valve, regulators and control cabinet" },
+    ],
+    modelEyebrow: "Valve range",
+    modelTitle: "The valves we supply.",
+    modelSub: "Tell us the line and the duty, and we match the valve to it.",
+    grid: 4,
+    variants: [],
+    types: VALVE_TYPES,
+    specEyebrow: "Working with Gastech",
+    specTitle: "From selection to commissioning.",
+    specRows: [
+      { k: "Distributor", v: "Gastech Combustions, Pune: authorised distributor of Electrogas" },
+      { k: "Selection basis", v: "Gas type, line size, pressure, safety requirements and applicable standards" },
+      { k: "Supply form", v: "Individual valves, or built into a Gastech skid-mounted gas train" },
+      { k: "Support", v: "Installation, commissioning and annual maintenance by our own team" },
+      { k: "Datasheets", v: "Models, sizes and ratings are confirmed per application on request" },
+    ],
+    related: ["valves", "gas-trains", "pressure-regulators", "safety-valves"],
+    faq: [
+      { q: "Is Gastech an authorised Electrogas distributor?", a: "Yes. Gastech Combustions is the authorised distributor of Electrogas in India, based in Pune." },
+      { q: "Which Electrogas valves can you supply?", a: "Solenoid, motorised, butterfly and port valves for gas lines." },
+      { q: "Do you install the valves?", a: "Yes. Our own team installs and commissions them, on their own or as part of a gas train we build." },
+    ],
+  },
+];
+
+export const BRAND_PAGES: Product[] = ALL_BRAND_PAGES;
+
+/** Every route rendered by the product template. */
+export const ALL_PAGES: Product[] = [...PRODUCTS, ...BRAND_PAGES];
+
 export const PRODUCT_MAP: Record<string, Product> = Object.fromEntries(
-  PRODUCTS.map((p) => [p.slug, p]),
+  ALL_PAGES.map((p) => [p.slug, p]),
 );
 
 const ROUTE_MAP: Record<string, Product> = Object.fromEntries(
-  PRODUCTS.map((p) => [p.route, p]),
+  ALL_PAGES.map((p) => [p.route, p]),
 );
+
+/** Photos for a product's card: its cut-outs first, three at most. */
+export function productShots(p: Product, first?: string) {
+  const rank = (src: string) => (src === first ? 0 : cutout(src).kind === "cut" ? 1 : 2);
+  return [...p.slides].sort((a, b) => rank(a.src) - rank(b.src)).slice(0, 3).map((s) => ({ src: s.src, alt: s.alt }));
+}
 
 export function getProduct(slug: string): Product | undefined {
   return PRODUCT_MAP[slug];
@@ -568,5 +636,5 @@ export function getProductByRoute(
 
 /** Products whose canonical path sits under a given prefix, e.g. "/products/" . */
 export function productsUnder(prefix: string): Product[] {
-  return PRODUCTS.filter((p) => p.route.startsWith(prefix) && p.route !== prefix);
+  return ALL_PAGES.filter((p) => p.route.startsWith(prefix) && p.route !== prefix);
 }

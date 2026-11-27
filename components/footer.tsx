@@ -24,7 +24,7 @@ export function Footer() {
 
         {FOOTER_COLUMNS.map((col) => (
           <nav className="foot-col" key={col.title} aria-label={col.title}>
-            <h4>{col.title}</h4>
+            <h3>{col.title}</h3>
             <ul>
               {col.links.map((l) => (
                 <li key={l.href + l.label}>
@@ -36,7 +36,7 @@ export function Footer() {
         ))}
 
         <div className="foot-col">
-          <h4>Contact</h4>
+          <h3>Contact</h3>
           <ul className="foot-contact">
             <li><Icon name="mail" /><a href={`mailto:${c.salesEmail}`}>{c.salesEmail}</a></li>
             <li><Icon name="pin" /><span>Corporate office: {c.corporateAddress}</span></li>

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import { collectionPageSchema, itemListSchema } from "@/lib/schema";
 import { BRAND, BRAND_IDS, PF_FACTS, REPRESENTED_BRAND_LIST, REPRESENTED_BRAND_NAMES, type BrandId } from "@/lib/site";
-import { getProduct } from "@/lib/products";
+import { getProduct, productShots } from "@/lib/products";
+import { ProductCard } from "@/components/cards/ProductCard";
 import { Icon } from "@/components/icons";
 import { SectionHead, JsonLd } from "@/components/blocks";
 import { EnquiryButton } from "@/components/enquiry";
@@ -15,10 +16,10 @@ export const metadata = buildMetadata({
   title: `Authorised Brands: ${REPRESENTED_BRAND_NAMES.join(", ")}`,
   description: BRANDS_DESCRIPTION,
   path: "/brands/",
-  keywords: ["Riello distributor Pune", "Pietro Fiorentini India", "Electrogas valves India", "Gasvigil dealer", "industrial burner brands", "gas safety brands"],
+  keywords: ["Riello distributor Pune", "Pietro Fiorentini India", "Gasvigil dealer", "industrial burner brands", "gas safety brands"],
 });
 
-const IMG = "/images"; // self-hosted mirror of gastechcombustions.in/images — run `node qa/_fetch-assets.mjs` to populate public/images
+const IMG = "/images";  // self-hosted copy of the catalogue images
 
 /* Product pointers resolve through lib/products.ts so the client URL scheme is
    written down exactly once. */
@@ -37,9 +38,9 @@ type BrandCard = {
    Gastech, Riello, Gasvigil). Names come from lib/site.ts. */
 const CARDS: Record<BrandId, BrandCard> = {
   pf: {
-    img: `${IMG}/PF/Aperflux%20851.jpg`,
+    img: `${IMG}/brochure/PF_APERFLUX101.png`,
     alt: "Pietro Fiorentini gas regulator",
-    desc: `Founded in ${PF_FACTS.foundedCity} in ${PF_FACTS.foundedYear} and recognised as a Historic Brand of National Interest, with ${PF_FACTS.yearsProse} across the entire natural gas supply chain. Gas pressure regulation and metering: regulators and governors, slam shut-off and relief valves, and flow meters with electronic volume correction, for steady, measurable and protected supply. A hydrogen range covers regulation and metering for up to 100% H₂.`,
+    desc: `Founded in ${PF_FACTS.foundedCity} in ${PF_FACTS.foundedYear} and recognised as a Historic Brand of National Interest, with ${PF_FACTS.yearsProse} across the entire natural gas supply chain. Gas pressure regulation and metering: regulators and governors, slam shut-off and relief valves, and flow meters with electronic volume correction, for steady, measurable and protected supply. The brochure also shows a hydrogen-ready meter range.`,
     tagIcon: "gauge",
     tag: "Regulation & metering",
     links: [
@@ -54,7 +55,10 @@ const CARDS: Record<BrandId, BrandCard> = {
     desc: "Valves for gas lines: solenoid, motorised, butterfly and port valves, specified together with the regulation and burners on your gas train.",
     tagIcon: "manifold",
     tag: "Valves & actuation",
-    links: [],
+    links: [
+      { href: toRoute("electrogas"), label: "Electrogas range" },
+      { href: toRoute("valves"), label: "Valve types" },
+    ],
   },
   gastech: {
     img: `${IMG}/gas-train/compact-monoblock.jpg`,
@@ -65,7 +69,7 @@ const CARDS: Record<BrandId, BrandCard> = {
     links: [{ href: toRoute("gas-trains"), label: "Gas trains" }],
   },
   riello: {
-    img: `${IMG}/burner/riello-burner/light-oil-burner-02-stage.jpg`,
+    img: `${IMG}/brochure/burners/light-oil-01.jpeg`,
     alt: "Riello industrial burner",
     desc: "Italian industrial burners for natural gas, LPG, light oil and dual-fuel duty, from one-stage to fully modulating, sized to your boiler or process.",
     tagIcon: "flame",
@@ -103,13 +107,14 @@ export default function BrandsPage() {
             BRAND_IDS.map((id) => ({
               name: BRAND[id].name,
               desc: CARDS[id].desc,
-              ...(id === "gasvigil" ? { url: toRoute("gasvigil") } : {}),
+              ...(id === "gasvigil" || id === "electrogas" ? { url: toRoute(id) } : {}),
             })),
           ),
         ]}
       />
       <main id="main">
         <PageHero
+          backgroundSrc="/images/editorial/fabrication-india.jpg"
           crumbs={[{ label: "Brands" }]}
           title={<>
             <span className="line">Brands{" "}</span>
@@ -175,21 +180,12 @@ export default function BrandsPage() {
               title={<>Open a product for <u>models and specs.</u></>}
               sub="Every brand maps to a dedicated product page with capacities, sizes and configurations."
             />
-            <div className="rel-grid rel-grid--3" data-stagger>
+            <div className="pc-grid" data-stagger>
               {RANGE.map((slug) => {
                 const p = getProduct(slug);
                 if (!p) return null;
-                const img = p.slides[0]?.src;
                 return (
-                  <Link className="rel-card" key={slug} href={p.route}>
-                    <div className="rc-media">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={img} alt={p.h1} loading="lazy" decoding="async" /></div>
-                    <div className="rc-body">
-                      <span>{p.brand}</span>
-                      <h3>{p.navLabel}</h3>
-                      <p>{p.lead}</p>
-                      <span className="rc-go">View range <Icon name="arrow" /></span>
-                    </div>
-                  </Link>
+                  <ProductCard key={slug} title={p.navLabel} line={p.card.line} tag={p.card.tag} brand={p.brandIds[0]} shots={productShots(p)} red={slug === "gas-trains"} fact={p.card.fact} href={p.route} />
                 );
               })}
             </div>

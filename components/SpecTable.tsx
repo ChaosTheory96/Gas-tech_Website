@@ -1,4 +1,3 @@
-"use client";
 // ============================================================================
 // SpecTable — PRODUCTION H / COMPARISON TABLE, ported from the showcase
 // ComparisonTable. Reuses the `.gt-proc .cmp` styles already defined in
@@ -13,50 +12,19 @@
 // + IntersectionObserver actually run (reduced-motion lands the final state).
 // ============================================================================
 
-import { useEffect, useRef } from "react";
 import "@/styles/process.css";
 
 export type SpecTableColumns = { headers: string[]; rows: string[][] };
 
 export default function SpecTable({ columns }: { columns: SpecTableColumns }) {
-  const rootRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    const wrap = root.querySelector<HTMLElement>(".tbl-wrap");
-    if (!wrap) return;
-    const reduce =
-      window.matchMedia &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    // Without JS / reduced motion the rows stay visible (default no `.rv`).
-    if (reduce || !("IntersectionObserver" in window)) {
-      wrap.classList.add("in");
-      return;
-    }
-    wrap.classList.add("rv"); // enables the row opacity/transform transition
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((en) => {
-          if (en.isIntersecting) {
-            wrap.classList.add("in"); // triggers the staggered row reveal
-            io.disconnect();
-          }
-        });
-      },
-      { rootMargin: "0px 0px -10% 0px", threshold: 0.05 }
-    );
-    io.observe(wrap);
-    return () => io.disconnect();
-  }, [columns]);
 
   const [corner, ...families] = columns.headers;
   const firstFamily = families[0];
 
   return (
-    <div className="gt-proc" ref={rootRef}>
-      <div className="tbl-wrap spec-scroll">
+    <div className="gt-proc">
+      <div className="tbl-wrap spec-scroll" data-inview>
         <table className="cmp">
           <thead>
             <tr>

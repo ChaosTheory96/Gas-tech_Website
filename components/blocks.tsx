@@ -72,7 +72,7 @@ export function SectionHead({
   return (
     <header className="sec-head">
       {eyebrow && <p className={light ? "eyebrow eyebrow--light" : "eyebrow"}>{eyebrow}</p>}
-      <h2 data-reveal>{title}</h2>
+      <h2 data-reveal="mask">{title}</h2>
       {sub && <p className="sub" data-reveal>{sub}</p>}
     </header>
   );

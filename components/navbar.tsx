@@ -165,7 +165,7 @@ export function Navbar() {
           <span className="brand-word"><b>GAS</b><span>TECH</span></span>
         </Link>
 
-        <nav className={navClass} id="site-nav" aria-label="Primary" onClick={onNavClick}>
+        <nav className={navClass} id="site-nav" aria-label="Primary" onClick={onNavClick} data-lenis-prevent={navOpen || undefined}>
           {NAV.map((item) =>
             item.kind === "mega" ? (
               <MegaItem key={item.label} item={item} megaOpen={megaOpen} onToggle={() => setMegaOpen((v) => !v)} onSet={setMegaOpen} active={isProductsActive(pathname)} />

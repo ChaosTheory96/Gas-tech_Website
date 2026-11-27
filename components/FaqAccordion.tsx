@@ -71,7 +71,6 @@ export default function FaqAccordion({ faqs }: { faqs: FaqItem[] }) {
     };
 
     if (reduce) {
-      root.classList.add("in"); // reveal is a no-op; show everything
       return;
     }
 
@@ -91,35 +90,13 @@ export default function FaqAccordion({ faqs }: { faqs: FaqItem[] }) {
       offs.push(() => s.removeEventListener("click", onClick));
     });
 
-    // reveal the list when it scrolls into view (content stays visible if IO
-    // never runs, because we only ADD the animating `.rv`/`.in` classes here)
-    root.classList.add("rv");
-    let io: IntersectionObserver | null = null;
-    if ("IntersectionObserver" in window) {
-      io = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((en) => {
-            if (en.isIntersecting) {
-              root.classList.add("in");
-              io?.disconnect();
-            }
-          });
-        },
-        { rootMargin: "0px 0px -12% 0px" }
-      );
-      io.observe(root);
-    } else {
-      root.classList.add("in");
-    }
-
     return () => {
       offs.forEach((f) => f());
-      if (io) io.disconnect();
     };
   }, [faqs]);
 
   return (
-    <div className="gt-proc" ref={rootRef}>
+    <div className="gt-proc" ref={rootRef} data-inview>
       <div className="faq">
         <div className="faq-list">
           {faqs.map((f, i) => (

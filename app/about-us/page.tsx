@@ -7,7 +7,7 @@ import { Icon } from "@/components/icons";
 import { SectionHead, JsonLd } from "@/components/blocks";
 import { EnquiryButton } from "@/components/enquiry";
 import { PageHero } from "@/components/PageHero";
-import BentoGrid, { type BentoItem } from "@/components/BentoGrid";
+import { ProductCard } from "@/components/cards/ProductCard";
 import SpecStats from "@/components/SpecStats";
 import FaqAccordion from "@/components/FaqAccordion";
 
@@ -37,57 +37,60 @@ export const metadata = buildMetadata({
   ],
 });
 
-const IMG = "/images"; // self-hosted mirror of gastechcombustions.in/images — run `node qa/_fetch-assets.mjs` to populate public/images
+const IMG = "/images";  // self-hosted copy of the catalogue images
 
 /* What we do, as five doors into the site. Every tile is a real, built route
    and every line is catalogue wording already published by Gastech. */
-const WORK: BentoItem[] = [
+type Work = { href: string; usp?: boolean; red?: boolean; img: string; alt: string; title: string; tag: string; brand: BrandId; desc: string };
+
+const WORK: Work[] = [
   {
     href: "/gas-trains/",
-    usp: "gt",
+    usp: true,
+    red: true,
     img: `${IMG}/gas-train/customized-monoblock.jpg`,
     alt: "Gas train assembly engineered and manufactured by Gastech",
     title: "We engineer and build gas trains",
-    brand: "Gastech / Complete gas systems",
+    tag: "Complete gas systems",
+    brand: "gastech",
     desc: "Skid-mounted assemblies with shut-off valves, filters, regulators, safety valves, solenoids, pressure switches and flow meters, configured to your duty.",
-    span: "c7 r2",
   },
   {
     href: "/products/burners/gas-burners/",
-    img: `${IMG}/burner/riello-burner/light-oil-product/gas-burner-MODULATING.jpg`,
-    alt: "Riello modulating gas burner",
+    img: `${IMG}/brochure/burners/gas-02.jpeg`,
+    alt: "Riello gas burner shown in the brochure",
     title: "We size and supply burners",
-    brand: "Riello / Gas, oil, dual fuel, industrial",
+    tag: "Gas, oil and dual fuel",
+    brand: "riello",
     desc: "One-stage, two-stage, progressive, three-stage and modulating burners, matched to your boiler, output and fuel.",
-    span: "c5 r2",
   },
   {
     href: "/products/gas-regulation/pressure-regulators/",
-    usp: "pf",
-    img: `${IMG}/PF/Aperflux%20851.jpg`,
+    usp: true,
+    img: `${IMG}/brochure/PF_APERFLUX101.png`,
     alt: "Pietro Fiorentini APERFLUX pressure regulator",
     title: "We regulate the pressure",
-    brand: "Pietro Fiorentini / Regulation",
+    tag: "Regulation",
+    brand: "pf",
     desc: "Direct-operated and pilot-operated regulators and governors that hold downstream pressure steady.",
-    span: "c4 r2",
   },
   {
     href: "/products/gas-measurement/flow-meters/",
     img: `${IMG}/IM-TM%20turbine.jpg`,
     alt: "Gas turbine meter with electronic volume correction",
     title: "We measure the gas",
-    brand: "Pietro Fiorentini / Metering & EVC",
+    tag: "Metering and EVC",
+    brand: "pf",
     desc: "Turbine and rotary meters with electronic volume correction for precise gas measurement.",
-    span: "c4 r2",
   },
   {
     href: "/brands/gasvigil/",
     img: `${IMG}/Gasvigil/GV%20108%20Gas%20Detector.jpg`,
     alt: "Gasvigil GV 108 gas detector",
     title: "We make it safe",
-    brand: "Gasvigil / Leak detection",
+    tag: "Leak detection",
+    brand: "gasvigil",
     desc: "Continuous sensing with alarm and automatic shutoff, on combustible and toxic gases, plus oxygen and carbon dioxide.",
-    span: "c4 r2",
   },
 ];
 
@@ -153,8 +156,8 @@ const BRAND_CARDS: Record<BrandId, { k: string; points: string[]; href: string; 
       "Solenoid, motorised, butterfly and port valves.",
       "Specified with the rest of your gas train, so valves, regulation and burners are selected together.",
     ],
-    href: "/products/valves/electrogas-valves/",
-    cta: "Valves & actuation",
+    href: "/brands/electrogas/",
+    cta: "Electrogas range",
   },
   gastech: {
     k: "Gas trains",
@@ -230,6 +233,7 @@ export default function AboutUsPage() {
       <main id="main">
         {/* 1 / MASTHEAD. The headline is the client's own About page line. */}
         <PageHero
+          backgroundSrc="/images/editorial/workshop.jpg"
           crumbs={[{ label: "About Us" }]}
           title={<>
             <span className="line">About{" "}</span>
@@ -291,7 +295,11 @@ export default function AboutUsPage() {
               title={<>What we do, <u>done properly.</u></>}
               sub="We build the systems ourselves, supply the equipment of the brands we represent, and stay with the plant after handover."
             />
-            <BentoGrid items={WORK} />
+            <div className="pc-grid pc-grid--wide" data-stagger>
+              {WORK.map((w) => (
+                <ProductCard key={w.href} title={w.title} line={w.desc} tag={w.tag} brand={w.brand} shots={[{ src: w.img, alt: w.alt }]} red={w.red} usp={w.usp} href={w.href} />
+              ))}
+            </div>
             <div className="ind-foot" data-reveal>
               <Link className="btn btn--ghost fx-magnetic" href="/products/">See the full product range <Icon name="arrow" /></Link>
             </div>
@@ -370,14 +378,16 @@ export default function AboutUsPage() {
         </section>
 
         {/* 8 / QUESTIONS */}
-        <section className="sec sec--sunken" id="questions" aria-labelledby="q-h">
+        <section className="sec" id="questions" aria-labelledby="q-h">
           <div className="wrap">
-            <SectionHead
-              eyebrow="Asked of us"
-              title={<>Questions a <u>new plant</u> usually starts with.</>}
-              sub="Short answers, in the words we would use on the phone."
-            />
-            <FaqAccordion faqs={FAQS} />
+            <div className="p-panel p-panel--red p-panel--page">
+              <SectionHead
+                eyebrow="Asked of us"
+                title={<>Questions a <u>new plant</u> usually starts with.</>}
+                sub="Short answers, in the words we would use on the phone."
+              />
+              <FaqAccordion faqs={FAQS} />
+            </div>
           </div>
         </section>
 

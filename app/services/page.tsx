@@ -35,8 +35,8 @@ const SERVICES: ServiceEntry[] = [
       { label: "Application study", text: "we understand your process, gas, duty and site before recommending anything." },
       { label: "Selection & sizing", text: "the right equipment and configuration during your procurement stage." },
     ],
-    img: "/images/gas-train/customized-monoblock.jpg",
-    alt: "Customised gas train engineered to a site duty",
+    img: "/images/editorial/engineer.jpg",
+    alt: "An industrial technician inspecting equipment",
     tone: "plain",
     flip: false,
   },
@@ -50,8 +50,8 @@ const SERVICES: ServiceEntry[] = [
       { label: "Expert Installation", text: "skilled technicians set up your burner safely to manufacturer specifications and industry standards." },
       { label: "Comprehensive Commissioning", text: "detailed testing and calibration of all parameters, configurations and connections." },
     ],
-    img: "/images/burner/riello-burner/light-oil-product/gas-burner-MODULATING.jpg",
-    alt: "Riello modulating burner ready for installation and commissioning",
+    img: "/images/editorial/pipework.jpg",
+    alt: "A technician working on an industrial pipe assembly",
     tone: "sunken",
     flip: true,
   },
@@ -65,8 +65,8 @@ const SERVICES: ServiceEntry[] = [
       { label: "Scheduled Maintenance", text: "regularly planned inspections and servicing to keep your burner running efficiently and catch issues early." },
       { label: "Priority Support", text: "dedicated team with priority response for any issue or emergency, minimising disruption." },
     ],
-    img: "/images/gas-train/steel-plant.jpg",
-    alt: "Gas train in service at a steel plant, kept running by scheduled maintenance",
+    img: "/images/editorial/inspection.jpg",
+    alt: "A worker inspecting industrial machinery",
     tone: "plain",
     flip: false,
   },
@@ -98,6 +98,7 @@ export default function ServicesPage() {
       />
       <main id="main">
         <PageHero
+          backgroundSrc="/images/editorial/pipework.jpg"
           crumbs={[{ label: "Services" }]}
           title={<>
             <span className="line">Installation, Commissioning</span>

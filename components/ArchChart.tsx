@@ -1,4 +1,3 @@
-"use client";
 // ============================================================================
 // ArchChart — C / ARCH CHART (data figures drawn to scale).
 // A pure data-viz: each arch grows from a shared baseline, height LINEAR to the
@@ -12,7 +11,6 @@
 // .gt-proc .arch-chart so nothing leaks into production selectors.
 // ============================================================================
 
-import { useEffect, useRef } from "react";
 import "@/styles/process.css";
 
 export type ArchDatum = {
@@ -29,41 +27,13 @@ export default function ArchChart({
   data: ArchDatum[];
   note?: string;
 }) {
-  const rootRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    const chart = root.querySelector<HTMLElement>(".arch-chart");
-    if (!chart) return;
-    const reduce =
-      window.matchMedia &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce || !("IntersectionObserver" in window)) {
-      chart.classList.add("in");
-      return;
-    }
-    chart.classList.add("rv");
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((en) => {
-          if (en.isIntersecting) {
-            chart.classList.add("in");
-            io.disconnect();
-          }
-        });
-      },
-      { rootMargin: "0px 0px -12% 0px", threshold: 0.2 }
-    );
-    io.observe(chart);
-    return () => io.disconnect();
-  }, [data]);
 
   const max = Math.max(...data.map((d) => d.value), 1);
 
   return (
-    <div className="gt-proc" ref={rootRef}>
-      <div className="arch-chart">
+    <div className="gt-proc">
+      <div className="arch-chart" data-inview>
         {data.map((d, i) => {
           const ratio = d.value / max;
           return (

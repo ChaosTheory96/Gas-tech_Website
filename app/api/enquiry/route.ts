@@ -28,7 +28,25 @@ type EnquiryPayload = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/* Spam limit: a handful of enquiries per address per window. Held in memory,
+   so it resets on redeploy and is per server instance: a brake, not a wall. */
+const LIMIT = 5;
+const WINDOW_MS = 10 * 60 * 1000;
+const recent = new Map<string, number[]>();
+
+function tooMany(key: string, now = Date.now()): boolean {
+  const hits = (recent.get(key) ?? []).filter((t) => now - t < WINDOW_MS);
+  hits.push(now);
+  recent.set(key, hits);
+  if (recent.size > 5000) recent.clear();
+  return hits.length > LIMIT;
+}
+
 export async function POST(req: Request) {
+  const from = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  if (tooMany(from)) {
+    return NextResponse.json({ ok: false, error: "Too many enquiries in a short time. Please try again in a few minutes." }, { status: 429 });
+  }
   let data: EnquiryPayload;
   try {
     data = (await req.json()) as EnquiryPayload;

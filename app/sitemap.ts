@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { absoluteUrl } from "@/lib/site";
-import { PRODUCTS } from "@/lib/products";
+import { ALL_PAGES } from "@/lib/products";
 
 /* Static routes plus the 8 data-driven product pages, every one on the client
    scheme: nested path, trailing slash, no aliases. /gas-trains/ and
@@ -25,7 +25,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: r.changeFrequency,
     priority: r.priority,
   }));
-  const products: MetadataRoute.Sitemap = PRODUCTS.map((p) => ({
+  const products: MetadataRoute.Sitemap = ALL_PAGES.map((p) => ({
     url: absoluteUrl(p.route),
     lastModified: now,
     changeFrequency: "monthly",

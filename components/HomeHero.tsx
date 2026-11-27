@@ -27,13 +27,13 @@ export type HeroCard = {
 };
 
 const PILLS = ["Gas trains", "Regulation", "Metering", "Valves", "Burners", "Leak detection"];
-const HYDROGEN_PILL = "Hydrogen, up to 100% H₂";
+const HYDROGEN_PILL = "Hydrogen-ready meters";
 
 /* Parallax tuning: depth is how far a layer drifts (px) at full pointer
    deflection / full scroll through the hero. */
 const DEPTH = {
-  photo: { x: 14, y: 10, scroll: 80, ease: 0.075 },
-  card: { x: 18, y: 12, scroll: 46 },
+  photo: { x: 18, y: 12, scroll: 190, ease: 0.075 },
+  card: { x: 22, y: 14, scroll: 130 },
   scrollEase: 0.12,
   idle: 0.0006,
 } as const;
@@ -131,7 +131,7 @@ export function HomeHero({ cards }: { cards: HeroCard[] }) {
     <section ref={rootRef} className="home-hero" aria-labelledby="hero-h">
       <div className="hh-bg" aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img ref={photoRef} className="hh-photo" src="/images/gas-train/customized-monoblock.jpg" alt="" loading="eager" decoding="async" />
+        <img ref={photoRef} className="hh-photo" src="/images/editorial/inspection.jpg" alt="" loading="eager" decoding="async" />
         <span className="hh-shade" />
       </div>
 

@@ -7,7 +7,6 @@ import { Icon } from "@/components/icons";
 import { Marquee, SectionHead, JsonLd } from "@/components/blocks";
 import type { ConveyorItem } from "@/components/CapabilityConveyor";
 import { CapabilityConveyor } from "@/components/CapabilityConveyor";
-import { HomeScrollFx } from "@/components/HomeScrollFx";
 import { HomeHero, type HeroCard } from "@/components/HomeHero";
 import { EnquiryButton } from "@/components/enquiry";
 
@@ -23,7 +22,7 @@ export const metadata = buildMetadata({
   ],
 });
 
-const IMG = "/images"; // self-hosted mirror of gastechcombustions.in/images — run `node qa/_fetch-assets.mjs` to populate public/images
+const IMG = "/images";  // self-hosted copy of the catalogue images
 
 /* Capability cards point at the client URL scheme held in lib/products.ts, so a
    path is never typed twice. Slugs are internal keys only. */
@@ -33,24 +32,24 @@ const CAPABILITIES = [
   { idx: "01", img: `${IMG}/gas-train/steel-plant.jpg`, alt: "Gastech gas train for a steel plant: yellow pipework, regulators and control cabinet on a skid", href: toRoute("gas-trains"), title: "Complete Gas Handling Systems", desc: "Engineered and manufactured by Gastech: complete skid-mounted gas trains with shut-off valves, filters, regulators, solenoid valves, pressure switches and flow meters, configured to your duty.", specs: ["Customized", "Reliable & safe", "Application-specific"], flag: true },
   { idx: "02", img: `${IMG}/gas-train/compact-monoblock.jpg`, alt: "Gas regulation station: filter, regulator and gauges on a compact skid", href: toRoute("pressure-regulators"), title: "Gas Regulation Stations", desc: `${BRAND.pf.name} regulation and pressure-control stations for safe, steady supply, with hydrogen solutions.`, specs: ["Regulation & safety", "Sized to flow", "Hydrogen solutions"], brands: ["pf", "gastech"] },
   { idx: "03", img: `${IMG}/gas-train/flowmeter-bypass.jpg`, alt: "Gas metering station with flow meter and bypass", href: toRoute("flow-meters"), title: "Gas Metering & Flow Meters", desc: `${BRAND.pf.name} metering stations and flow meters with electronic volume correction for precise measurement.`, specs: ["Turbine & rotary", "Electronic correction", "Turnkey build"], brands: ["pf", "gastech"] },
-  { idx: "04", img: `${IMG}/burner/riello-burner/light-oil-product/gas-burner-TWO-STAGE.jpg`, alt: "Riello industrial gas burners", href: toRoute("gas-burners"), title: `${BRAND.riello.name} Gas Burners`, desc: "Industrial gas burners for boilers, ovens and process heating, sized to your duty.", specs: ["Modulating & staged", "Boiler & process heat", "Riello engineering"] },
-  { idx: "05", img: `${IMG}/burner/riello-burner/light-oil-burner-03-stage.jpg`, alt: "Riello oil burners", href: toRoute("light-oil-burners"), title: `${BRAND.riello.name} Oil Burners`, desc: "Light oil burners delivering reliable, efficient combustion.", specs: ["Light oil", "Low emissions", "Sized to load"] },
+  { idx: "04", img: `${IMG}/brochure/burners/gas-01.jpeg`, alt: "Riello industrial gas burners", href: toRoute("gas-burners"), title: `${BRAND.riello.name} Gas Burners`, desc: "Industrial gas burners for boilers, ovens and process heating, sized to your duty.", specs: ["Modulating & staged", "Boiler & process heat", "Riello engineering"] },
+  { idx: "05", img: `${IMG}/brochure/burners/light-oil-02.jpeg`, alt: "Riello oil burners", href: toRoute("light-oil-burners"), title: `${BRAND.riello.name} Oil Burners`, desc: "Light oil burners delivering reliable, efficient combustion.", specs: ["Light oil", "Low emissions", "Sized to load"] },
   { idx: "06", img: `${IMG}/Gasvigil/Stand%20Alone.png`, alt: "Gas leak detection and shutoff", href: toRoute("gasvigil"), title: "Gas Leak Detection & Shutoff", desc: `${BRAND.gasvigil.name} leak detection with automatic shutoff to protect people and plant.`, specs: ["Continuous sensing", "Auto shutoff", "Alarm & interlock"] },
 ] satisfies ConveyorItem[];
 
 /* One entry per brand, in registry order. Names and roles come from lib/site.ts. */
 const BRAND_CARDS = [
-  { id: "pf", img: `${IMG}/PF/Aperflux%20851.jpg`, alt: "Pietro Fiorentini gas equipment", desc: `Founded in ${PF_FACTS.foundedCity} in ${PF_FACTS.foundedYear}, with ${PF_FACTS.yearsProse} across the natural gas supply chain: regulators, safety valves, flow meters and EVC.` },
+  { id: "pf", img: `${IMG}/brochure/PF_APERFLUX101.png`, alt: "Pietro Fiorentini gas equipment", desc: `Founded in ${PF_FACTS.foundedCity} in ${PF_FACTS.foundedYear}, with ${PF_FACTS.yearsProse} across the natural gas supply chain: regulators, safety valves, flow meters and EVC.` },
   { id: "electrogas", img: null, alt: "", desc: "Solenoid, motorised, butterfly and port valves." },
   { id: "gastech", img: `${IMG}/gas-train/textile-stenter.jpg`, alt: "Gastech gas train for a textile stenter", desc: "Our own complete gas handling systems and gas trains, engineered in Pune." },
-  { id: "riello", img: `${IMG}/burner/gas-burner.png`, alt: "Riello burners", desc: "Industrial burners for gas, light oil and dual fuel." },
+  { id: "riello", img: `${IMG}/brochure/burners/gas-01.jpeg`, alt: "Riello burners", desc: "Industrial burners for gas, light oil and dual fuel." },
   { id: "gasvigil", img: `${IMG}/Gasvigil/GV%20108%20Gas%20Detector.jpg`, alt: "Gasvigil leak detection", desc: "Gas leak detection and automatic shutoff safety systems." },
 ] satisfies { id: BrandId; img: string | null; alt: string; desc: string }[];
 
 /* Hero side cards: details appear on hover. Destinations come from the product data. */
 const HERO_CARDS: HeroCard[] = [
   { side: "left", img: `${IMG}/gas-train/genset-dual-fuel-kit.jpg`, alt: "Gastech gas train on a skid", title: "Gastech Gas Trains", detail: "Complete skid-mounted gas trains with filters, regulators, valves and meters, configured to your duty and built in Pune.", cta: "Explore gas trains", href: toRoute("gas-trains") },
-  { side: "right", img: `${IMG}/PF/Staflux%20187.jpg`, alt: "Pietro Fiorentini gas regulator", title: `${BRAND.pf.name} Regulation`, detail: "Regulators, safety valves and flow meters, with a hydrogen range for up to 100% H₂.", cta: "Explore regulation", href: toRoute("pressure-regulators") },
+  { side: "right", img: `${IMG}/brochure/PF_STAFLUX185.png`, alt: "Pietro Fiorentini gas regulator", title: `${BRAND.pf.name} Regulation`, detail: "Regulators, safety valves and flow meters, with a hydrogen-ready meter range.", cta: "Explore regulation", href: toRoute("pressure-regulators") },
 ];
 
 /* Retired by sheet-conformance decision (Phase 2, row P01): the home graph is
@@ -66,7 +65,6 @@ export default function HomePage() {
         {/* GSAP scroll choreography for this page (null-render; SSR/no-JS safe,
             reduced-motion bails out). Wires the existing data-reveal / data-stagger
             hooks plus subtle media parallax and a velocity-reactive ticker. */}
-        <HomeScrollFx />
         {/* HERO */}
         <HomeHero cards={HERO_CARDS} />
 

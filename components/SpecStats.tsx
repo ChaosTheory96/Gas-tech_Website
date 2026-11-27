@@ -1,4 +1,3 @@
-"use client";
 // ============================================================================
 // SpecStats — F / SPEC-STRIP BIG STATS (gas-burners hero demo).
 // The four hero specs (p.specs, a fixed tuple of 4 {value,label}) rendered as
@@ -11,7 +10,6 @@
 // Scoped under .gt-proc .ss-* so nothing leaks into production selectors.
 // ============================================================================
 
-import { useEffect, useRef } from "react";
 import "@/styles/process.css";
 
 export type StatSpec = { value: string; label: string };
@@ -30,39 +28,11 @@ function isNumericToken(t: string): boolean {
 }
 
 export default function SpecStats({ specs }: { specs: StatSpec[] }) {
-  const rootRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    const stats = root.querySelector<HTMLElement>(".ss-stats");
-    if (!stats) return;
-    const reduce =
-      window.matchMedia &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce || !("IntersectionObserver" in window)) {
-      stats.classList.add("in"); // show immediately, no hidden state
-      return;
-    }
-    stats.classList.add("rv"); // opt in to the reveal (hidden until .in)
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((en) => {
-          if (en.isIntersecting) {
-            stats.classList.add("in");
-            io.disconnect();
-          }
-        });
-      },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.2 }
-    );
-    io.observe(stats);
-    return () => io.disconnect();
-  }, [specs]);
 
   return (
-    <div className="gt-proc" ref={rootRef}>
-      <div className="ss-stats">
+    <div className="gt-proc">
+      <div className="ss-stats" data-inview>
         {specs.map((s, i) => {
           const [lead, rest] = splitValue(s.value);
           return (

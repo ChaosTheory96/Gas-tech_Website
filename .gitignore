@@ -33,8 +33,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
-# internal qa probe scripts (not part of the site)
-/qa
+# internal qa probe scripts (not part of the site); the photo cut-out tool is kept
+/qa/*
+!/qa/cutouts.py
 
 # build logs and local scratch (not part of the site)
 *.log

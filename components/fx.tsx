@@ -12,9 +12,9 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { getSmoother } from "./SmoothScroll";
-import { EASE } from "./motion";
+import { getLenis } from "./ScrollFx";
 
+const EASE = [0.22, 1, 0.36, 1] as const;
 /* Route-change fade, seconds. */
 const PAGE_FADE_DUR = 0.4;
 
@@ -71,6 +71,10 @@ export function PageTransition({ children }: { children: ReactNode }) {
   const target = useRef<string>("");
   const holdSince = useRef(0);
   const timers = useRef<number[]>([]);
+  // the page you land on is sent visible; only pages you travel to fade in
+  const landing = useRef(pathname);
+  const moved = useRef(false);
+  if (pathname !== landing.current) moved.current = true;
 
   const go = (next: WipePhase) => {
     phaseRef.current = next;
@@ -132,7 +136,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
     <>
       <motion.div
         key={pathname}
-        initial={reduce ? false : { opacity: 0 }}
+        initial={reduce || !moved.current ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: PAGE_FADE_DUR, ease: EASE }}
       >
@@ -163,11 +167,9 @@ export function HashScroller() {
         parseInt(getComputedStyle(document.documentElement).getPropertyValue("--nav-h")) || 78;
       const top = el.getBoundingClientRect().top + window.scrollY - navH - 12;
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      // When ScrollSmoother is active, route through it so the jump is eased and
-      // stays in sync with the smoothed scroller; otherwise use native scroll.
-      const s = getSmoother();
-      if (s && !reduce) { s.scrollTo(Math.max(0, top), true); }
-      else { window.scrollTo({ top, behavior: reduce ? "auto" : "smooth" }); }
+      const eased = getLenis();
+      if (eased) eased.scrollTo(Math.max(0, top), { force: true });
+      else window.scrollTo({ top, behavior: reduce ? "auto" : "smooth" });
     };
     const id = window.setTimeout(jump, 120);
     return () => window.clearTimeout(id);

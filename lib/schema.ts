@@ -283,6 +283,8 @@ export function productGraph(p: Product, crumbs: { name: string; href: string }[
       return [collection, faq, bc];
     case "gas-trains": // P30: CollectionPage + Service + FAQPage + BreadcrumbList
       return [collection, serviceSchema(p.h1, p.metaDescription, p.route), faq, bc];
+    case "electrogas": // brand page: CollectionPage + Brand + FAQPage + BreadcrumbList
+      return [collection, brandSchema(p.brand, p.route), faq, bc];
     case "gasvigil": // P24: CollectionPage + Brand + BreadcrumbList
       return [collection, brandSchema(p.brand, p.route), bc];
     default: // P42/P43/P44/P52: Product (brand, no offers) + FAQPage + BreadcrumbList

@@ -20,14 +20,17 @@ type PageHeroProps = {
   asideBare?: boolean;
   compact?: boolean;
   center?: boolean;
+  /** Decorative editorial background; content remains in the text layer. */
+  backgroundSrc?: string;
 } & ({ crumbs: Crumb[]; eyebrow?: never } | { eyebrow: string; crumbs?: never });
 
-export function PageHero({ title, lede, primary, secondary, aside, asideMedia, asideBare, compact, center, crumbs, eyebrow }: PageHeroProps) {
-  const cls = ["page-hero", compact && "page-hero--compact", aside && "page-hero--aside", center && !aside && "page-hero--center"]
+export function PageHero({ title, lede, primary, secondary, aside, asideMedia, asideBare, compact, center, backgroundSrc, crumbs, eyebrow }: PageHeroProps) {
+  const cls = ["page-hero", compact && "page-hero--compact", aside && "page-hero--aside", center && !aside && "page-hero--center", backgroundSrc && "page-hero--photo"]
     .filter(Boolean)
     .join(" ");
   return (
     <section className={cls}>
+      {backgroundSrc && <img className="page-hero-photo" src={backgroundSrc} alt="" aria-hidden="true" decoding="async" />}
       <div className="wrap page-hero-grid">
         <div className="page-hero-copy">
           {crumbs && (

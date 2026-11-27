@@ -33,6 +33,7 @@ export default function ContactPage() {
       />
       <main id="main">
         <PageHero
+          backgroundSrc="/images/editorial/gas-facility.jpg"
           crumbs={[{ label: "Contact" }]}
           title={<>
             <span className="line">Contact{" "}</span>

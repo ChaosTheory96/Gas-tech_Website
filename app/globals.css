@@ -9,6 +9,7 @@
 @import "../styles/tokens.css";
 @import "../styles/site.css";
 @import "../styles/enhancements.css";
+@import "../styles/cards.css";
 
 @tailwind base;
 @tailwind components;

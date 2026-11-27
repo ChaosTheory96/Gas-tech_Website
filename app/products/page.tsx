@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
-import { absoluteUrl, BRAND, REPRESENTED_BRAND_LIST } from "@/lib/site";
-import { PRODUCTS, getProduct } from "@/lib/products";
+import { absoluteUrl, BRAND, PF_FACTS, REPRESENTED_BRAND_LIST } from "@/lib/site";
+import { PRODUCTS, getProduct, productShots } from "@/lib/products";
+import { ProductCard } from "@/components/cards/ProductCard";
 import { Icon } from "@/components/icons";
 import { SectionHead, JsonLd } from "@/components/blocks";
 import { EnquiryButton } from "@/components/enquiry";
 import { PageHero } from "@/components/PageHero";
-import BentoGrid, { type BentoItem } from "@/components/BentoGrid";
 
 export const metadata = buildMetadata({
   title: "Industrial Burners, Gas Regulation & Gas Safety | Gastech",
@@ -15,10 +15,16 @@ export const metadata = buildMetadata({
   keywords: ["industrial burners", "gas regulators", "flow meters", "gas trains", "gas valves", "gas leak detection", "Pune"],
 });
 
-const IMG = "/images"; // self-hosted mirror of gastechcombustions.in/images — run `node qa/_fetch-assets.mjs` to populate public/images
+const IMG = "/images";  // self-hosted copy of the catalogue images
 
-type Card = { slug?: string; img?: string; alt: string; desc: string; href?: string; title?: string; brand?: string; icon?: string; cta?: string };
-type Group = { id: string; eyebrow: string; title: string; sub: string; span: string; cards: Card[] };
+type Card = { slug: string; img?: string; desc: string; icon?: string };
+type Group = { id: string; eyebrow: string; title: string; sub: string; grid: string; cards: Card[] };
+
+/* key points on the two highlight cards */
+const CHIPS = {
+  pf: [`Since ${PF_FACTS.foundedYear}`, PF_FACTS.yearsLabel],
+  gt: ["Customized", "Reliable & safe", "Application-specific"],
+};
 
 /* Brand order: Gas Trains (the product USP) first, then Pietro Fiorentini, then
    Electrogas and Gasvigil, then Riello. Each group is its own section so every
@@ -29,9 +35,9 @@ const GROUPS: Group[] = [
     eyebrow: "Gastech",
     title: "Complete gas trains.",
     sub: "Turnkey, skid-mounted gas supply assemblies, engineered and built in Pune.",
-    span: "c12 r2",
+    grid: "pc-grid pc-grid--wide",
     cards: [
-      { slug: "gas-trains", img: `${IMG}/gas-train/steel-plant.jpg`, alt: "Gastech gas train skid with yellow pipework, regulators and control cabinet", desc: "Engineered and manufactured by Gastech: complete skid-mounted trains configured to your gas type, flow, pressures and safety requirements." },
+      { slug: "gas-trains", img: `${IMG}/gas-train/compact-monoblock.jpg`, desc: "Engineered and manufactured by Gastech: complete skid-mounted trains configured to your gas type, flow, pressures and safety requirements." },
     ],
   },
   {
@@ -39,11 +45,11 @@ const GROUPS: Group[] = [
     eyebrow: BRAND.pf.name,
     title: "Regulation, metering & safety.",
     sub: "Regulators, flow meters and safety devices for steady, measurable and protected supply.",
-    span: "c4 r2",
+    grid: "pc-grid",
     cards: [
-      { slug: "pressure-regulators", img: `${IMG}/PF/Aperflux%20851.jpg`, alt: "Pietro Fiorentini gas regulator", desc: 'High, medium and low pressure regulators and governors, DN 3/4" to 12".' },
-      { slug: "flow-meters", img: `${IMG}/IM-TM%20turbine.jpg`, alt: "Gas flow meter", desc: "RPD and turbine meters with electronic volume correction and Ex barriers." },
-      { slug: "safety-valves", img: `${IMG}/PF/gas/shut-off-valves/dilock.jpg`, alt: "Slam shut off valve", desc: "Slam shut-off valves, relief valves and governors for protection trains." },
+      { slug: "pressure-regulators", img: `${IMG}/brochure/PF_APERFLUX101.png`, desc: 'High, medium and low pressure regulators and governors, DN 3/4" to 12".' },
+      { slug: "flow-meters", img: `${IMG}/IM-TM%20turbine.jpg`, desc: "RPD and turbine meters with electronic volume correction and Ex barriers." },
+      { slug: "safety-valves", img: `${IMG}/PF/gas/shut-off-valves/dilock.jpg`, desc: "Slam shut-off valves, relief valves and governors for protection trains." },
     ],
   },
   {
@@ -51,10 +57,10 @@ const GROUPS: Group[] = [
     eyebrow: `${BRAND.electrogas.name} & ${BRAND.gasvigil.name}`,
     title: "Valves & detection.",
     sub: "Valves for gas lines, and continuous gas-leak protection for people and plant.",
-    span: "c6 r2",
+    grid: "pc-grid pc-grid--2",
     cards: [
-      { slug: "valves", icon: "manifold", alt: "", desc: "Solenoid, motorised, butterfly and port valves." },
-      { slug: "gasvigil", img: `${IMG}/Gasvigil/GV%20108%20Gas%20Detector.jpg`, alt: "Gasvigil gas detector", desc: "Fixed, panelled, stand-alone and portable leak detection with auto shutoff." },
+      { slug: "valves", icon: "manifold", desc: "Solenoid, motorised, butterfly and port valves." },
+      { slug: "gasvigil", img: `${IMG}/Gasvigil/GV%20108%20Gas%20Detector.jpg`, desc: "Fixed, panelled, stand-alone and portable leak detection with auto shutoff." },
     ],
   },
   {
@@ -62,11 +68,11 @@ const GROUPS: Group[] = [
     eyebrow: `${BRAND.riello.name} burners`,
     title: "Burners for every fuel.",
     sub: "One-stage to modulating burners for gas, light oil and dual-fuel duty, sized to your boiler or process.",
-    span: "c4 r2",
+    grid: "pc-grid",
     cards: [
-      { slug: "gas-burners", img: `${IMG}/burner/riello-burner/light-oil-product/gas-burner-MODULATING.jpg`, alt: "Riello gas burner", desc: "Natural gas and LPG burners, 11 to 4885 kW, in four firing modes." },
-      { slug: "light-oil-burners", img: `${IMG}/burner/riello-burner/light-oil-burner-02-stage.jpg`, alt: "Riello light oil burner", desc: "Gasoil and kerosene burners, 14 to 5340 kW, one-stage to modulating." },
-      { slug: "dual-fuel-burners", img: `${IMG}/burner/riello-burner/light-oil-product/dual-fuel-modulating.jpg`, alt: "Riello dual fuel burner", desc: "Gas and light-oil burners, 163 to 5000 kW, for fuel-security." },
+      { slug: "gas-burners", img: `${IMG}/brochure/burners/gas-02.jpeg`, desc: "Natural gas and LPG burners, 11 to 4885 kW, in four firing modes." },
+      { slug: "light-oil-burners", img: `${IMG}/brochure/burners/light-oil-01.jpeg`, desc: "Gasoil and kerosene burners, 14 to 5340 kW, one-stage to modulating." },
+      { slug: "dual-fuel-burners", img: `${IMG}/brochure/burners/dual-fuel-01.jpeg`, desc: "Gas and light-oil burners, 163 to 5000 kW, for fuel-security." },
     ],
   },
 ];
@@ -96,6 +102,7 @@ export default function ProductsPage() {
       <JsonLd data={[itemList]} />
       <main id="main">
         <PageHero
+          backgroundSrc="/images/editorial/gas-facility.jpg"
           crumbs={[{ label: "Products" }]}
           title={<>
             <span className="line">Products</span>
@@ -121,23 +128,29 @@ export default function ProductsPage() {
           <section className={gi % 2 === 0 ? "sec sec--tint" : "sec"} id={g.id} key={g.id}>
             <div className="wrap">
               <SectionHead eyebrow={g.eyebrow} title={g.title} sub={g.sub} />
-              <BentoGrid
-                items={g.cards.map((c): BentoItem => {
-                  const prod = c.slug ? getProduct(c.slug) : undefined;
-                  return {
-                    href: c.href ?? prod?.route ?? "/",
-                    img: c.img,
-                    icon: c.icon,
-                    cta: c.cta,
-                    alt: c.alt,
-                    title: c.title ?? prod?.navLabel ?? "",
-                    brand: c.brand ?? prod?.brand ?? "",
-                    desc: c.desc,
-                    span: g.span,
-                    ...(c.slug === "gas-trains" ? { usp: "gt" as const } : prod?.brand === BRAND.pf.name ? { usp: "pf" as const } : {}),
-                  };
+              <div className={g.grid} data-stagger>
+                {g.cards.map((c) => {
+                  const prod = getProduct(c.slug);
+                  if (!prod) return null;
+                  const usp = c.slug === "gas-trains" ? "gt" : prod.brand === BRAND.pf.name ? "pf" : null;
+                  return (
+                    <ProductCard
+                      key={c.slug}
+                      title={prod.navLabel}
+                      line={c.desc}
+                      tag={prod.card.tag}
+                      brand={prod.brandIds[0]}
+                      shots={c.img ? productShots(prod, c.img) : []}
+                      icon={c.icon}
+                      red={c.slug === "gas-trains"}
+                      usp={!!usp}
+                      chips={usp ? CHIPS[usp] : undefined}
+                      fact={prod.card.fact}
+                      href={prod.route}
+                    />
+                  );
                 })}
-              />
+              </div>
             </div>
           </section>
         ))}

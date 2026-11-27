@@ -257,7 +257,7 @@ export function CapabilityConveyor({ items, speed = 35, fade = 0.08, className }
         tabIndex={0}
       >
         {items.map((d, i) => (
-          <article
+          <div
             key={d.idx}
             ref={(el) => { cardRefs.current[i] = el; }}
             className={d.flag ? "gt-conv-card is-flag" : "gt-conv-card"}
@@ -282,7 +282,7 @@ export function CapabilityConveyor({ items, speed = 35, fade = 0.08, className }
               </Link>
             </div>
             <span ref={(el) => { shadeRefs.current[i] = el; }} className="gt-conv-shade" aria-hidden="true" />
-          </article>
+          </div>
         ))}
       </div>
 

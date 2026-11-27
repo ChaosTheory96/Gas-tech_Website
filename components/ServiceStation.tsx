@@ -1,4 +1,3 @@
-"use client";
 // ============================================================================
 // ServiceStation — one dedicated section per service line (Services page).
 // Each service gets room to breathe: a real image plate + an animated valve
@@ -13,7 +12,6 @@
 // final state is applied immediately. Scoped .gt-proc .svc-*.
 // ============================================================================
 
-import { useEffect, useRef } from "react";
 import "@/styles/process.css";
 
 export type ServicePoint = { label: string; text: string };
@@ -38,39 +36,11 @@ export default function ServiceStation({
   flip?: boolean;
   children?: React.ReactNode;
 }) {
-  const rootRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    const sec = root.querySelector<HTMLElement>(".svc-sec");
-    if (!sec) return;
-    const reduce =
-      window.matchMedia &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce || !("IntersectionObserver" in window)) {
-      sec.classList.add("in");
-      return;
-    }
-    sec.classList.add("rv");
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((en) => {
-          if (en.isIntersecting) {
-            sec.classList.add("in");
-            io.disconnect();
-          }
-        });
-      },
-      { rootMargin: "0px 0px -15% 0px", threshold: 0.15 }
-    );
-    io.observe(sec);
-    return () => io.disconnect();
-  }, [data]);
 
   return (
-    <div className="gt-proc" ref={rootRef}>
-      <section className={flip ? "svc-sec svc-sec--flip" : "svc-sec"}>
+    <div className="gt-proc">
+      <section className={flip ? "svc-sec svc-sec--flip" : "svc-sec"} data-inview>
         <div className="svc-media">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={data.img} alt={data.alt} loading="lazy" decoding="async" />

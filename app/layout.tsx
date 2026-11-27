@@ -6,7 +6,7 @@ import { IconSprite } from "@/components/icons";
 import { EnquiryProvider } from "@/components/enquiry";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { SmoothScroll } from "@/components/SmoothScroll";
+import { ScrollFx } from "@/components/ScrollFx";
 import { Preloader } from "@/components/preloader";
 import { FxBootstrap, ScrollProgressBar, PageTransition, HashScroller } from "@/components/fx";
 
@@ -63,8 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preload" href="/fonts/manrope-latin-800-normal.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/manrope-latin-700-normal.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/manrope-latin-600-normal.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/sourcesans3-latin-400-normal.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/sourcesans3-latin-600-normal.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/manrope-latin-500-normal.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/ibmplexmono-latin-500-normal.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body>
@@ -77,14 +76,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ScrollProgressBar />
             <a className="skip" href="#main">Skip to content</a>
             <Navbar />
-            {/* SmoothScroll wraps ONLY the scrolling document. The fixed navbar and
-                scroll-progress above, and the enquiry modal (a sibling rendered by
-                EnquiryProvider after this), stay OUTSIDE #smooth-content so
-                ScrollSmoother's transform never drags or scales them. */}
-            <SmoothScroll>
-              <PageTransition>{children}</PageTransition>
-              <Footer />
-            </SmoothScroll>
+            <PageTransition>{children}</PageTransition>
+            <Footer />
+            <ScrollFx />
           </EnquiryProvider>
         </MotionConfig>
       </body>

@@ -1,5 +1,5 @@
 import { SITE, absoluteUrl } from "@/lib/site";
-import { PRODUCTS } from "@/lib/products";
+import { ALL_PAGES } from "@/lib/products";
 
 /* GEO: a plain-text, machine-readable summary of the business and its pages,
    following the llms.txt convention so generative engines can crawl accurate
@@ -37,7 +37,7 @@ export function GET() {
   for (const [label, path] of core) lines.push(`- [${label}](${absoluteUrl(path)})`);
   lines.push("");
   lines.push("## Products");
-  for (const p of PRODUCTS) {
+  for (const p of ALL_PAGES) {
     lines.push(`- [${p.navLabel} (${p.brand})](${absoluteUrl(p.route)}): ${p.metaDescription}`);
   }
   lines.push("");
