@@ -1,7 +1,6 @@
 /* ---------------------------------------------------------------------------
    Reusable, presentational building blocks shared across routes so the navbar,
-   footer, marquees, section headings and structured data stay identical
-   everywhere.
+   footer, section headings and structured data stay identical everywhere.
    --------------------------------------------------------------------------- */
 import type { ReactNode } from "react";
 
@@ -18,39 +17,6 @@ export function JsonLd({ data }: { data: unknown | unknown[] }) {
         />
       ))}
     </>
-  );
-}
-
-export const DEFAULT_MARQUEE = [
-  "Industrial Burners",
-  "Gas Regulation",
-  "Gas Metering",
-  "Flow Meters & EVC",
-  "Hydrogen Solutions",
-  "Gas Leak Detection",
-  "Complete Gas Systems",
-];
-
-/** Infinite capability marquee (the .ticker treatment). */
-export function Marquee({ items = DEFAULT_MARQUEE }: { items?: string[] }) {
-  const row = (
-    <div className="ticker-row">
-      {items.map((t, i) => (
-        <span key={i}>{t}</span>
-      ))}
-    </div>
-  );
-  return (
-    <section className="ticker" aria-hidden="true">
-      <div className="ticker-track">
-        {row}
-        <div className="ticker-row" aria-hidden="true">
-          {items.map((t, i) => (
-            <span key={i}>{t}</span>
-          ))}
-        </div>
-      </div>
-    </section>
   );
 }
 

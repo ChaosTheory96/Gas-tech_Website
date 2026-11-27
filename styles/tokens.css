@@ -32,15 +32,20 @@
   --dur-mid:.22s; --dur-overlay:.24s; --dur-nav:.3s; --dur-sheet:.36s;
   --dur-slow:.5s; --dur-slower:.7s;
   --dur-80:.08s; --dur-150:.15s; --dur-200:.2s; --dur-320:.32s; --dur-400:.4s; --dur-550:.55s;
-  --dur-600:.6s; --dur-800:.8s; --dur-900:.9s; --dur-1000:1s; --dur-1050:1.05s; --dur-1100:1.1s; --dur-1300:1.3s; --loop-ticker:77s; --loop-brands:64s;
+  --dur-600:.6s; --dur-800:.8s; --dur-900:.9s; --dur-1000:1s; --dur-1050:1.05s; --dur-1100:1.1s; --dur-1300:1.3s; --loop-brands:64s;
   --lift-hover:-2px; --lift-press:1px; --lift-card:-6px;
   --motion:1;
   --hero-min:calc(100svh - var(--nav-h,78px)); --hero-pad-top:clamp(56px,10vh,112px); --hero-pad-bottom:clamp(36px,6vh,72px);
+  /* white tint over inner hero photos */
+  --hero-tint-core:84%; --hero-tint-mid:62%; --hero-tint-edge:26%;
   --target-min:44px;
+  /* brand logo height on cards; kept small because the supplied files are low resolution */
+  --brand-logo-h:48px;
+  --brand-logo-h-padded:68px;
   --focus-w:3px; --focus-offset:3px;
   --z-under:-1; --z-base:0; --z-1:1; --z-2:2; --z-3:3; --z-4:4;
-  --z-header:50; --z-mobile-cta:56; --z-dropdown:60; --z-progress:60; --z-modal:100;
-  --z-preload:200; --z-wipe:300; --z-skip:999; --z-grain:9998;
+  --z-smoke:40; --z-header:50; --z-mobile-cta:56; --z-dropdown:60; --z-progress:60; --z-modal:100;
+  --z-preload:200; --z-wipe:300; --z-smoke-cover:301;--z-skip:999; --z-grain:9998;
   --measure-prose:68ch; --page-max:1120px; --gutter:clamp(16px, 4vw, 40px);
   --safe-area-b:env(safe-area-inset-bottom, 0px);
   --fs-fluid-h2:      clamp(1.35rem, 1.05rem + 1.5vw, 1.75rem);

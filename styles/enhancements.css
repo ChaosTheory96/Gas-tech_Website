@@ -122,7 +122,6 @@ html{scroll-padding-top:calc(var(--nav-h,78px) + 16px)}
 body{font-optical-sizing:auto}
 .intro-hero h1,.page-hero h1,.p-hero h1,.sec-head h2{font-weight:800}
 .fac-idx{backdrop-filter:none;-webkit-backdrop-filter:none;background:color-mix(in srgb,var(--text-default) 78%,var(--bg-elevated))}
-body .ticker{-webkit-mask-image:linear-gradient(90deg,transparent,var(--mask-opaque) 7%,var(--mask-opaque) 93%,transparent);mask-image:linear-gradient(90deg,transparent,var(--mask-opaque) 7%,var(--mask-opaque) 93%,transparent)}
 body .gt-conv-stage{-webkit-mask-image:linear-gradient(90deg,transparent,var(--mask-opaque) 9%,var(--mask-opaque) 91%,transparent);mask-image:linear-gradient(90deg,transparent,var(--mask-opaque) 9%,var(--mask-opaque) 91%,transparent);overflow-x:clip}
 body .gt-conv-shade{background:var(--conv-shade)}
 html{text-rendering:optimizeLegibility}

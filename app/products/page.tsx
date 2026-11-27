@@ -108,8 +108,7 @@ export default function ProductsPage() {
             <span className="line">Products</span>
           </>}
           lede={<>Everything we supply, size, install and service, from the brands we represent. Open a product for models, capacities and specifications, or talk to an engineer about your application.</>}
-          primary={<a className="btn btn--primary" href="#gas-trains">Browse the range <Icon name="arrow" /></a>}
-          secondary={<EnquiryButton className="btn--tech" type="technical" product="Product enquiry" icon="chat">Talk to an engineer</EnquiryButton>}
+          primary={<EnquiryButton className="btn btn--primary" type="technical" product="Product enquiry" icon="chat">Talk to an engineer</EnquiryButton>}
           asideMedia
           aside={
             <Link className="pa-feature" href={gasTrains?.route ?? "/gas-trains/"}>

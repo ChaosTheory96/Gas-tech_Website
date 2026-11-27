@@ -132,7 +132,7 @@ export default function ProductPage({ p }: { p: Product }) {
               <p className="p-lead">{p.lead}</p>
               <SpecStats specs={p.specs} />
               <div className="cta-dual">
-                <a className="btn btn--primary" href={hasRange ? "#range" : "#specs"}>See the range</a>
+                <EnquiryButton className="btn btn--primary" type="technical" product={p.navLabel} icon="chat">Talk to an engineer</EnquiryButton>
               </div>
             </div>
 

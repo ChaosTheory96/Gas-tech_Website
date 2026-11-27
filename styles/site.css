@@ -153,9 +153,6 @@ u{text-decoration:none;color:inherit;background-image:linear-gradient(var(--bran
 .home-hero h1 em{font-style:normal;color:color-mix(in srgb,var(--brand) 72%,var(--on-dark))}
 .hh-lede{max-width:56ch;margin-top:clamp(18px,3vh,26px);font-size:clamp(1rem,.95rem + .4vw,1.28rem);line-height:1.5;color:var(--on-dark-mute)}
 .hh-cta{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--sp-4);margin-top:clamp(24px,4vh,36px)}
-.hh-pills{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:min(100%,940px);margin-top:clamp(24px,4vh,38px)}
-.hh-pills li{display:inline-flex;align-items:center;height:36px;padding-inline:var(--sp-4);border-radius:var(--r-pill);border:1px solid color-mix(in srgb,var(--on-dark) 22%,transparent);background:color-mix(in srgb,var(--on-dark) 7%,transparent);font-size:var(--fs-sm);color:var(--on-dark)}
-.hh-pills .hh-pill--h{border-color:color-mix(in srgb,var(--brand) 60%,transparent);background:color-mix(in srgb,var(--brand) 25%,transparent)}
 .hh-cards{display:none}
 @media (min-width:1201px) and (min-height:700px){
   .hh-cards{display:block;position:absolute;inset:0;z-index:var(--z-1);pointer-events:none}
@@ -191,13 +188,8 @@ u{text-decoration:none;color:inherit;background-image:linear-gradient(var(--bran
 .hero-cta{display:flex;flex-wrap:wrap;gap:var(--sp-4)}
 .hero-cta--spaced{margin-top:var(--sp-4)}
 
-/* ============================ TICKER ============================ */
-.ticker{position:relative;overflow:hidden;border-block:1px solid var(--border-subtle);background:var(--bg-elevated);padding-block:var(--sp-6)}
-.ticker-track{display:flex;width:max-content;animation:gt-marquee var(--loop-ticker) linear infinite}
-.ticker:hover .ticker-track,.hh-marquee:hover .hh-marquee-track{animation-play-state:paused}
-.ticker-row{display:flex;align-items:center;flex:0 0 auto}
-.ticker-row span{display:inline-flex;align-items:center;font-family:var(--font-display);font-size:var(--fs-fluid-h3);font-weight:var(--fw-bold);letter-spacing:var(--tracking-wide);text-transform:uppercase;color:var(--text-default);white-space:nowrap;padding-inline:28px}
-.ticker-row span::after{content:"";width:7px;height:7px;border-radius:var(--r-circle);background:var(--brand);margin-left:28px}
+/* ============================ BRAND STRIP LOOP ============================ */
+.hh-marquee:hover .hh-marquee-track{animation-play-state:paused}
 @keyframes gt-marquee{to{transform:translateX(-50%)}}
 
 /* ============================ SECTIONS ============================ */
@@ -444,6 +436,20 @@ table.spec{width:100%;border-collapse:collapse}
 .var-card ul li{position:relative;padding-left:20px;font-family:var(--font-mono);font-size:12px;letter-spacing:.02em;color:var(--text-secondary)}
 .var-card ul li::before{content:"";position:absolute;left:0;top:.6em;width:9px;height:1px;background:var(--brand)}
 
+/* Brand cards (About): logo first, links level along the bottom */
+.brand-card h3{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.brand-card-logo{display:flex;align-items:center;min-height:var(--brand-logo-h-padded);margin-bottom:var(--sp-3)}
+.brand-card-logo .brand-mark{min-height:0}
+.brand-card-logo .brand-mark img{height:var(--brand-logo-h)}
+/* the Pietro Fiorentini file has blank space above and below the artwork */
+.brand-card[data-brand="pf"] .brand-card-logo img{height:var(--brand-logo-h-padded)}
+.brand-card .brand-link{margin-top:auto;padding-top:var(--sp-3);align-self:flex-start}
+.var-card.brand-card--red,.var-card.brand-card--red:hover{--focus-ring:var(--brand-fg);background:var(--plate);border-color:var(--brand);color:var(--brand-fg)}
+.var-card.brand-card--red::after{display:none}
+.brand-card--red :is(.v-k,ul li,.brand-link,.brand-mark-name){color:var(--brand-fg)}
+.var-card.brand-card--red ul li::before{background:var(--brand-fg)}
+.brand-card--red .brand-mark img{filter:brightness(0) invert(1)}
+
 /* Hub + intro helpers (products hub, services) */
 .intro-hero{position:relative;isolation:isolate;padding-block:clamp(40px,7vh,96px) clamp(28px,4vh,56px);background:linear-gradient(180deg,var(--bg-elevated) 0%,var(--bg-page) 88%)}
 .intro-hero h1{font-size:var(--fs-hero);line-height:1.04;letter-spacing:var(--tracking-display);margin-bottom:18px}
@@ -452,7 +458,11 @@ table.spec{width:100%;border-collapse:collapse}
 .page-hero{position:relative;isolation:isolate;display:grid;align-content:center;min-height:var(--hero-min);padding-block:var(--hero-pad-top) var(--hero-pad-bottom);background:linear-gradient(180deg,var(--bg-elevated) 0%,var(--bg-page) 88%)}
 .page-hero--photo{overflow:hidden}
 .page-hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:var(--z-base)}
-.page-hero--photo::after{content:"";position:absolute;inset:0;z-index:var(--z-base);background:color-mix(in srgb,var(--bg-page) 82%,transparent);pointer-events:none}
+/* White tint on the hero photo: strongest behind the words, clearer towards the edges, fading into the page below */
+.page-hero--photo::after{--tint-core:color-mix(in srgb,var(--bg-page) var(--hero-tint-core),transparent);--tint-mid:color-mix(in srgb,var(--bg-page) var(--hero-tint-mid),transparent);--tint-edge:color-mix(in srgb,var(--bg-page) var(--hero-tint-edge),transparent);content:"";position:absolute;inset:0;z-index:var(--z-base);background:linear-gradient(180deg,transparent 80%,var(--bg-page)),radial-gradient(ellipse 66% 72% at 50% 48%,var(--tint-core),var(--tint-mid) 55%,var(--tint-edge));pointer-events:none}
+.page-hero--aside.page-hero--photo::after{background:linear-gradient(180deg,transparent 80%,var(--bg-page)),linear-gradient(90deg,var(--tint-core) 38%,var(--tint-mid) 56%,var(--tint-edge) 84%)}
+/* stacked layout: the words span the full width, so the tint runs top to bottom */
+@media (max-width:900px){.page-hero--photo::after,.page-hero--aside.page-hero--photo::after{background:linear-gradient(180deg,var(--tint-core) 62%,var(--tint-mid) 84%,var(--bg-page))}}
 .page-hero--photo .page-hero-grid{position:relative;z-index:var(--z-1)}
 .page-hero--compact{min-height:0}
 .page-hero .crumbs{margin-bottom:var(--sp-4)}
@@ -512,6 +522,10 @@ table.spec{width:100%;border-collapse:collapse}
 .field-error{align-self:flex-start;padding:4px 10px;border-radius:var(--r-sm);background:var(--modal-field-bg);color:var(--error-text);font-size:var(--fs-sm);font-weight:var(--fw-semibold);line-height:1.4}
 .field ::placeholder{color:var(--text-muted);opacity:1}
 .honeypot{position:absolute!important;left:-5000px;width:1px;height:1px;opacity:0;overflow:hidden}
+/* Cursor smoke canvas: above the page, below the header and the enquiry popup, never takes clicks */
+.cursor-smoke{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:var(--z-smoke)}
+/* while the loading screen or the page transition covers the site, the smoke moves above it */
+body:has(.gt-preload,.gt-wipe:not([data-phase="idle"])) .cursor-smoke{z-index:var(--z-smoke-cover)}
 .modal-foot{flex:none;display:flex;flex-direction:column;gap:var(--sp-3);padding:var(--sp-4) var(--modal-pad) calc(var(--sp-4) + var(--safe-area-b,0px));border-top:1px solid var(--modal-rule)}
 .modal-note{margin:0;font-size:var(--fs-sm);line-height:1.5;color:var(--modal-ink)}
 .modal-note a{color:inherit;text-decoration:underline;overflow-wrap:anywhere}
@@ -567,7 +581,7 @@ table.spec{width:100%;border-collapse:collapse}
   html{scroll-behavior:auto}
   *{animation-duration:.001ms!important;transition-duration:.001ms!important}
   .steps li::before{transform:scaleX(1)}
-  .ticker-track,.hh-marquee-track{animation:none}
+  .hh-marquee-track{animation:none}
   .brand .gc-mark{clip-path:none!important}
 }
 

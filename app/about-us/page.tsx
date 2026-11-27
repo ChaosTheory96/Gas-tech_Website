@@ -6,6 +6,7 @@ import { aboutPageSchema, organizationSchema } from "@/lib/schema";
 import { Icon } from "@/components/icons";
 import { SectionHead, JsonLd } from "@/components/blocks";
 import { EnquiryButton } from "@/components/enquiry";
+import { BrandMark } from "@/components/BrandLockup";
 import { PageHero } from "@/components/PageHero";
 import { ProductCard } from "@/components/cards/ProductCard";
 import SpecStats from "@/components/SpecStats";
@@ -188,6 +189,7 @@ const BRAND_CARDS: Record<BrandId, { k: string; points: string[]; href: string; 
   },
 };
 const BRAND_ORDER = Object.keys(BRAND_CARDS) as BrandId[];
+const BRAND_HIGHLIGHT: readonly BrandId[] = ["pf", "gastech"];
 
 /* The five steps, as on the former How We Work page. */
 const STEPS = [
@@ -315,13 +317,14 @@ export default function AboutUsPage() {
               sub={`Authorised distributor of ${REPRESENTED_BRAND_LIST}, and the maker of Gastech gas trains.`}
             />
             <div className="var-grid var-grid--5" data-stagger>
-              {BRAND_ORDER.map((id, i) => {
+              {BRAND_ORDER.map((id) => {
                 const b = BRAND_CARDS[id];
                 return (
-                  <article className="var-card" key={id}>
-                    <span className="v-idx">{String(i + 1).padStart(2, "0")}</span>
-                    <div className="v-k">{b.k}</div>
+                  <article className={BRAND_HIGHLIGHT.includes(id) ? "var-card brand-card brand-card--red" : "var-card brand-card"} data-brand={id} key={id}>
+                    {/* The logo is the visible name; the heading stays for search engines and screen readers. */}
                     <h3>{BRAND[id].name}</h3>
+                    <div className="brand-card-logo" aria-hidden="true"><BrandMark id={id} /></div>
+                    <div className="v-k">{b.k}</div>
                     <ul>
                       {b.points.map((t) => <li key={t}>{t}</li>)}
                     </ul>

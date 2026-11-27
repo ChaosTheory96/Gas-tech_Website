@@ -26,9 +26,6 @@ export type HeroCard = {
   href: string;
 };
 
-const PILLS = ["Gas trains", "Regulation", "Metering", "Valves", "Burners", "Leak detection"];
-const HYDROGEN_PILL = "Hydrogen-ready meters";
-
 /* Parallax tuning: depth is how far a layer drifts (px) at full pointer
    deflection / full scroll through the hero. */
 const DEPTH = {
@@ -147,13 +144,9 @@ export function HomeHero({ cards }: { cards: HeroCard[] }) {
           {BRAND.electrogas.name} valves, {BRAND.riello.name} burners and {BRAND.gasvigil.name} leak detection.
         </p>
         <div className="hh-cta" data-reveal>
-          <a className="btn btn--primary fx-magnetic" href="#capabilities">Explore capabilities <Icon name="arrow" /></a>
+          <Link className="btn btn--primary fx-magnetic" href="/products/">View products <Icon name="arrow" /></Link>
           <EnquiryButton className="btn btn--outline fx-magnetic" type="technical" product="Engineer enquiry" icon="chat">Talk to an engineer</EnquiryButton>
         </div>
-        <ul className="hh-pills" aria-label="What we supply" data-reveal>
-          {PILLS.map((p) => <li key={p}>{p}</li>)}
-          <li className="hh-pill--h">{HYDROGEN_PILL}</li>
-        </ul>
       </div>
 
       <div className="hh-cards">

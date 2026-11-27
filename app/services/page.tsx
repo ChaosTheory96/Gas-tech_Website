@@ -105,13 +105,12 @@ export default function ServicesPage() {
             <span className="line"><em>and AMC</em></span>
           </>}
           lede={<>Consultancy before you buy, installation and commissioning when you do, and maintenance contracts for the whole life of your gas system, all by our own team.</>}
-          primary={<a className="btn btn--primary" href="#services">Explore services <Icon name="arrow" /></a>}
-          secondary={<EnquiryButton className="btn--tech" type="technical" product="Service enquiry" icon="chat">Talk to our team</EnquiryButton>}
+          primary={<EnquiryButton className="btn btn--primary" type="technical" product="Service enquiry" icon="chat">Talk to our team</EnquiryButton>}
           center
         />
 
-        {SERVICES.map((s, i) => (
-          <section key={s.num} id={i === 0 ? "services" : undefined} className={s.tone === "sunken" ? "sec sec--sunken" : "sec"}>
+        {SERVICES.map((s) => (
+          <section key={s.num} className={s.tone === "sunken" ? "sec sec--sunken" : "sec"}>
             <div className="wrap">
               <ServiceStation data={s} flip={s.flip} />
             </div>

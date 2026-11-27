@@ -220,26 +220,6 @@ function useParallax(pathname: string) {
   }, [pathname]);
 }
 
-/* the brand ticker runs faster while the page is moving */
-function useTickerVelocity(pathname: string) {
-  useEffect(() => {
-    const track = document.querySelector<HTMLElement>(".ticker-track");
-    if (!track || !window.matchMedia("(prefers-reduced-motion: no-preference)").matches) return;
-    let last = window.scrollY;
-    let rate = 1;
-    let raf = 0;
-    const tick = () => {
-      const speed = Math.abs(window.scrollY - last);
-      last = window.scrollY;
-      rate += (1 + Math.min(3, speed / 12) - rate) * 0.08;
-      track.getAnimations().forEach((a) => (a.playbackRate = rate));
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [pathname]);
-}
-
 function useSectionSpy(pathname: string) {
   useEffect(() => {
     const links = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[data-spy]"));
@@ -271,7 +251,6 @@ export function ScrollFx() {
   useEasedScroll();
   useReveals(pathname);
   useParallax(pathname);
-  useTickerVelocity(pathname);
   useSectionSpy(pathname);
   return null;
 }

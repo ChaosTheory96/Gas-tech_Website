@@ -7,6 +7,7 @@ import { EnquiryProvider } from "@/components/enquiry";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { ScrollFx } from "@/components/ScrollFx";
+import { CursorSmoke } from "@/components/CursorSmoke";
 import { Preloader } from "@/components/preloader";
 import { FxBootstrap, ScrollProgressBar, PageTransition, HashScroller } from "@/components/fx";
 
@@ -79,6 +80,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <PageTransition>{children}</PageTransition>
             <Footer />
             <ScrollFx />
+            <CursorSmoke />
           </EnquiryProvider>
         </MotionConfig>
       </body>

@@ -121,8 +121,7 @@ export default function BrandsPage() {
             <span className="line"><em>We Represent</em></span>
           </>}
           lede={<>Gastech Combustions is the Pune-based representative for world-class combustion and gas-safety manufacturers. We supply, size, install and service their equipment, and put the right brand and model against your duty.</>}
-          primary={<a className="btn btn--primary" href="#pf">Explore the brands <Icon name="arrow" /></a>}
-          secondary={<EnquiryButton className="btn--tech" type="technical" product="Brand enquiry" icon="chat">Talk to a brand specialist</EnquiryButton>}
+          primary={<EnquiryButton className="btn btn--primary" type="technical" product="Brand enquiry" icon="chat">Talk to a brand specialist</EnquiryButton>}
           asideBare
           aside={<BrandBento ids={BRAND_IDS} label="Brands in the Gastech range" />}
         />

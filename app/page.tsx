@@ -4,7 +4,7 @@ import { SITE, BRAND, PF_FACTS, SERVICE_LINES, REPRESENTED_BRAND_LIST, type Bran
 import { getProduct } from "@/lib/products";
 import { siteGraph, breadcrumbSchema } from "@/lib/schema";
 import { Icon } from "@/components/icons";
-import { Marquee, SectionHead, JsonLd } from "@/components/blocks";
+import { SectionHead, JsonLd } from "@/components/blocks";
 import type { ConveyorItem } from "@/components/CapabilityConveyor";
 import { CapabilityConveyor } from "@/components/CapabilityConveyor";
 import { HomeHero, type HeroCard } from "@/components/HomeHero";
@@ -64,11 +64,9 @@ export default function HomePage() {
       <main id="main">
         {/* GSAP scroll choreography for this page (null-render; SSR/no-JS safe,
             reduced-motion bails out). Wires the existing data-reveal / data-stagger
-            hooks plus subtle media parallax and a velocity-reactive ticker. */}
+            hooks plus subtle media parallax. */}
         {/* HERO */}
         <HomeHero cards={HERO_CARDS} />
-
-        <div id="ticker"><Marquee /></div>
 
         {/* STATEMENT */}
         <section className="sec statement" aria-labelledby="statement-h">
