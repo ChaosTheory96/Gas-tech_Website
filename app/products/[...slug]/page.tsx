@@ -9,7 +9,7 @@ import ProductPage, { productMetadata, segmentsUnder } from "@/components/Produc
 
 const PREFIX = "/products/";
 
-type Ctx = { params: { slug: string[] } };
+type Ctx = { params: Promise<{ slug: string[] }> };
 
 /* Every URL under /products/ is a real product in lib/products.ts, so a path
    that is not in generateStaticParams is not a page and must answer 404. Left
@@ -22,13 +22,13 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Ctx): Promise<Metadata> {
-  const p = getProductByRoute(PREFIX, params.slug);
+  const p = getProductByRoute(PREFIX, (await params).slug);
   if (!p) return {};
   return productMetadata(p);
 }
 
-export default function ProductHubChild({ params }: Ctx) {
-  const p = getProductByRoute(PREFIX, params.slug);
+export default async function ProductHubChild({ params }: Ctx) {
+  const p = getProductByRoute(PREFIX, (await params).slug);
   if (!p) notFound();
   return <ProductPage p={p} />;
 }

@@ -8,7 +8,7 @@ import ProductPage, { productMetadata, segmentsUnder } from "@/components/Produc
 
 const PREFIX = "/brands/";
 
-type Ctx = { params: { slug: string[] } };
+type Ctx = { params: Promise<{ slug: string[] }> };
 
 /* Same guard as the /products/ catch-all: only routes that exist in
    lib/products.ts are served, anything else is a clean 404 rather than a 200
@@ -20,13 +20,13 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Ctx): Promise<Metadata> {
-  const p = getProductByRoute(PREFIX, params.slug);
+  const p = getProductByRoute(PREFIX, (await params).slug);
   if (!p) return {};
   return productMetadata(p);
 }
 
-export default function BrandChild({ params }: Ctx) {
-  const p = getProductByRoute(PREFIX, params.slug);
+export default async function BrandChild({ params }: Ctx) {
+  const p = getProductByRoute(PREFIX, (await params).slug);
   if (!p) notFound();
   return <ProductPage p={p} />;
 }
